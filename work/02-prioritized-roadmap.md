@@ -6,13 +6,13 @@ Only shaped feature candidates should appear here.
 
 | Feature | Why now | Development basis |
 |---|---|---|
-| Project harness setup | Establish planning and implementation control before coding | `docs/harness`, `docs/frontend-harness`, `work/` |
+| Backend project scaffold | Required before API/domain implementation | `docs/harness`, `work/03-active-work.md` |
 
 ## Next
 
 | Feature | Why next | Depends on |
 |---|---|---|
-| Backend project scaffold | Required before API/domain implementation | harness approval |
+| Payment authorization | First core transactional workflow | backend scaffold |
 | Frontend project scaffold | Required before admin UI implementation | API contract |
 
 ## Later

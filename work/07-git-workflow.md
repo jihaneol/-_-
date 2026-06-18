@@ -154,7 +154,7 @@ test: add msw-backed payment ui flow
 - [ ] 문서 변경과 코드 변경이 너무 섞이지 않았다.
 - [ ] 관련 테스트 또는 검증을 실행했다.
 - [ ] 검증하지 못했다면 커밋 본문이나 작업 로그에 이유를 남겼다.
-- [ ] `work/06-change-log.md`에 의미 있는 완료 작업을 기록했다.
+- [ ] Obsidian 작업기록에 의미 있는 완료 작업을 기록했다.
 - [ ] 수정 이유와 완료 기록을 Obsidian에 정리했다.
 
 ## Do Not Commit

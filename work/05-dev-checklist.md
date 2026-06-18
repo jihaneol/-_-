@@ -18,7 +18,7 @@ Use this checklist before and after implementing any feature.
 - [ ] Update API contract if endpoints change.
 - [ ] Update frontend state contract if query keys or mutations change.
 - [ ] Add or update tests with the implementation.
-- [ ] Record accepted tradeoffs in `04-decision-log.md`.
+- [ ] Record accepted tradeoffs in Obsidian decision log.
 - [ ] Record why the work changed in Obsidian build log.
 
 ## After Coding
@@ -26,7 +26,6 @@ Use this checklist before and after implementing any feature.
 - [ ] Run relevant backend checks.
 - [ ] Run relevant frontend checks.
 - [ ] Archive completed work to Obsidian.
-- [ ] Update `06-change-log.md` with only the latest local summary.
 - [ ] Update `03-active-work.md` with the next current work or final status.
 - [ ] Move follow-up ideas back to `00-inbox.md`.
 - [ ] Delete completed temporary work files only after Obsidian has the record.
