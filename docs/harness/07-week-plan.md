@@ -4,7 +4,7 @@
 
 - Finalize harness docs.
 - Create Spring Boot project.
-- Create DDD/hexagonal package structure.
+- Create DDD/hexagonal multi-module structure.
 - Add MySQL Docker Compose.
 - Add schema migrations.
 
@@ -12,6 +12,7 @@
 
 - Implement authorization API.
 - Persist payment and ledger.
+- Split command use cases from query use cases.
 - Add Behavior-style domain tests.
 - Add application tests with MockK.
 
@@ -31,6 +32,7 @@
 
 - Implement settlement batch.
 - Implement reconciliation report.
+- Add QueryDSL read adapters for reporting/query screens.
 - Add batch/reconciliation tests.
 
 ## Day 6

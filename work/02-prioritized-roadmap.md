@@ -6,14 +6,14 @@ Only shaped feature candidates should appear here.
 
 | Feature | Why now | Development basis |
 |---|---|---|
-| Payment authorization | First core transactional workflow | `docs/harness`, `work/03-active-work.md` |
+| Payment idempotency and ledger | Strengthen the first payment workflow with duplicate prevention and immutable records | `docs/harness`, `work/03-active-work.md` |
 
 ## Next
 
 | Feature | Why next | Depends on |
 |---|---|---|
-| Payment authorization API | Expose the first core workflow through HTTP | payment authorization use case |
-| Frontend project scaffold | Required before admin UI implementation | API contract |
+| Payment cancellation | First corrective workflow after authorization | payment idempotency and ledger |
+| Frontend project scaffold | Required before admin UI implementation | backend scaffold merged or API contract stable enough for MSW |
 
 ## Later
 

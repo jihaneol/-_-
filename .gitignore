@@ -10,7 +10,7 @@
 
 # Build outputs
 build/
-out/
+/out/
 .gradle/
 node_modules/
 dist/

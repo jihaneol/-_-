@@ -9,7 +9,7 @@
 
 ## Domain Tests
 
-Write Behavior-style tests without Spring.
+Write Behavior-style tests in the `domain` module without Spring.
 
 - Given an authorized payment, when cancellation is requested, then status becomes `CANCELLED` and a cancellation event is recorded.
 - Given a cancelled payment, when cancellation is requested again, then the domain rejects it.
@@ -18,14 +18,20 @@ Write Behavior-style tests without Spring.
 
 ## Application Use Case Tests
 
-Use MockK for outbound ports.
+Use MockK for outbound ports in the `application` module.
 
 - Mock `LoadPaymentPort`, `SavePaymentPort`, `AppendLedgerPort`, and `SaveOutboxEventPort`.
 - Verify transaction-facing orchestration decisions at the use case boundary.
 - Do not mock the domain aggregate.
+- Test command use cases separately from query use cases.
+- Query use case tests verify query port calls and projection contracts.
 
 ## Integration Tests
 
+- Keep web slice tests in the `controller` module.
+- Keep outbound adapter tests in the `external` module.
+- Keep full Spring Boot context tests in the `bootstrap` module.
+- Test QueryDSL read adapters in the `external` module when query shape, joins, filtering, sorting, or pagination matters.
 - Authorize payment persists payment and ledger atomically.
 - Duplicate idempotency key returns the existing payment.
 - Cancel payment appends cancellation ledger row.

@@ -21,6 +21,7 @@ type/short-topic
 ```text
 docs/harness-update
 chore/project-scaffold
+chore/frontend-scaffold
 feat/payment-authorization
 feat/payment-cancellation
 feat/settlement-batch
@@ -28,6 +29,43 @@ feat/reconciliation
 feat/admin-payment-page
 test/payment-concurrency
 refactor/payment-domain
+```
+
+## Frontend Branch Rule
+
+프론트 작업은 백엔드 작업과 분리한다.
+
+권장 순서:
+
+```text
+main
+  -> chore/project-scaffold
+  -> chore/frontend-scaffold
+```
+
+백엔드 스캐폴딩이 `main`에 반영된 뒤라면:
+
+```text
+main
+  -> chore/frontend-scaffold
+```
+
+규칙:
+
+- React/Vite 초기 생성은 `chore/frontend-scaffold`에서 한다.
+- 프론트 기능 구현은 스캐폴딩과 분리해 `feat/*` 브랜치에서 한다.
+- API 계약이 아직 없으면 실제 API 연동 대신 MSW mock과 화면 구조까지만 만든다.
+- 백엔드 기능 브랜치와 프론트 기능 브랜치를 한 브랜치에 섞지 않는다.
+
+프론트 브랜치 예시:
+
+```text
+chore/frontend-scaffold
+feat/admin-dashboard
+feat/payment-admin-page
+feat/settlement-screen
+feat/reconciliation-screen
+test/payment-ui-flow
 ```
 
 ## Work Unit Rule
@@ -146,6 +184,8 @@ feat: 결제 관리자 페이지 추가
 feat: 정산과 대사 화면 추가
 test: MSW 기반 결제 UI 흐름 추가
 ```
+
+프론트 작업은 `work/03-active-work.md`가 프론트 스캐폴딩이나 프론트 기능 작업으로 바뀐 뒤 시작한다.
 
 ## Commit Before Checklist
 

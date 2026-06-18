@@ -4,9 +4,10 @@
 |---|---|---|
 | Kotlin + Spring Boot | Payment REST API | Source code, API tests |
 | DDD | Aggregates, value objects, invariants | Domain tests |
-| Hexagonal architecture | Inbound/outbound ports and adapters | Package structure, architecture notes |
+| Hexagonal architecture | `domain`, `application`, `controller`, `external`, `bootstrap` Gradle modules | Module dependencies, architecture notes |
+| CQRS | Separate command/query use cases, ports, and adapters | Command domain tests, QueryDSL adapter tests |
 | RDBMS modeling | MySQL schema for merchant, payment, ledger, settlement | ERD, migration files |
-| Query optimization | Indexes for merchant/date/status lookup | Query-plan note |
+| Query optimization | QueryDSL read adapters and indexes for merchant/date/status lookup | Query-plan note |
 | Complex business logic | Authorize, cancel, settle, reconcile | Behavior-style domain tests |
 | Concurrency | Idempotency key and locking strategy | Race-condition test |
 | Transaction handling | Atomic payment state + ledger write | Integration test |

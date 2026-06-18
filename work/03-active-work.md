@@ -8,24 +8,23 @@ Do not start coding a new feature unless it is summarized here.
 
 ### Title
 
-Payment authorization use case
+Payment idempotency and ledger
 
 ### Goal
 
-Implement the first core transactional workflow: payment authorization.
+Strengthen the Starbucks coupon payment order workflow with duplicate request prevention and immutable payment ledger records.
 
 ### In Scope
 
-- Payment authorization command model.
-- Payment aggregate authorization behavior.
-- Application inbound port for authorization.
-- Outbound ports required to save payment and ledger records.
-- MockK application use case test.
-- BehaviorSpec domain test for authorization rules.
+- Idempotency behavior for Starbucks coupon order/payment requests.
+- Immutable payment ledger domain model.
+- Append ledger outbound port.
+- In-memory ledger adapter.
+- Tests proving duplicate requests do not create duplicate payment/ledger records.
+- BehaviorSpec tests for ledger append rules.
 
 ### Out of Scope
 
-- HTTP authorization API.
 - Payment cancellation.
 - Settlement batch.
 - Reconciliation report.
@@ -46,21 +45,21 @@ Implement the first core transactional workflow: payment authorization.
 
 ### Implementation Tasks
 
-- [ ] Define authorization command and result models.
-- [ ] Add payment authorization behavior to the aggregate.
-- [ ] Add inbound authorization use case contract.
-- [ ] Add required outbound ports.
-- [ ] Add BehaviorSpec domain tests.
-- [ ] Add MockK application use case tests.
+- [ ] Define immutable payment ledger model.
+- [ ] Add ledger append outbound port.
+- [ ] Add in-memory ledger adapter.
+- [ ] Add idempotency lookup/store behavior.
+- [ ] Add duplicate request tests.
+- [ ] Add ledger append tests.
 
 ### Acceptance Criteria
 
-- [ ] Authorization creates an authorized payment domain object.
-- [ ] Invalid amount or blank required identifiers are rejected.
-- [ ] Application use case coordinates domain and outbound ports without web or persistence leakage.
+- [ ] Same idempotency key does not create duplicate payment records.
+- [ ] Authorized payment writes an immutable ledger record.
+- [ ] Duplicate request behavior is covered by tests.
 - [ ] Tests pass with `./gradlew test`.
 
 ### Verification
 
-- Run `./gradlew test`.
+- Run `JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test`.
 - Record result in Obsidian build log.

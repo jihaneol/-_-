@@ -14,6 +14,47 @@
 }
 ```
 
+## Place Starbucks Coupon Order
+
+`POST /api/starbucks-coupon-orders`
+
+This is the first concrete payment scenario. It simulates a Starbucks coupon order, approves payment through a mock external payment port, and accrues coupons after payment approval.
+
+Request:
+
+```json
+{
+  "customerId": "customer-001",
+  "orderId": "order-0001",
+  "idempotencyKey": "order-20260618-0001",
+  "quantity": 2
+}
+```
+
+Success:
+
+```json
+{
+  "orderId": "order-0001",
+  "paymentId": "pay_1",
+  "paymentStatus": "AUTHORIZED",
+  "amount": 10000,
+  "currency": "KRW",
+  "couponIds": [
+    "starbucks_coupon_1",
+    "starbucks_coupon_2"
+  ]
+}
+```
+
+Implementation notes:
+
+- Starbucks coupon unit amount: `5000 KRW`.
+- External payment is represented by `ExternalPaymentPort`.
+- The mock external payment adapter waits for `300ms`.
+- Coupon accrual is represented by `AccrueCouponPort`.
+- Current persistence is in-memory; durable persistence and ledger records are next scope.
+
 Success:
 
 ```json
@@ -53,3 +94,4 @@ Success:
 - Payment already cancelled.
 - Amount must be positive.
 - Merchant not found.
+- Starbucks coupon quantity must be positive.

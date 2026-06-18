@@ -13,6 +13,7 @@
 - Docker Compose local environment.
 - DDD aggregate and value object model.
 - Hexagonal package structure with ports and adapters.
+- CQRS split between command use cases and QueryDSL-based query use cases.
 - Behavior-style unit/application tests.
 - MockK for mocked outbound ports.
 - Integration tests.
