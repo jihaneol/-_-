@@ -56,15 +56,11 @@ refactor/payment-domain
 type: imperative summary
 ```
 
-본문이 필요하면:
+본문은 필요한 경우에만 짧게 쓴다:
 
 ```text
 type: imperative summary
 
-- What changed:
-- Why:
-- Work:
-- Obsidian:
 - Verified:
 ```
 
@@ -74,8 +70,9 @@ type: imperative summary
 - 제목은 72자 안쪽으로 유지한다.
 - 제목은 명령형으로 쓴다.
 - 한 커밋에는 하나의 의도만 담는다.
-- 테스트나 검증을 했다면 본문에 `Verified:`를 남긴다.
-- 완료 작업 커밋은 본문에 `Work:`와 `Obsidian:`을 남긴다.
+- 테스트나 검증을 했다면 필요할 때만 본문에 `Verified:`를 남긴다.
+- 완료 작업의 상세 설명은 Git 커밋 본문이 아니라 Obsidian에 남긴다.
+- Obsidian에는 나중에 추적할 수 있도록 `commit hash + title`만 연결한다.
 
 ## Commit Examples
 
@@ -156,8 +153,8 @@ test: add msw-backed payment ui flow
 - [ ] 불필요한 IDE/local 파일이 포함되지 않았다.
 - [ ] 문서 변경과 코드 변경이 너무 섞이지 않았다.
 - [ ] 관련 테스트 또는 검증을 실행했다.
-- [ ] 검증하지 못했다면 커밋 본문이나 작업 로그에 이유를 남겼다.
-- [ ] Obsidian 작업기록에 작업 목적, 변경 내용, 검증, 다음 작업, Git 커밋을 구별 가능하게 기록했다.
+- [ ] 검증하지 못했다면 Obsidian 작업기록에 이유를 남겼다.
+- [ ] Obsidian 작업기록에 작업 목적, 변경 내용, 검증, 다음 작업, Git 커밋 해시와 제목을 기록했다.
 - [ ] 수정 이유와 완료 기록을 Obsidian에 정리했다.
 
 ## Do Not Commit
@@ -183,38 +180,34 @@ bb67b22 Initialize project planning harness
 
 문서나 작업 기준이 바뀌는 커밋은 Obsidian 작업기록에도 같은 이유를 남긴다.
 
-권장 커밋 본문:
+권장 커밋:
 
 ```text
 docs: update active work policy
-
-- What changed:
-- Why:
-- Work:
-- Obsidian:
-- Verified:
 ```
 
 ## Git Log Rule
 
-작업 완료 커밋은 나중에 `git log`만 봐도 어떤 작업인지 구별 가능해야 한다.
+Git 커밋은 짧고 명확하게 유지한다. 상세한 작업 설명은 Obsidian에 남긴다.
 
-권장 상세 커밋 예시:
+권장 커밋 예시:
 
 ```text
 feat: add payment authorization use case
-
-- Work: Payment authorization use case
-- What changed: added Payment aggregate authorization behavior and application use case
-- Why: first core transaction flow for the KakaoPay payment-service portfolio target
-- Obsidian: 07.Build Logs/card-service/작업기록.md#YYYY-MM-DD---Payment-authorization-use-case-완료
-- Verified: ./gradlew test
 ```
 
-검증하지 못한 경우:
+Obsidian 작업기록에는 이 정도만 Git 연결값으로 남긴다:
 
 ```text
-- Verified: not run, Gradle scaffold is not created yet
+Git:
+- Commit: `abc1234 feat: add payment authorization use case`
 ```
 
-작업이 여러 커밋으로 나뉘면 마지막 완료 커밋 또는 별도 문서 커밋에 전체 요약과 Obsidian 경로를 남긴다.
+작업이 여러 커밋으로 나뉘면 관련 커밋을 짧게 나열한다.
+
+```text
+Git:
+- `abc1234 feat: add payment domain model`
+- `def5678 feat: add payment authorization use case`
+- `fed9876 test: cover payment authorization`
+```
