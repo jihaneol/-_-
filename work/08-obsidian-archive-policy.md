@@ -103,7 +103,7 @@ Local files:
 - 변경된 주요 로컬 파일 경로.
 
 Git:
-- Commit: `short-hash type: 한국어 요약 / English summary`
+- Commit: `short-hash type: 커밋 제목`
 
 Verified:
 - 실행한 명령:
@@ -132,7 +132,7 @@ Next:
 
 1. Obsidian `07.Build Logs/card-service/작업기록.md`에 완료 내용을 정리한다.
 2. Obsidian `09.Context Handoffs/01.Active Work/card-service/현재작업.md`에 최종 상태와 다음 작업을 남긴다.
-3. 완료 커밋의 짧은 해시와 한글+영어 제목을 Obsidian 작업기록에 추가한다.
+3. 완료 커밋의 짧은 해시와 제목을 Obsidian 작업기록에 추가한다.
 4. 프로젝트 `work/03-active-work.md`는 다음 작업 기준으로 교체한다.
 5. 완료된 임시 작업 파일이 있다면 삭제한다.
 6. 삭제 전 필요한 내용은 Obsidian에 이미 있어야 한다.

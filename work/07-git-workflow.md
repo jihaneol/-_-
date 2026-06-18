@@ -40,26 +40,26 @@ refactor/payment-domain
 
 | Unit | Meaning | Example |
 |---|---|---|
-| docs | 하네스, 기획, 의사결정 문서 | `docs: define payment API contract` |
-| chore | 프로젝트 설정, 빌드, 도구 | `chore: scaffold spring boot project` |
-| feat | 사용자/운영자 기능 | `feat: add payment authorization use case` |
-| test | 테스트 추가/보강 | `test: cover duplicate authorization requests` |
-| refactor | 동작 변경 없는 구조 개선 | `refactor: isolate payment outbound ports` |
-| fix | 버그 수정 | `fix: prevent duplicate ledger append` |
-| perf | 성능 개선 | `perf: add settlement query index` |
+| docs | 하네스, 기획, 의사결정 문서 | `docs: Payment API 계약 정의` |
+| chore | 프로젝트 설정, 빌드, 도구 | `chore: Spring Boot 프로젝트 생성` |
+| feat | 사용자/운영자 기능 | `feat: 결제 승인 유스케이스 추가` |
+| test | 테스트 추가/보강 | `test: 중복 결제 요청 검증` |
+| refactor | 동작 변경 없는 구조 개선 | `refactor: 결제 Port 분리` |
+| fix | 버그 수정 | `fix: 중복 원장 기록 방지` |
+| perf | 성능 개선 | `perf: 정산 조회 인덱스 추가` |
 
 ## Commit Message Format
 
 형식:
 
 ```text
-type: 한국어 요약 / English summary
+type: 한국어 요약
 ```
 
 본문은 필요한 경우에만 짧게 쓴다:
 
 ```text
-type: 한국어 요약 / English summary
+type: 한국어 요약
 
 - Verified:
 ```
@@ -67,32 +67,32 @@ type: 한국어 요약 / English summary
 규칙:
 
 - 영어 소문자 `type`을 사용한다.
-- 제목은 짧게 유지하되, 한글 요약과 영어 요약을 모두 넣는다.
-- 한글을 먼저 쓰고 영어를 뒤에 쓴다.
+- 제목은 짧게 유지하고 기본은 한글로 쓴다.
+- 영어는 `Spring Boot`, `MockK`, `Payment`, `API`, `MSW`, `Testcontainers`처럼 기술명이나 검색에 필요한 용어에만 섞는다.
 - 한 커밋에는 하나의 의도만 담는다.
 - 테스트나 검증을 했다면 필요할 때만 본문에 `Verified:`를 남긴다.
 - 완료 작업의 상세 설명은 Git 커밋 본문이 아니라 Obsidian에 남긴다.
-- Obsidian에는 나중에 추적할 수 있도록 `commit hash + bilingual title`만 연결한다.
+- Obsidian에는 나중에 추적할 수 있도록 `commit hash + title`만 연결한다.
 
 ## Commit Examples
 
 ```text
-docs: 하네스 템플릿 추가 / add reusable harness templates
-docs: 카카오페이 결제 범위 정의 / define kakaopay payment scope
-chore: 백엔드 프로젝트 생성 / scaffold kotlin spring boot backend
-chore: MySQL 도커 컴포즈 추가 / add mysql docker compose
-feat: 결제 승인 애그리거트 추가 / add payment authorization aggregate
-feat: 결제 승인 API 공개 / expose payment authorization api
-feat: 결제 취소 유스케이스 추가 / add payment cancellation use case
-feat: 일별 정산 배치 추가 / add daily settlement batch
-feat: 원장 대사 리포트 추가 / add ledger reconciliation report
-feat: 결제 관리자 대시보드 추가 / add payment admin dashboard
-test: 결제 행위 테스트 추가 / add payment behavior specs
-test: 중복 결제 승인 검증 / cover duplicate payment authorization
-test: 정산 통합 테스트 추가 / add settlement integration test
-refactor: 결제 포트 분리 / separate payment ports
-fix: 취소된 결제 재취소 방지 / reject recancelling payment
-perf: 가맹점 결제 조회 인덱스 추가 / add merchant payment lookup index
+docs: 하네스 템플릿 추가
+docs: 카카오페이 결제 범위 정의
+chore: Kotlin Spring Boot 백엔드 생성
+chore: MySQL Docker Compose 추가
+feat: 결제 승인 Aggregate 추가
+feat: 결제 승인 API 공개
+feat: 결제 취소 유스케이스 추가
+feat: 일별 정산 배치 추가
+feat: 원장 대사 리포트 추가
+feat: 결제 관리자 대시보드 추가
+test: 결제 BehaviorSpec 추가
+test: 중복 결제 승인 검증
+test: 정산 통합 테스트 추가
+refactor: 결제 Port 분리
+fix: 취소된 결제 재취소 방지
+perf: 가맹점 결제 조회 인덱스 추가
 ```
 
 ## Suggested Development Sequence
@@ -100,51 +100,51 @@ perf: 가맹점 결제 조회 인덱스 추가 / add merchant payment lookup ind
 ### 1. Planning
 
 ```text
-docs: 백엔드 스캐폴딩 작업 설정 / set backend scaffold work
+docs: 백엔드 스캐폴딩 작업 설정
 ```
 
 ### 2. Backend Scaffold
 
 ```text
-chore: 백엔드 프로젝트 생성 / scaffold kotlin spring boot backend
-chore: MySQL 도커 컴포즈 추가 / add mysql docker compose
-chore: 테스트 도구 설정 / configure kotest mockk and testcontainers
+chore: Kotlin Spring Boot 백엔드 생성
+chore: MySQL Docker Compose 추가
+chore: Kotest MockK Testcontainers 설정
 ```
 
 ### 3. Payment Core
 
 ```text
-feat: 결제 도메인 모델 추가 / add payment domain model
-test: 결제 행위 테스트 추가 / add payment behavior specs
-feat: 결제 승인 유스케이스 추가 / add payment authorization use case
-feat: 결제 승인 API 공개 / expose payment authorization api
-test: 결제 승인 통합 테스트 추가 / add payment authorization integration test
+feat: Payment 도메인 모델 추가
+test: 결제 BehaviorSpec 추가
+feat: 결제 승인 유스케이스 추가
+feat: 결제 승인 API 공개
+test: 결제 승인 통합 테스트 추가
 ```
 
 ### 4. Corrective Flow
 
 ```text
-feat: 결제 취소 유스케이스 추가 / add payment cancellation use case
-test: 결제 취소 규칙 검증 / cover payment cancellation rules
-feat: 결제 취소 API 공개 / expose payment cancellation api
+feat: 결제 취소 유스케이스 추가
+test: 결제 취소 규칙 검증
+feat: 결제 취소 API 공개
 ```
 
 ### 5. Consistency
 
 ```text
-feat: 불변 결제 원장 추가 / add immutable payment ledger
-test: 중복 결제 승인 검증 / cover duplicate payment authorization
-feat: 일별 정산 배치 추가 / add daily settlement batch
-feat: 대사 리포트 추가 / add reconciliation report
+feat: 불변 결제 원장 추가
+test: 중복 결제 승인 검증
+feat: 일별 정산 배치 추가
+feat: 대사 리포트 추가
 ```
 
 ### 6. Frontend
 
 ```text
-chore: 리액트 관리자 프론트 생성 / scaffold react admin frontend
-feat: 결제 관리자 페이지 추가 / add payment admin page
-feat: 정산과 대사 화면 추가 / add settlement and reconciliation screens
-test: MSW 기반 결제 UI 흐름 추가 / add msw-backed payment ui flow
+chore: React 관리자 프론트 생성
+feat: 결제 관리자 페이지 추가
+feat: 정산과 대사 화면 추가
+test: MSW 기반 결제 UI 흐름 추가
 ```
 
 ## Commit Before Checklist
@@ -183,7 +183,7 @@ bb67b22 Initialize project planning harness
 권장 커밋:
 
 ```text
-docs: 현재 작업 정책 수정 / update active work policy
+docs: 현재 작업 정책 수정
 ```
 
 ## Git Log Rule
@@ -193,21 +193,21 @@ Git 커밋은 짧고 명확하게 유지한다. 상세한 작업 설명은 Obsid
 권장 커밋 예시:
 
 ```text
-feat: 결제 승인 유스케이스 추가 / add payment authorization use case
+feat: 결제 승인 유스케이스 추가
 ```
 
 Obsidian 작업기록에는 이 정도만 Git 연결값으로 남긴다:
 
 ```text
 Git:
-- Commit: `abc1234 feat: 결제 승인 유스케이스 추가 / add payment authorization use case`
+- Commit: `abc1234 feat: 결제 승인 유스케이스 추가`
 ```
 
 작업이 여러 커밋으로 나뉘면 관련 커밋을 짧게 나열한다.
 
 ```text
 Git:
-- `abc1234 feat: 결제 도메인 모델 추가 / add payment domain model`
-- `def5678 feat: 결제 승인 유스케이스 추가 / add payment authorization use case`
-- `fed9876 test: 결제 승인 검증 / cover payment authorization`
+- `abc1234 feat: Payment 도메인 모델 추가`
+- `def5678 feat: 결제 승인 유스케이스 추가`
+- `fed9876 test: 결제 승인 검증`
 ```
