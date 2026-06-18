@@ -35,6 +35,8 @@ Create a repeatable Markdown workflow that captures new ideas, shapes feature sc
 - `docs/frontend-harness`
 - `docs/harness-templates`
 - `work`
+- `work/07-git-workflow.md`
+- `work/08-obsidian-archive-policy.md`
 
 ### Acceptance Criteria
 
@@ -43,6 +45,8 @@ Create a repeatable Markdown workflow that captures new ideas, shapes feature sc
 - Roadmap separates now, next, and later.
 - Active work can be used as the coding contract.
 - Decisions and changes have dedicated logs.
+- Git workflow, commit types, and commit message rules are documented.
+- Obsidian archive policy is documented.
 
 ### Verification
 
