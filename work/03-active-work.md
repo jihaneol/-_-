@@ -8,41 +8,37 @@ Do not start coding a new feature unless it is summarized here.
 
 ### Title
 
-Backend project scaffold
+Payment authorization use case
 
 ### Goal
 
-Create the initial Kotlin Spring Boot backend project structure for `card-service` using DDD and hexagonal architecture.
+Implement the first core transactional workflow: payment authorization.
 
 ### In Scope
 
-- Gradle Kotlin project scaffold.
-- Spring Boot backend module.
-- DDD/hexagonal package structure.
-- MySQL Docker Compose setup.
-- Flyway or equivalent migration baseline.
-- Kotest BehaviorSpec setup.
-- MockK setup.
-- Testcontainers setup for MySQL integration tests.
-- Basic application health check.
-- Initial `Payment` aggregate skeleton.
+- Payment authorization command model.
+- Payment aggregate authorization behavior.
+- Application inbound port for authorization.
+- Outbound ports required to save payment and ledger records.
+- MockK application use case test.
+- BehaviorSpec domain test for authorization rules.
 
 ### Out of Scope
 
-- Payment authorization API implementation.
-- Payment cancellation API implementation.
+- HTTP authorization API.
+- Payment cancellation.
 - Settlement batch.
 - Reconciliation report.
 - Kafka/RabbitMQ or transactional outbox.
-- React frontend scaffold.
+- React frontend.
 - Real card network or VAN integration.
 
 ### Development Basis
 
 - `docs/harness/03-domain-model.md`
+- `docs/harness/04-api-contract.md`
 - `docs/harness/05-architecture.md`
 - `docs/harness/06-test-strategy.md`
-- `docs/harness/07-week-plan.md`
 - `work/02-prioritized-roadmap.md`
 - `work/05-dev-checklist.md`
 - `work/07-git-workflow.md`
@@ -50,24 +46,21 @@ Create the initial Kotlin Spring Boot backend project structure for `card-servic
 
 ### Implementation Tasks
 
-- [ ] Create backend project files.
-- [ ] Configure Kotlin, Spring Boot, and Gradle.
-- [ ] Add DDD/hexagonal package skeleton.
-- [ ] Add MySQL Docker Compose.
-- [ ] Add migration baseline.
-- [ ] Add Kotest, MockK, and Testcontainers dependencies.
-- [ ] Add one smoke test.
-- [ ] Add initial `Payment` aggregate skeleton.
+- [ ] Define authorization command and result models.
+- [ ] Add payment authorization behavior to the aggregate.
+- [ ] Add inbound authorization use case contract.
+- [ ] Add required outbound ports.
+- [ ] Add BehaviorSpec domain tests.
+- [ ] Add MockK application use case tests.
 
 ### Acceptance Criteria
 
-- [ ] Backend project can compile.
-- [ ] Test command runs successfully.
-- [ ] MySQL test container can start in integration tests.
-- [ ] Package structure matches `docs/harness/05-architecture.md`.
-- [ ] No payment business feature is implemented beyond skeleton scope.
+- [ ] Authorization creates an authorized payment domain object.
+- [ ] Invalid amount or blank required identifiers are rejected.
+- [ ] Application use case coordinates domain and outbound ports without web or persistence leakage.
+- [ ] Tests pass with `./gradlew test`.
 
 ### Verification
 
-- Run backend build/test command after scaffolding.
+- Run `./gradlew test`.
 - Record result in Obsidian build log.

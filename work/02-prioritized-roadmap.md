@@ -6,13 +6,13 @@ Only shaped feature candidates should appear here.
 
 | Feature | Why now | Development basis |
 |---|---|---|
-| Backend project scaffold | Required before API/domain implementation | `docs/harness`, `work/03-active-work.md` |
+| Payment authorization | First core transactional workflow | `docs/harness`, `work/03-active-work.md` |
 
 ## Next
 
 | Feature | Why next | Depends on |
 |---|---|---|
-| Payment authorization | First core transactional workflow | backend scaffold |
+| Payment authorization API | Expose the first core workflow through HTTP | payment authorization use case |
 | Frontend project scaffold | Required before admin UI implementation | API contract |
 
 ## Later
