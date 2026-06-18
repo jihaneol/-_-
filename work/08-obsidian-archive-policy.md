@@ -15,9 +15,17 @@
 프로젝트별 사용 위치:
 
 ```text
-07.Build Logs/카드 서비스 작업기록.md
-09.Context Handoffs/01.Active Work/card-service.md
-04.Decisions/카드 서비스 결정 기록.md
+07.Build Logs/card-service/작업기록.md
+09.Context Handoffs/01.Active Work/card-service/현재작업.md
+04.Decisions/card-service/결정기록.md
+```
+
+프로젝트별 Obsidian 기록은 반드시 프로젝트 이름 폴더 아래에 둔다. 다른 프로젝트도 같은 패턴을 사용한다.
+
+```text
+07.Build Logs/{project-name}/작업기록.md
+09.Context Handoffs/01.Active Work/{project-name}/현재작업.md
+04.Decisions/{project-name}/결정기록.md
 ```
 
 ## Local Project Files
@@ -52,8 +60,8 @@ Next:
 
 작업이 끝나면:
 
-1. Obsidian `07.Build Logs/카드 서비스 작업기록.md`에 완료 내용을 정리한다.
-2. Obsidian `09.Context Handoffs/01.Active Work/card-service.md`에 최종 상태와 다음 작업을 남긴다.
+1. Obsidian `07.Build Logs/card-service/작업기록.md`에 완료 내용을 정리한다.
+2. Obsidian `09.Context Handoffs/01.Active Work/card-service/현재작업.md`에 최종 상태와 다음 작업을 남긴다.
 3. 프로젝트 `work/03-active-work.md`는 다음 작업 기준으로 교체한다.
 4. 완료된 임시 작업 파일이 있다면 삭제한다.
 5. 삭제 전 필요한 내용은 Obsidian에 이미 있어야 한다.

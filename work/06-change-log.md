@@ -17,6 +17,15 @@ Next:
 
 ## Changes
 
+### 2026-06-18 - Grouped Obsidian records by project
+
+Active work: project planning harness and reusable work intake system  
+Changed: updated Obsidian archive policy so build logs, decisions, and active work records are stored under project-specific `card-service/` folders.  
+Verified: Obsidian files were moved under project folders.  
+Decision links: `04-decision-log.md`  
+Remaining risks: future automation must use the project folder paths.  
+Next: keep all card-service Obsidian records under `card-service/`.
+
 ### 2026-06-18 - Added Obsidian archive policy
 
 Active work: project planning harness and reusable work intake system  

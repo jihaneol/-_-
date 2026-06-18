@@ -34,3 +34,12 @@ Decision: Keep current working contracts in the repository and archive modificat
 Alternatives considered: keep all history in repository Markdown; rely only on Git history.  
 Consequences: every meaningful planning/documentation change should update the Obsidian build log before local cleanup.  
 Follow-up: use `work/08-obsidian-archive-policy.md` before deleting completed work files.
+
+### 2026-06-18 - Use project folders inside Obsidian
+
+Status: accepted  
+Context: Multiple projects will use the same Obsidian Idea Lab areas, so flat files named by project can become hard to scan.  
+Decision: Store card-service Obsidian records under project-specific folders: `07.Build Logs/card-service`, `09.Context Handoffs/01.Active Work/card-service`, and `04.Decisions/card-service`.  
+Alternatives considered: keep Korean project-prefixed filenames in shared folders.  
+Consequences: future project records should use the same `{project-name}/` folder pattern.  
+Follow-up: update any automation or policy references to the nested paths.
