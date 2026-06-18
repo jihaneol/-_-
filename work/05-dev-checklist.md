@@ -25,7 +25,7 @@ Use this checklist before and after implementing any feature.
 
 - [ ] Run relevant backend checks.
 - [ ] Run relevant frontend checks.
-- [ ] Archive completed work to Obsidian.
+- [ ] Archive completed work to Obsidian with summary, changed files, reason, verification, risks, next work, and Git commit.
 - [ ] Update `03-active-work.md` with the next current work or final status.
 - [ ] Move follow-up ideas back to `00-inbox.md`.
 - [ ] Delete completed temporary work files only after Obsidian has the record.

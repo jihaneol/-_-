@@ -48,11 +48,70 @@
 
 ```text
 Date:
+Work:
+Status:
+Summary:
 Changed:
 Why:
+Scope:
 Local files:
+Git:
+Verified:
 Decision:
+Risks:
 Next:
+```
+
+## Completion Record Template
+
+작업 완료 시에는 나중에 비슷한 작업과 구별할 수 있도록 상세히 쓴다.
+
+```md
+## YYYY-MM-DD - 작업명 완료
+
+Work:
+- 작업 ID 또는 작업명:
+- Active work:
+- Branch:
+
+Status:
+- completed
+
+Summary:
+- 한 문장으로 무엇을 끝냈는지 적는다.
+
+Changed:
+- 실제 변경 내용을 파일/영역 기준으로 적는다.
+- 백엔드, 프론트, 문서, 테스트를 구분한다.
+
+Why:
+- 이 작업이 왜 필요했는지 적는다.
+- 채용공고 역량 또는 포트폴리오 증거와 연결한다.
+
+Scope:
+- In scope:
+- Out of scope:
+
+Local files:
+- 변경된 주요 로컬 파일 경로.
+
+Git:
+- Commit:
+- Message:
+
+Verified:
+- 실행한 명령:
+- 결과:
+- 실행하지 못했다면 이유:
+
+Decision:
+- 작업 중 확정한 설계/기획 결정.
+
+Risks:
+- 남은 위험이나 후속 확인 사항.
+
+Next:
+- 다음 작업.
 ```
 
 ## Completion Rule
@@ -61,9 +120,10 @@ Next:
 
 1. Obsidian `07.Build Logs/card-service/작업기록.md`에 완료 내용을 정리한다.
 2. Obsidian `09.Context Handoffs/01.Active Work/card-service/현재작업.md`에 최종 상태와 다음 작업을 남긴다.
-3. 프로젝트 `work/03-active-work.md`는 다음 작업 기준으로 교체한다.
-4. 완료된 임시 작업 파일이 있다면 삭제한다.
-5. 삭제 전 필요한 내용은 Obsidian에 이미 있어야 한다.
+3. 완료 커밋의 해시와 제목을 Obsidian 작업기록에 추가한다.
+4. 프로젝트 `work/03-active-work.md`는 다음 작업 기준으로 교체한다.
+5. 완료된 임시 작업 파일이 있다면 삭제한다.
+6. 삭제 전 필요한 내용은 Obsidian에 이미 있어야 한다.
 
 ## Deletion Rule
 
