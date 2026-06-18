@@ -41,8 +41,8 @@ Implement the first core transactional workflow: payment authorization.
 - `docs/harness/06-test-strategy.md`
 - `work/02-prioritized-roadmap.md`
 - `work/05-dev-checklist.md`
-- `work/07-git-workflow.md`
-- `work/08-obsidian-archive-policy.md`
+- `rules/git-workflow.md`
+- `rules/obsidian-archive-policy.md`
 
 ### Implementation Tasks
 

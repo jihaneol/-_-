@@ -39,8 +39,8 @@
 | `work/02-prioritized-roadmap.md` | 현재 우선순위 최종본 | 변경 이유는 Obsidian에 기록 |
 | `work/03-active-work.md` | 현재 개발 기준 | 작업 완료 후 Obsidian에 보관하고 다음 작업으로 교체 |
 | `work/05-dev-checklist.md` | 현재 체크리스트 최종본 | 변경 이유는 Obsidian에 기록 |
-| `work/07-git-workflow.md` | 현재 Git 규칙 최종본 | 변경 이유는 Obsidian에 기록 |
-| `work/08-obsidian-archive-policy.md` | 현재 Obsidian 보관 규칙 | 변경 이유는 Obsidian에 기록 |
+| `rules/git-workflow.md` | 현재 Git 규칙 최종본 | 변경 이유는 Obsidian에 기록 |
+| `rules/obsidian-archive-policy.md` | 현재 Obsidian 보관 규칙 | 변경 이유는 Obsidian에 기록 |
 
 ## Update Rule
 
@@ -154,9 +154,9 @@ Next:
 - `work/02-prioritized-roadmap.md`
 - `work/03-active-work.md`
 - `work/05-dev-checklist.md`
-- `work/07-git-workflow.md`
-- `work/08-obsidian-archive-policy.md`
 - `work/templates/*`
+- `rules/git-workflow.md`
+- `rules/obsidian-archive-policy.md`
 
 핵심 운영 파일은 삭제하지 않고 현재 최종본으로 갱신한다.
 
