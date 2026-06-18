@@ -44,13 +44,14 @@
 
 ## Update Rule
 
-문서를 수정할 때마다 다음을 Obsidian 작업기록에 남긴다.
+문서를 수정할 때마다 우리 대화에서 나온 결정, 요청, 수정 이유를 기준으로 Obsidian 작업기록에 남긴다.
 
 ```text
 Date:
 Work:
 Status:
 Summary:
+Conversation basis:
 Changed:
 Why:
 Scope:
@@ -58,6 +59,7 @@ Local files:
 Git:
 Verified:
 Decision:
+User reflection:
 Risks:
 Next:
 ```
@@ -79,6 +81,11 @@ Status:
 
 Summary:
 - 한 문장으로 무엇을 끝냈는지 적는다.
+
+Conversation basis:
+- 사용자 요청:
+- 대화에서 확정한 기준:
+- 바뀐 방향:
 
 Changed:
 - 실제 변경 내용을 파일/영역 기준으로 적는다.
@@ -105,6 +112,12 @@ Verified:
 
 Decision:
 - 작업 중 확정한 설계/기획 결정.
+
+User reflection:
+- 어려웠던 부분:
+- 헷갈렸던 부분:
+- 나중에 다시 보고 싶은 포인트:
+- 내가 직접 보강할 내용:
 
 Risks:
 - 남은 위험이나 후속 확인 사항.
