@@ -1,0 +1,22 @@
+.DS_Store
+
+# IDE local state
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/shelf/
+
+# Build outputs
+build/
+out/
+.gradle/
+node_modules/
+dist/
+coverage/
+
+# Local env
+.env
+.env.*
+!.env.example
