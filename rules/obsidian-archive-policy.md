@@ -41,6 +41,10 @@
 | `work/05-dev-checklist.md` | 현재 체크리스트 최종본 | 변경 이유는 Obsidian에 기록 |
 | `AGENT.md` | Codex 프로젝트 운영 진입점 | 변경 이유는 Obsidian에 기록 |
 | `rules/backend-architecture.md` | 백엔드 모듈, CQRS, QueryDSL 규칙 | 변경 이유는 Obsidian에 기록 |
+| `rules/controller-code-rule.md` | 컨트롤러 코드 작성 규칙 | 변경 이유는 Obsidian에 기록 |
+| `rules/error-message-rule.md` | 에러 메시지 작성 규칙 | 변경 이유는 Obsidian에 기록 |
+| `rules/naming-rule.md` | 네이밍과 패키지 구조 규칙 | 변경 이유는 Obsidian에 기록 |
+| `rules/service-code-rule.md` | 서비스 코드 작성 규칙 | 변경 이유는 Obsidian에 기록 |
 | `rules/git-workflow.md` | 현재 Git 규칙 최종본 | 변경 이유는 Obsidian에 기록 |
 | `rules/obsidian-archive-policy.md` | 현재 Obsidian 보관 규칙 | 변경 이유는 Obsidian에 기록 |
 | `rules/work-intake.md` | 기능 접수와 active work 승격 규칙 | 변경 이유는 Obsidian에 기록 |
@@ -160,6 +164,10 @@ Next:
 - `work/templates/*`
 - `AGENT.md`
 - `rules/backend-architecture.md`
+- `rules/controller-code-rule.md`
+- `rules/error-message-rule.md`
+- `rules/naming-rule.md`
+- `rules/service-code-rule.md`
 - `rules/git-workflow.md`
 - `rules/obsidian-archive-policy.md`
 - `rules/work-intake.md`

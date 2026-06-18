@@ -12,11 +12,11 @@ Payment idempotency and ledger
 
 ### Goal
 
-Strengthen the Starbucks coupon payment order workflow with duplicate request prevention and immutable payment ledger records.
+Strengthen the coupon payment order workflow with duplicate request prevention and immutable payment ledger records.
 
 ### In Scope
 
-- Idempotency behavior for Starbucks coupon order/payment requests.
+- Idempotency behavior for coupon order/payment requests.
 - Immutable payment ledger domain model.
 - Append ledger outbound port.
 - In-memory ledger adapter.

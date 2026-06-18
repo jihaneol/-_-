@@ -2,6 +2,16 @@
 
 Use these reviewers as separate passes after milestones.
 
+Reviewer files under `.codex/agents/*.md` are role prompts, not automatic background processes. A reviewer only runs when Codex explicitly spawns a sub-agent with one of these prompts or with an equivalent review request.
+
+Run rule:
+
+- Give the reviewer a narrow scope and concrete files.
+- Ask for findings first, ordered by severity.
+- Ask for file paths and concrete fixes.
+- Do not ask the reviewer to confirm the answer you already want.
+- After the reviewer returns, record important findings in Obsidian.
+
 ## payment-domain-reviewer
 
 When to run:

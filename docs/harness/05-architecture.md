@@ -1,10 +1,12 @@
 # Architecture
 
+Visual diagrams: `docs/harness/10-architecture-diagram.md`
+
 ## Style
 
 Use DDD with hexagonal architecture and CQRS.
 
-The domain model must not depend on Spring, JPA, Kafka/RabbitMQ, or web DTOs. External technologies live in adapters. Application use cases coordinate domain behavior through ports.
+The domain model and JPA entity are intentionally combined in this project. Domain may use JPA annotations, but QueryDSL, persistence adapters, external clients, Kafka/RabbitMQ, and web DTOs stay outside the domain model. Narrow Spring Data `Repository<T, ID>` contracts may live in `application/provided`. Application use cases coordinate domain behavior through ports.
 
 Command workflows create or change state through domain aggregates. Query workflows read projection/read models through QueryDSL and must not mutate domain state.
 
@@ -12,61 +14,67 @@ Command workflows create or change state through domain aggregates. Query workfl
 
 ```text
 card-service
-  domain
-  application
-  controller
-  external
-  bootstrap
+  modules/domain
+  modules/application
+  modules/bootstrap
+  modules/batch
+  modules/infra
+  modules/external
 ```
 
 | Module | Responsibility | Depends on |
 |---|---|---|
-| `domain` | Aggregates, value objects, domain events, domain services | none |
+| `domain` | Aggregates/JPA entities, value objects, domain events, cross-domain domain services | none |
 | `application` | Command/query inbound ports, outbound ports, use cases | `domain` |
-| `controller` | REST and batch inbound adapters | `application`, `domain` |
-| `external` | Persistence, message, external-system outbound adapters | `application`, `domain` |
-| `bootstrap` | Spring Boot application, runtime configuration, resources, module assembly | all runtime modules |
+| `bootstrap` | Spring Boot runtime, REST inbound adapters, global web error handling | `application`, `domain`, `batch`, `infra`, `external` |
+| `batch` | Scheduled/batch inbound adapters for settlement, reconciliation, and operational jobs | `application`, `domain` |
+| `infra` | JPA command persistence and QueryDSL read adapters | `application`, `domain` |
+| `external` | External-system and message adapters | `application`, `domain` |
 
 ## Package Shape
 
 ```text
-domain/src/main/kotlin/com/example/cardservice
-  payment.domain.model
-  payment.domain.event
-  payment.domain.service
+modules/domain/src/main/kotlin/com/example/cardservice/domain
+  payment.model
+  payment.event
+  domainservice.payment
 
-application/src/main/kotlin/com/example/cardservice
-  payment.application.port.in.command
-  payment.application.port.in.query
-  payment.application.port.out.command
-  payment.application.port.out.query
-  payment.application.usecase.command
-  payment.application.usecase.query
+modules/application/src/main/kotlin/com/example/cardservice/application
+  common
+  payment.request
+  payment.response
+  payment.required
+  payment.provided
+  payment
 
-controller/src/main/kotlin/com/example/cardservice
-  payment.adapter.in.web
-  payment.adapter.in.batch
-
-external/src/main/kotlin/com/example/cardservice
-  payment.adapter.out.persistence.command
-  payment.adapter.out.persistence.query
-  payment.adapter.out.message
-
-bootstrap/src/main/kotlin/com/example/cardservice
+modules/bootstrap/src/main/kotlin/com/example/cardservice
   CardServiceApplication
+  web.common
+  web.payment
+
+modules/batch/src/main/kotlin/com/example/cardservice/batch
+  payment
+
+modules/infra/src/main/kotlin/com/example/cardservice/infra
+  payment.persistence
+  payment.query
+
+modules/external/src/main/kotlin/com/example/cardservice/external
+  payment.message
 ```
 
 ## Hexagonal Flow
 
-Command flow:
+Change flow:
 
 ```text
-HTTP / Batch inbound adapter
-  -> command inbound port
-  -> application command use case
-  -> domain aggregate
-  -> command outbound port
-  -> persistence/message adapter saves state
+HTTP inbound adapter
+  -> required use case
+  -> application service
+  -> domain aggregate/JPA entity
+  -> provided port
+  -> infra persistence adapter saves state
+  -> external/message adapter publishes or calls external systems when needed
 ```
 
 Query flow:
@@ -80,11 +88,17 @@ HTTP / Batch inbound adapter
   -> projection / read model response
 ```
 
+Current implementation note:
+
+- The first implemented runtime flow is `POST /api/coupon-orders`.
+- Query use cases and QueryDSL read adapters are rules for the next read-side work item and are not implemented yet.
+- Ledger, settlement, reconciliation, and outbox flows are target architecture until their active work items are selected.
+
 ## Payment Authorization Flow
 
 ```text
 PaymentController
-  -> AuthorizePaymentCommandUseCase
+  -> AuthorizePaymentUseCase
   -> Payment.authorize(...)
   -> SavePaymentPort
   -> AppendLedgerPort
@@ -112,24 +126,36 @@ Application use case
 
 ## Dependency Rules
 
-- `domain` depends on no project module and no Spring/JPA/web/broker library.
-- `application` depends on `domain`; it owns all command/query inbound and outbound port interfaces.
-- `controller` depends inward on `application` and `domain`; it owns web DTOs and request validation.
-- `external` depends inward on `application` and `domain`; it owns command persistence, QueryDSL read adapters, broker, and external client details.
-- `bootstrap` depends on every runtime module and is the only executable Spring Boot module.
+- `domain` depends on no project module and no Spring/web/broker library.
+- Domain aggregate and JPA entity are the same class in this project.
+- JPA annotations may live in `domain`.
+- Narrow Spring Data `Repository<T, ID>` contracts may live in `application/provided`.
+- Persistence adapters and QueryDSL adapters live in `infra`.
+- JPA entity generation follows `rules/jpa-entity-rule.md`.
+- Entity PK column is `id`; duplicate public id columns are not added until there is a clear requirement.
+- Domain value object accessors may be computed properties because JPA field access is explicit; do not add `@get:Transient`.
+- Cross-domain pure domain logic lives under `modules/domain/src/main/kotlin/com/example/cardservice/domain/domainservice`.
+- `application` depends on `domain`; it owns required/provided ports and use case services.
+- `application` owns request/response models used by inbound adapters.
+- `bootstrap` owns HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
+- `batch` owns scheduled/batch inbound adapters and delegates work to application use cases.
+- `infra` depends inward on `application` and `domain`; it owns JPA command persistence and QueryDSL read adapters.
+- `external` depends inward on `application` and `domain`; it owns external-system clients, message adapters, and broker details.
+- `bootstrap` is the only executable Spring Boot module.
 - Web DTOs must not leak into use cases or domain objects.
-- JPA entities must not be the domain model unless the tradeoff is documented.
-- `controller` and `external` must not depend on each other directly.
+- Controller request/response models live under `application/{domain}/request` and `application/{domain}/response`.
+- JPA entities are the domain model in this project. Keep QueryDSL and persistence adapter technology in `infra`.
+- `infra` is the only DB access module. `external` must not contain JPA, QueryDSL, or database repositories.
 
 ## CQRS Rules
 
-- Command use cases handle creation, modification, cancellation, and status changes.
-- Command use cases must load/create domain aggregates, execute domain rules, then save through command outbound ports.
+- Change use cases handle creation, modification, cancellation, and status changes.
+- Change use cases must load/create domain aggregates, execute domain rules, then save through provided ports.
 - Query use cases handle list, detail, search, dashboard, settlement report, and reconciliation report reads.
 - Query use cases must read through query outbound ports backed by QueryDSL adapters.
 - Query responses should be projections/read models, not mutable domain aggregates.
-- Command adapters and query adapters are separated even if they read from the same database.
-- QueryDSL belongs in the `external` module; `domain` and `application` must not depend on QueryDSL.
+- Change persistence adapters and query adapters are separated inside `infra` even if they read from the same database.
+- QueryDSL belongs in the `infra` module; `domain`, `application`, `bootstrap`, `batch`, and `external` must not depend on QueryDSL.
 
 ## Reliability Decisions
 

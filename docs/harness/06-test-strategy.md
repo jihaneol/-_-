@@ -28,10 +28,12 @@ Use MockK for outbound ports in the `application` module.
 
 ## Integration Tests
 
-- Keep web slice tests in the `controller` module.
-- Keep outbound adapter tests in the `external` module.
+- Keep web slice tests in the `bootstrap` module.
+- Keep scheduled/batch adapter tests in the `batch` module.
+- Keep JPA/QueryDSL adapter tests in the `infra` module.
+- Keep external-system/message adapter tests in the `external` module.
 - Keep full Spring Boot context tests in the `bootstrap` module.
-- Test QueryDSL read adapters in the `external` module when query shape, joins, filtering, sorting, or pagination matters.
+- Test QueryDSL read adapters in the `infra` module when query shape, joins, filtering, sorting, or pagination matters.
 - Authorize payment persists payment and ledger atomically.
 - Duplicate idempotency key returns the existing payment.
 - Cancel payment appends cancellation ledger row.

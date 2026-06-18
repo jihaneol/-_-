@@ -21,16 +21,18 @@ Build `card-service` as a payment/card-service portfolio project that proves tra
 - Keep detailed completed-work history in Obsidian, not in local `work/` history files.
 - Keep `work/03-active-work.md` focused on one current implementation contract.
 - Do not start implementation from a new idea until it has moved through the project work intake flow.
+- `.codex/agents/*.md` files are reviewer role prompts. They do not run automatically; spawn a sub-agent explicitly when the user asks for reviewer/sub-agent validation or when a milestone review is needed.
 
 ## Backend Module Boundaries
 
-- `domain`: pure domain model, value objects, domain events, domain services; no Spring or adapter dependencies.
-- `application`: inbound ports, outbound ports, and use cases; depends on `domain`.
-- `controller`: REST/batch inbound adapters and web DTOs; depends on `application` and `domain`.
-- `external`: persistence, message, and external-system outbound adapters; depends on `application` and `domain`.
-- `bootstrap`: executable Spring Boot runtime assembly; depends on the runtime modules.
+- `modules/domain`: domain model and JPA entity combined, value objects, domain events, and cross-domain domain services; no Spring repository or adapter dependencies.
+- `modules/application`: domain-root use case services/models, inbound ports, outbound ports, and API request/response models; depends on `domain`.
+- `modules/bootstrap`: executable Spring Boot runtime assembly and REST inbound adapters; depends on `application`, `domain`, `batch`, `infra`, and `external`.
+- `modules/batch`: scheduled/batch inbound adapters for settlement, reconciliation, and operational jobs; depends on `application` and `domain`.
+- `modules/infra`: JPA/QueryDSL database adapters; depends on `application` and `domain`.
+- `modules/external`: external-system/message adapters; depends on `application` and `domain`.
 
-`controller` and `external` must not depend on each other directly.
+`bootstrap`, `batch`, `infra`, and `external` Gradle module names remain unchanged, but their folders live under `modules/`. Adapter responsibilities stay separate. JPA entity annotations may live in `domain`; narrow Spring Data `Repository<T, ID>` contracts may live in `application/provided`; QueryDSL adapters and persistence adapters live in `infra`.
 
 ## CQRS Rules
 
@@ -80,3 +82,11 @@ When a work item is complete:
 - Obsidian archive policy: `rules/obsidian-archive-policy.md`.
 - Work intake and active-work rule: `rules/work-intake.md`.
 - Backend architecture rule: `rules/backend-architecture.md`.
+- Controller code rule: `rules/controller-code-rule.md`.
+- Comment preservation rule: `rules/comment-preservation-rule.md`.
+- Naming rule: `rules/naming-rule.md`.
+- Enum code rule: `rules/enum-code-rule.md`.
+- JPA entity rule: `rules/jpa-entity-rule.md`.
+- Port/adapter comment rule: `rules/port-adapter-comment-rule.md`.
+- Service code rule: `rules/service-code-rule.md`.
+- Error message rule: `rules/error-message-rule.md`.
