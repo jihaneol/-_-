@@ -1,2 +1,0 @@
--- Baseline migration for the initial scaffold.
--- Domain tables are added with the first feature implementation.

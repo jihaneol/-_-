@@ -1,0 +1,3 @@
+package com.example.cardservice.domain.reconciliation
+
+internal object ReconciliationDomainPackage

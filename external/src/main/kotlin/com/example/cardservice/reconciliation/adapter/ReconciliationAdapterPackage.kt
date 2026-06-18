@@ -1,3 +1,0 @@
-package com.example.cardservice.reconciliation.adapter
-
-internal object ReconciliationAdapterPackage
