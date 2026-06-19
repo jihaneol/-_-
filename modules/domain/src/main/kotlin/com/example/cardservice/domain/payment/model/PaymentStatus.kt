@@ -7,4 +7,5 @@ enum class PaymentStatus(
     CANCELLED("취소 완료"),
     SETTLED("정산 완료"),
     FAILED("실패"),
+    REFUNDED("환불 완료"),
 }

@@ -83,6 +83,11 @@ class Payment protected constructor() {
         this.id = paymentId.value
     }
 
+    fun refund() {
+        require(statusValue == PaymentStatus.AUTHORIZED) { "이미 환불된 결제입니다." }
+        statusValue = PaymentStatus.REFUNDED
+    }
+
     companion object {
         fun authorize(
             merchantId: MerchantId,
