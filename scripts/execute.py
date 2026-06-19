@@ -28,6 +28,8 @@ ARCHIVE_DIR = ROOT / "workflow" / LANE / "archive"
 STATE_FILE = ROOT / "workflow" / LANE / "state" / "execute-state.json"
 RUN_STATE_FILE = ROOT / "workflow" / LANE / "state" / "run-state.md"
 VALIDATE_HOOK = HOOK_DIR / f"validate_{LANE}.sh"
+FEATURE_DIR = ROOT / "workflow" / "features"
+FEATURE_STATE_FILE = FEATURE_DIR / "state" / "execute-state.json"
 LANE_VALIDATE_HOOKS = {
     "backend": HOOK_DIR / "validate_backend.sh",
     "frontend": HOOK_DIR / "validate_frontend.sh",
@@ -73,6 +75,17 @@ def save_state(state: dict) -> None:
     STATE_FILE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
 
 
+def load_feature_state() -> dict:
+    if not FEATURE_STATE_FILE.exists():
+        return {"features": {}}
+    return json.loads(FEATURE_STATE_FILE.read_text())
+
+
+def save_feature_state(state: dict) -> None:
+    FEATURE_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    FEATURE_STATE_FILE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
+
+
 def now_utc() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -87,6 +100,30 @@ def today_text() -> str:
 
 def phase_files() -> list[Path]:
     return sorted(PHASE_DIR.glob("*.md"))
+
+
+def lane_paths(lane: str) -> tuple[Path, Path, Path]:
+    return (
+        ROOT / "workflow" / lane / "phases",
+        ROOT / "workflow" / lane / "archive",
+        ROOT / "workflow" / lane / "state" / "execute-state.json",
+    )
+
+
+def load_lane_state(lane: str) -> dict:
+    _, _, state_file = lane_paths(lane)
+    if not state_file.exists():
+        return {"current_phase": None, "phases": {}}
+    return json.loads(state_file.read_text())
+
+
+def find_lane_phase_path(lane: str, phase_name: str) -> Path | None:
+    phase_dir, archive_dir, _ = lane_paths(lane)
+    active_path = phase_dir / phase_name
+    if active_path.exists():
+        return active_path
+    matches = sorted(archive_dir.glob(f"**/{phase_name}")) if archive_dir.exists() else []
+    return matches[0] if matches else None
 
 
 def find_phase_path(phase_name: str) -> Path | None:
@@ -248,6 +285,18 @@ def phase_title(phase_name: str | None) -> str:
     if not phase_name:
         return "-"
     phase_path = find_phase_path(phase_name)
+    if not phase_path or not phase_path.exists():
+        return phase_name
+    for line in phase_path.read_text().splitlines():
+        if line.startswith("# "):
+            return line.removeprefix("# ").strip()
+    return phase_name
+
+
+def lane_phase_title(lane: str, phase_name: str | None) -> str:
+    if not phase_name:
+        return "-"
+    phase_path = find_lane_phase_path(lane, phase_name)
     if not phase_path or not phase_path.exists():
         return phase_name
     for line in phase_path.read_text().splitlines():
@@ -927,6 +976,144 @@ def archive_phase_file(phase_name: str) -> str | None:
     return str(target.relative_to(ROOT))
 
 
+def feature_files() -> list[Path]:
+    return sorted(path for path in FEATURE_DIR.glob("*.md") if path.is_file())
+
+
+def find_feature_path(feature_name: str) -> Path | None:
+    name = feature_name if feature_name.endswith(".md") else f"{feature_name}.md"
+    path = FEATURE_DIR / name
+    return path if path.exists() else None
+
+
+def parse_feature_pipeline(feature_path: Path) -> list[dict]:
+    text = feature_path.read_text()
+    pipeline = section_text(text, "Pipeline")
+    steps = []
+    for line in pipeline.splitlines():
+        match = re.match(r"^\s*-\s+`?(backend|frontend)`?\s*:\s*`?([^`\s]+)`?\s*$", line)
+        if not match:
+            continue
+        steps.append({"lane": match.group(1), "phase": match.group(2)})
+    return steps
+
+
+def feature_name_from_path(feature_path: Path) -> str:
+    return feature_path.stem
+
+
+def lane_phase_status(lane: str, phase_name: str) -> dict:
+    state = load_lane_state(lane)
+    item = state.get("phases", {}).get(phase_name, {})
+    validation = item.get("last_validation") or {}
+    phase_path = find_lane_phase_path(lane, phase_name)
+    return {
+        "lane": lane,
+        "phase": phase_name,
+        "title": lane_phase_title(lane, phase_name),
+        "status": item.get("status", "missing" if not phase_path else "pending"),
+        "validation": validation.get("status", "not run"),
+        "path": str(phase_path.relative_to(ROOT)) if phase_path else "-",
+    }
+
+
+def feature_step_complete(step_status: dict) -> bool:
+    return step_status["status"] == "completed" and step_status["validation"] == "passed"
+
+
+def feature_report(feature_path: Path) -> dict:
+    steps = parse_feature_pipeline(feature_path)
+    statuses = [lane_phase_status(step["lane"], step["phase"]) for step in steps]
+    next_step = next((status for status in statuses if not feature_step_complete(status)), None)
+    return {
+        "name": feature_name_from_path(feature_path),
+        "path": str(feature_path.relative_to(ROOT)),
+        "steps": statuses,
+        "complete": bool(statuses) and next_step is None,
+        "next_step": next_step,
+    }
+
+
+def print_feature_report(report: dict) -> None:
+    print(f"Feature: {report['name']}")
+    print(f"Path: {report['path']}")
+    print()
+    print("Pipeline:")
+    for index, step in enumerate(report["steps"], start=1):
+        marker = "done" if feature_step_complete(step) else "pending"
+        print(
+            f"{index}. [{marker}] {step['lane']} / {step['phase']} "
+            f"({step['status']}, validation: {step['validation']})"
+        )
+        print(f"   Title: {step['title']}")
+        print(f"   Path: {step['path']}")
+    print()
+    if report["complete"]:
+        print("Feature completion gate: passed")
+    elif report["next_step"]:
+        step = report["next_step"]
+        print("Feature completion gate: blocked")
+        print(f"Next lane: {step['lane']}")
+        print(f"Next phase: {step['phase']}")
+        print(f"Next command: python3 scripts/execute.py --lane {step['lane']} show {step['phase']}")
+    else:
+        print("Feature completion gate: blocked")
+        print("No valid pipeline steps found.")
+
+
+def feature_reports_for_phase(lane: str, phase_name: str) -> list[dict]:
+    reports = []
+    for feature_path in feature_files():
+        steps = parse_feature_pipeline(feature_path)
+        if any(step["lane"] == lane and step["phase"] == phase_name for step in steps):
+            reports.append(feature_report(feature_path))
+    return reports
+
+
+def cmd_feature(args: argparse.Namespace) -> int:
+    if args.feature_command == "list":
+        files = feature_files()
+        if not files:
+            print("No feature pipeline files found.")
+            return 1
+        for feature_path in files:
+            report = feature_report(feature_path)
+            status = "complete" if report["complete"] else "incomplete"
+            print(f"{status:>10}  {report['name']}  {report['path']}")
+        return 0
+
+    feature_path = find_feature_path(args.name)
+    if not feature_path:
+        print(f"Feature pipeline not found: {args.name}")
+        print(f"Expected path: {FEATURE_DIR / (args.name if args.name.endswith('.md') else args.name + '.md')}")
+        return 1
+
+    report = feature_report(feature_path)
+    if args.feature_command in {"show", "status", "next", "gate"}:
+        print_feature_report(report)
+        return 0 if args.feature_command != "gate" or report["complete"] else 1
+
+    if args.feature_command == "complete":
+        print_feature_report(report)
+        if not report["complete"]:
+            return 1
+        state = load_feature_state()
+        state.setdefault("features", {})[report["name"]] = {
+            "status": "completed",
+            "completed_at": now_utc(),
+            "path": report["path"],
+            "steps": report["steps"],
+        }
+        save_feature_state(state)
+        append_run_state(f"- Completed feature pipeline: `{report['name']}`")
+        append_day_event("feature pipeline completed", None, details=report["name"])
+        print("Feature pipeline recorded as completed.")
+        return 0
+
+    print(f"Unknown feature command: {args.feature_command}")
+    return 1
+
+
 def cmd_complete(_: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     current = state.get("current_phase")
@@ -986,6 +1173,14 @@ def cmd_complete(_: argparse.Namespace) -> int:
     sync_handoff(state, event=f"phase completed; commit {commit_result}")
     print(f"Completed: {current}")
     print(f"Commit: {commit_result}")
+    feature_reports = feature_reports_for_phase(LANE, current)
+    incomplete_reports = [report for report in feature_reports if not report["complete"]]
+    if incomplete_reports:
+        print()
+        print("Feature pipeline still has pending work. Do not report final completion yet.")
+        for report in incomplete_reports:
+            next_step = report["next_step"]
+            print(f"- {report['name']}: continue {next_step['lane']} / {next_step['phase']}")
     return 0
 
 
@@ -1015,6 +1210,13 @@ def main() -> int:
     review_parser.add_argument("note", nargs="*")
     review_parser.set_defaults(func=cmd_review)
     subparsers.add_parser("complete").set_defaults(func=cmd_complete)
+    feature_parser = subparsers.add_parser("feature")
+    feature_subparsers = feature_parser.add_subparsers(dest="feature_command", required=True)
+    feature_subparsers.add_parser("list").set_defaults(func=cmd_feature)
+    for command_name in ("show", "status", "next", "gate", "complete"):
+        command_parser = feature_subparsers.add_parser(command_name)
+        command_parser.add_argument("name")
+        command_parser.set_defaults(func=cmd_feature)
 
     args = parser.parse_args()
     configure_lane(args.lane)

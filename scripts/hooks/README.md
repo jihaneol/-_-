@@ -34,6 +34,23 @@ python3 scripts/execute.py --lane frontend run -- <command>
 
 for manual commands during long-running work.
 
+## Branch Name Guard
+
+Commits are guarded by `.githooks/pre-commit`, which calls `scripts/hooks/enforce_branch_name.py`.
+
+Allowed branch prefixes:
+
+- `docs/*`: planning, harness, workflow phase files, and rules.
+- `back/*`: backend work. Frontend paths are blocked.
+- `front/*`: frontend work. Backend paths are blocked.
+- `common/*`: non-docs, non-backend, non-frontend work such as hooks, scripts, Gradle/root config, and local workflow tooling.
+
+Install the tracked hooks in a local clone with:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Circuit Breaker
 
 `scripts/hooks/circuit_breaker.py` tracks repeated command failures in the lane state folder.
