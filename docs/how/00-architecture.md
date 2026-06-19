@@ -16,7 +16,8 @@ Command workflows create or change state through domain aggregates. Query workfl
 card-service
   modules/domain
   modules/application
-  modules/bootstrap
+  modules/admin-api
+  modules/shop-api
   modules/batch
   modules/infra
   modules/external
@@ -26,7 +27,8 @@ card-service
 |---|---|---|
 | `domain` | Aggregates/JPA entities, value objects, domain events, cross-domain domain services | none |
 | `application` | Command/query inbound ports, outbound ports, use cases | `domain` |
-| `bootstrap` | Spring Boot runtime, REST inbound adapters, global web error handling | `application`, `domain`, `batch`, `infra`, `external` |
+| `admin-api` | Spring Boot runtime for operator/admin REST inbound adapters, admin API docs, admin web error handling | `application`, `domain`, `batch`, `infra`, `external` |
+| `shop-api` | Spring Boot runtime for customer/shop REST inbound adapters, shop API docs, shop web error handling | `application`, `domain`, `infra`, `external` |
 | `batch` | Scheduled/batch inbound adapters for settlement, reconciliation, and operational jobs | `application`, `domain` |
 | `infra` | JPA command persistence and QueryDSL read adapters | `application`, `domain` |
 | `external` | External-system and message adapters | `application`, `domain` |
@@ -47,15 +49,25 @@ modules/application/src/main/kotlin/com/example/cardservice/application
   payment.provided
   payment
 
-modules/bootstrap/src/main/kotlin/com/example/cardservice
-  CardServiceApplication
+modules/admin-api/src/main/kotlin/com/example/cardservice/adminapi
+  AdminApiApplication
   web.common
+  web.dashboard
+  web.member
+  web.product
+  web.inventory
+  web.order
   web.payment
-  web.commerce.member
-  web.commerce.product
-  web.commerce.inventory
-  web.commerce.order
-  web.commerce.coupon
+  web.coupon
+
+modules/shop-api/src/main/kotlin/com/example/cardservice/shopapi
+  ShopApiApplication
+  web.common
+  web.member
+  web.product
+  web.cart
+  web.order
+  web.coupon
 
 modules/batch/src/main/kotlin/com/example/cardservice/batch
   payment
@@ -95,6 +107,7 @@ HTTP / Batch inbound adapter
 
 Current implementation note:
 
+- The current runtime still uses `modules/bootstrap`; the target architecture is to replace that boundary with `modules/admin-api` and `modules/shop-api` through approved phases.
 - The first implemented runtime flow is `POST /api/coupon-orders`.
 - Query use cases and QueryDSL read adapters are rules for the next read-side work item and are not implemented yet.
 - Ledger, settlement, reconciliation, and outbox flows are target architecture until their active work items are selected.
@@ -142,11 +155,13 @@ Application use case
 - Cross-domain pure domain logic lives under `modules/domain/src/main/kotlin/com/example/cardservice/domain/domainservice`.
 - `application` depends on `domain`; it owns required/provided ports and use case services.
 - `application` owns request/response models used by inbound adapters.
-- `bootstrap` owns HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
+- `admin-api` owns operator HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
+- `shop-api` owns customer HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
 - `batch` owns scheduled/batch inbound adapters and delegates work to application use cases.
 - `infra` depends inward on `application` and `domain`; it owns JPA command persistence and QueryDSL read adapters.
 - `external` depends inward on `application` and `domain`; it owns external-system clients, message adapters, and broker details.
-- `bootstrap` is the only executable Spring Boot module.
+- `admin-api` and `shop-api` are the executable Spring Boot HTTP modules after the split.
+- Until the split phase is complete, the existing `bootstrap` module remains the only executable Spring Boot HTTP module.
 - Web DTOs must not leak into use cases or domain objects.
 - Controller request/response models live under `application/{domain}/request` and `application/{domain}/response`.
 - Controllers, services, request models, and response models are split by feature responsibility when a domain has multiple operator workflows.

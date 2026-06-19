@@ -54,9 +54,9 @@ Implementation notes:
 
 The following endpoints are target contracts for upcoming work and are not implemented in the current runtime.
 
-## Commerce Coupon MVP API
+## Current Commerce Coupon MVP API
 
-The following endpoints define the MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund.
+The following endpoints define the current MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund. These routes exist under the current single `bootstrap` runtime and are the migration source for the planned admin/shop split.
 
 ### Dashboard
 
@@ -142,6 +142,77 @@ Pay order success:
 - `GET /api/members/{memberId}/coupon-histories`
 - `GET /api/orders/{orderId}/coupon-histories`
 
+## Planned Admin And Shop API Split
+
+The target HTTP runtime split introduces two explicit API namespaces. Existing `/api/*` commerce routes should be migrated into one of these namespaces through approved backend phases.
+
+### Admin API
+
+Admin routes expose operator workflows only.
+
+- `GET /api/admin/dashboard/summary`
+- `POST /api/admin/members`
+- `GET /api/admin/members`
+- `GET /api/admin/members/{memberId}`
+- `PATCH /api/admin/members/{memberId}`
+- `DELETE /api/admin/members/{memberId}`
+- `POST /api/admin/products`
+- `GET /api/admin/products`
+- `GET /api/admin/products/{productId}`
+- `PATCH /api/admin/products/{productId}`
+- `DELETE /api/admin/products/{productId}`
+- `POST /api/admin/products/{productId}/inventory`
+- `GET /api/admin/products/{productId}/inventory`
+- `POST /api/admin/products/{productId}/inventory/increase`
+- `POST /api/admin/products/{productId}/inventory/decrease`
+- `GET /api/admin/orders`
+- `GET /api/admin/orders/{orderId}`
+- `POST /api/admin/orders/{orderId}/cancel`
+- `POST /api/admin/orders/{orderId}/refund`
+- `GET /api/admin/members/{memberId}/coupons`
+- `GET /api/admin/members/{memberId}/coupon-histories`
+- `GET /api/admin/orders/{orderId}/coupon-histories`
+
+### Shop API
+
+Shop routes expose customer workflows only. They must not expose product creation, inventory adjustment, full member listing, dashboard, or operational refund endpoints.
+
+- `POST /api/shop/members`: demo member signup until authentication exists.
+- `GET /api/shop/products`: sale product catalog.
+- `GET /api/shop/products/{productId}`: sale product detail.
+- `POST /api/shop/orders`: create a customer order.
+- `GET /api/shop/members/{memberId}/orders`: customer order history.
+- `POST /api/shop/orders/{orderId}/pay`: pay a customer order and issue stamp coupons.
+- `GET /api/shop/members/{memberId}/coupons`: customer coupon wallet.
+- `GET /api/shop/members/{memberId}/coupon-histories`: customer coupon history.
+- `POST /api/shop/members/{memberId}/coupons/exchange`: exchange ten issued stamp coupons for one product.
+
+Shop coupon exchange marks coupons as `EXCHANGED`, appends coupon history, and deducts product inventory. Whether exchange creates an order record is still a planning decision.
+
+Exchange request:
+
+```json
+{
+  "productId": 1,
+  "quantity": 1
+}
+```
+
+Exchange success:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "memberId": 1,
+    "productId": 1,
+    "exchangedCouponCount": 10,
+    "remainingIssuedCouponCount": 0
+  }
+}
+```
+
 ### Authorize Payment
 
 `POST /api/payments/authorize`
@@ -191,3 +262,6 @@ Pay order success:
 - 결제 완료된 주문은 주문 취소할 수 없습니다.
 - 결제 전 주문은 환불할 수 없습니다.
 - 부분 환불은 지원하지 않습니다.
+- 사용 가능한 쿠폰이 부족합니다.
+- 발급 상태 쿠폰만 교환할 수 있습니다.
+- 판매 중인 상품만 교환할 수 있습니다.

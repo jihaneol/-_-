@@ -14,27 +14,41 @@ Responsibilities:
 ## Query Keys
 
 ```text
-commerce.summary
-commerce.members
-commerce.products
-commerce.orders
-commerce.inventory(productId)
-commerce.coupons(memberId)
-commerce.histories(memberId)
+admin.summary
+admin.members
+admin.products
+admin.orders
+admin.inventory(productId)
+admin.coupons(memberId)
+admin.histories(memberId)
+
+shop.member(memberId)
+shop.products
+shop.product(productId)
+shop.orders(memberId)
+shop.coupons(memberId)
+shop.histories(memberId)
 ```
 
-## Mutations
+## Admin Mutations
 
 | Mutation | Invalidates |
 |---|---|
-| createMember | `commerce.members`, `commerce.summary` |
-| createProduct | `commerce.products`, `commerce.summary` |
-| createInventory | `commerce.inventory(productId)` |
-| increaseInventory | `commerce.inventory(productId)` |
-| createOrder | `commerce.orders`, `commerce.summary` |
-| cancelOrder | `commerce.orders`, `commerce.summary` |
-| payOrder | `commerce.orders`, `commerce.summary`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
-| refundOrder | `commerce.orders`, `commerce.summary`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
+| createMember | `admin.members`, `admin.summary` |
+| createProduct | `admin.products`, `admin.summary` |
+| createInventory | `admin.inventory(productId)` |
+| increaseInventory | `admin.inventory(productId)` |
+| cancelOrder | `admin.orders`, `admin.summary` |
+| refundOrder | `admin.orders`, `admin.summary`, `admin.coupons(memberId)`, `admin.histories(memberId)` |
+
+## Shop Mutations
+
+| Mutation | Invalidates |
+|---|---|
+| signupMember | `shop.member(memberId)` |
+| createOrder | `shop.orders(memberId)` |
+| payOrder | `shop.orders(memberId)`, `shop.coupons(memberId)`, `shop.histories(memberId)` |
+| exchangeCoupons | `shop.coupons(memberId)`, `shop.histories(memberId)`, `shop.product(productId)` |
 
 ## Error Model
 
@@ -56,6 +70,7 @@ Use Zod schemas for:
 - Product and inventory creation.
 - Order creation.
 - Order payment.
+- Coupon exchange.
 
 ## Optimistic Updates
 

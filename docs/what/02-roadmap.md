@@ -17,8 +17,10 @@ Only shaped feature candidates should appear here.
 
 | Feature | Why next | Depends on |
 |---|---|---|
+| Admin and shop runtime split | Separate operator and customer surfaces before adding more customer workflows | commerce MVP and admin frontend |
+| Customer shop signup and coupon wallet | Add customer-facing purchase and coupon visibility after app/API boundaries are separated | admin/shop runtime split |
+| Customer coupon redemption | Let customers use issued coupons without exposing admin APIs | customer shop app and shop API namespace |
 | Payment cancellation | First corrective workflow after authorization | idempotency and ledger phases |
-| Frontend project scaffold | Required before admin UI implementation | backend scaffold merged or API contract stable enough for MSW |
 
 ## Later
 
@@ -26,5 +28,5 @@ Only shaped feature candidates should appear here.
 |---|---|
 | Kafka/RabbitMQ outbox | Add after core payment flow and tests are stable |
 | Load testing | Add after API behavior is stable |
-| Coupon coffee exchange | Add after ten-stamp issuance and history are stable |
 | Partial refund | Deferred because refund allocation and coupon reversal rules complicate MVP |
+| Authentication and authorization | Add after admin/shop runtime boundaries are stable |
