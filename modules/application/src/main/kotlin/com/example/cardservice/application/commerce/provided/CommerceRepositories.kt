@@ -52,10 +52,12 @@ interface CommerceOrderRepository : Repository<CommerceOrder, Long> {
  */
 interface CouponRepository : Repository<Coupon, Long> {
     fun saveAll(coupons: Iterable<Coupon>): List<Coupon>
+    fun findAll(): List<Coupon>
     fun findAllByMemberId(memberId: Long): List<Coupon>
     fun findAllByOrderId(orderId: Long): List<Coupon>
     fun countByOrderId(orderId: Long): Long
     fun countByStatus(status: com.example.cardservice.domain.commerce.model.CouponStatus): Long
+    fun countByMemberIdAndStatus(memberId: Long, status: com.example.cardservice.domain.commerce.model.CouponStatus): Long
 }
 
 /**
@@ -63,6 +65,7 @@ interface CouponRepository : Repository<Coupon, Long> {
  */
 interface CouponHistoryRepository : Repository<CouponHistory, Long> {
     fun saveAll(histories: Iterable<CouponHistory>): List<CouponHistory>
+    fun findAll(): List<CouponHistory>
     fun findAllByMemberId(memberId: Long): List<CouponHistory>
     fun findAllByOrderId(orderId: Long): List<CouponHistory>
 }
@@ -73,4 +76,6 @@ interface CouponHistoryRepository : Repository<CouponHistory, Long> {
 interface CommerceLockPort {
     fun loadOrderForUpdate(orderId: Long): CommerceOrder?
     fun loadInventoryForUpdate(productId: Long): Inventory?
+    fun loadCouponForUpdate(couponId: Long): Coupon?
+    fun loadIssuedCouponsForExchange(memberId: Long, limit: Int): List<Coupon>
 }

@@ -22,6 +22,28 @@
       "reviewed_at": "2026-06-19T07:58:51+00:00",
       "review_note": "admin/shop app boundary verified: shop app uses /api/shop namespace, admin navigation is absent from shop tests, separate build scripts pass",
       "archive_path": "workflow/frontend/archive/2026-06-19/phase-007-admin-shop-frontend-app-split.md"
+    },
+    "phase-008-design-harness-refactor.md": {
+      "status": "completed",
+      "started_at": "2026-06-19T14:38:08+00:00",
+      "completed_at": "2026-06-19T14:41:02+00:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-19T14:40:33+00:00",
+        "commands": [
+          "npm --prefix frontend test -- --run",
+          "npm --prefix frontend run build",
+          "bash scripts/hooks/validate_impeccable.sh",
+          "npm --prefix frontend test -- --run",
+          "npm --prefix frontend run build",
+          "bash scripts/hooks/validate_impeccable.sh"
+        ]
+      },
+      "last_checkpoint": null,
+      "baseline_dirty_files": [],
+      "reviewed_at": "2026-06-19T14:40:45+00:00",
+      "review_note": "design harness refactor verified: PRODUCT/DESIGN context added, CSS tokens centralized, admin/shop product UI states improved, tests/build/impeccable detector pass",
+      "archive_path": "workflow/frontend/archive/2026-06-19/phase-008-design-harness-refactor.md"
     }
   }
 }

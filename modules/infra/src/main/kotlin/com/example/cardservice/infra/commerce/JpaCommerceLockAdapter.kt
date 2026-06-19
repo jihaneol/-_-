@@ -2,6 +2,8 @@ package com.example.cardservice.infra.commerce
 
 import com.example.cardservice.application.commerce.provided.CommerceLockPort
 import com.example.cardservice.domain.commerce.model.CommerceOrder
+import com.example.cardservice.domain.commerce.model.Coupon
+import com.example.cardservice.domain.commerce.model.CouponStatus
 import com.example.cardservice.domain.commerce.model.Inventory
 import jakarta.persistence.EntityManager
 import jakarta.persistence.LockModeType
@@ -28,4 +30,25 @@ class JpaCommerceLockAdapter(
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .resultList
             .firstOrNull()
+
+    override fun loadCouponForUpdate(couponId: Long): Coupon? =
+        entityManager.find(Coupon::class.java, couponId, LockModeType.PESSIMISTIC_WRITE)
+
+    override fun loadIssuedCouponsForExchange(memberId: Long, limit: Int): List<Coupon> =
+        entityManager
+            .createQuery(
+                """
+                select c
+                from Coupon c
+                where c.memberId = :memberId
+                  and c.status = :status
+                order by c.id asc
+                """.trimIndent(),
+                Coupon::class.java,
+            )
+            .setParameter("memberId", memberId)
+            .setParameter("status", CouponStatus.ISSUED)
+            .setMaxResults(limit)
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .resultList
 }

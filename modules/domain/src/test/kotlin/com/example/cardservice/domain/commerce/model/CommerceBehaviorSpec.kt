@@ -69,6 +69,21 @@ class CommerceBehaviorSpec : BehaviorSpec({
         }
     }
 
+    given("an issued coupon") {
+        val coupon = Coupon.issue(memberId = 1L, orderId = 1L, paymentId = 1L)
+
+        `when`("an operator exchanges it") {
+            coupon.exchange()
+
+            then("it becomes exchanged and cannot be exchanged again") {
+                coupon.status shouldBe CouponStatus.EXCHANGED
+                shouldThrow<IllegalArgumentException> {
+                    coupon.exchange()
+                }.message shouldBe "발급 상태 쿠폰만 교환할 수 있습니다."
+            }
+        }
+    }
+
     given("a member") {
         val member = Member.create(name = "Kim", email = "kim@example.com")
 

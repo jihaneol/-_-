@@ -352,6 +352,11 @@ class Coupon protected constructor() {
         status = CouponStatus.VOIDED
     }
 
+    fun exchange() {
+        require(status == CouponStatus.ISSUED) { "발급 상태 쿠폰만 교환할 수 있습니다." }
+        status = CouponStatus.EXCHANGED
+    }
+
     companion object {
         fun issue(memberId: Long, orderId: Long, paymentId: Long): Coupon = Coupon(memberId, orderId, paymentId)
 
@@ -423,10 +428,14 @@ class CouponHistory protected constructor() {
 
         fun voided(coupon: Coupon): CouponHistory =
             CouponHistory(coupon.id, coupon.memberId, coupon.orderId, coupon.paymentId, CouponHistoryType.VOIDED)
+
+        fun exchanged(coupon: Coupon): CouponHistory =
+            CouponHistory(coupon.id, coupon.memberId, coupon.orderId, coupon.paymentId, CouponHistoryType.EXCHANGED)
     }
 }
 
 enum class CouponHistoryType {
     ISSUED,
     VOIDED,
+    EXCHANGED,
 }
