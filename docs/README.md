@@ -28,7 +28,10 @@
 - Tradeoffs and decision records.
 - Review loop and development evidence.
 
+## Harness
+
+`docs/harness/` and `docs/frontend-harness/` are portfolio harness summaries. They do not replace `what/how/why`; they collect target-role proof, scope, architecture, test evidence, review loops, and week plans in a format that is easy to audit.
+
 ## Operations
 
 `docs/operations/` contains inboxes, candidate lists, checklists, and week plans. These files help run the work, but they are not implementation contracts by themselves.
-

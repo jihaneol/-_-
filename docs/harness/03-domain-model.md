@@ -1,0 +1,30 @@
+# Domain Model Harness
+
+## Core Aggregates And Records
+
+| Area | Model | Responsibility |
+|---|---|---|
+| Payment | `Payment` | authorization, cancellation/refund status, idempotency identity |
+| Ledger | payment ledger target | immutable payment state history |
+| Commerce | `Member` | customer identity for MVP commerce flows |
+| Commerce | `Product` | sale product and sale status |
+| Commerce | `Inventory` | stock increase/decrease guard |
+| Commerce | `CommerceOrder` | order lines, total amount, payment status |
+| Coupon | `Coupon` | issued, voided, exchanged stamp state |
+| Coupon | `CouponHistory` | append-only coupon issuance/reversal/exchange history |
+| Settlement | settlement target | merchant/date summary |
+| Reconciliation | reconciliation target | mismatch classification |
+
+## Invariants
+
+- Payment idempotency key must not create duplicate external side effects.
+- Inventory cannot decrease below zero.
+- Paid order coupon count is `paidAmount / 5000`.
+- Full refund voids all coupons issued by the order.
+- Coupon history is append-only.
+- Coupon exchange uses only `ISSUED` coupons.
+- Admin and shop runtimes must not fork domain rules.
+
+## Boundary Decision
+
+`admin-api` and `shop-api` split only the inbound runtime boundary. Domain and application rules remain shared until there is a proven reason to split them.
