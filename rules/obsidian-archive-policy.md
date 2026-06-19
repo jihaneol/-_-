@@ -1,6 +1,6 @@
 # Obsidian Archive Policy
 
-프로젝트 내부 `harness/phases/` 폴더는 실행 가능한 phase 최종본만 유지한다.
+프로젝트 내부 `workflow/phases/` 폴더는 실행 가능한 phase 최종본만 유지한다.
 
 수정 이유, 진행 과정, 완료된 작업 기록, 삭제된 작업의 맥락은 Obsidian Idea Lab에 보관한다.
 
@@ -41,8 +41,8 @@
 | `docs/operations/00-inbox.md` | 아직 정리되지 않은 새 아이디어 | 처리 후 Obsidian에 기록하고 항목 삭제 가능 |
 | `docs/operations/01-feature-candidates.md` | 현재 검토 중인 기능 후보 | 승인/거절 후 Obsidian에 기록하고 정리 |
 | `docs/what/02-roadmap.md` | 현재 우선순위 최종본 | 변경 이유는 Obsidian에 기록 |
-| `harness/phases/*.md` | active phase 구현 계약 | 완료 후 Obsidian에 기록하고 phase 파일은 `harness/archive/YYYY-MM-DD/`로 이동 |
-| `harness/archive/` | 완료된 phase 파일 | 실행 대기열에서 제거된 완료 계약 |
+| `workflow/phases/*.md` | active phase 구현 계약 | 완료 후 Obsidian에 기록하고 phase 파일은 `workflow/archive/YYYY-MM-DD/`로 이동 |
+| `workflow/archive/` | 완료된 phase 파일 | 실행 대기열에서 제거된 완료 계약 |
 | `docs/operations/05-dev-checklist.md` | 현재 체크리스트 최종본 | 변경 이유는 Obsidian에 기록 |
 | `AGENT.md` | Codex 프로젝트 운영 진입점 | 변경 이유는 Obsidian에 기록 |
 | `rules/backend-architecture.md` | 백엔드 모듈, CQRS, QueryDSL 규칙 | 변경 이유는 Obsidian에 기록 |
@@ -66,7 +66,7 @@
 
 Phase 상태 변경은 `scripts/execute.py`로 수행한다. `scripts/execute.py`는 다음 파일을 자동 갱신한다.
 
-- `harness/state/run-state.md`
+- `workflow/state/run-state.md`
 - `.codex/context/active-handoff.md`
 - `09.Context Handoffs/01.Active Work/card-service/현재작업.md`
 - `07.Build Logs/card-service/days/YYYY-MM-DD-N일차.md`
@@ -162,7 +162,7 @@ Next:
 3. Obsidian `07.Build Logs/card-service/작업기록.md`에는 날짜별 링크와 핵심 요약만 추가한다.
 4. Obsidian `09.Context Handoffs/01.Active Work/card-service/현재작업.md`에 최종 상태와 다음 작업을 남긴다.
 5. 완료 커밋의 짧은 해시와 제목을 day file에 추가한다.
-6. 프로젝트 `harness/state/run-state.md`와 `harness/state/execute-state.json`을 다음 작업 기준으로 갱신한다.
+6. 프로젝트 `workflow/state/run-state.md`와 `workflow/state/execute-state.json`을 다음 작업 기준으로 갱신한다.
 7. 완료된 임시 작업 파일이 있다면 삭제한다.
 8. 삭제 전 필요한 내용은 Obsidian에 이미 있어야 한다.
 
@@ -181,7 +181,7 @@ Next:
 - `docs/operations/00-inbox.md`
 - `docs/operations/01-feature-candidates.md`
 - `docs/what/02-roadmap.md`
-- `harness/phases/*.md`
+- `workflow/phases/*.md`
 - `docs/operations/05-dev-checklist.md`
 - `.codex/templates/*`
 - `AGENT.md`

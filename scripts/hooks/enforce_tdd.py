@@ -7,13 +7,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
-PHASE_DIR = ROOT / "harness" / "phases"
-ARCHIVE_DIR = ROOT / "harness" / "archive"
+STATE_FILE = ROOT / "workflow" / "state" / "execute-state.json"
+PHASE_DIR = ROOT / "workflow" / "phases"
+ARCHIVE_DIR = ROOT / "workflow" / "archive"
 SOURCE_PREFIXES = ("modules/", "src/", "app/", "frontend/")
 SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
-DOC_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "scripts/hooks/")
+DOC_PREFIXES = ("docs/", "workflow/", ".codex/", "rules/", "scripts/hooks/")
 
 
 def git_changed_files() -> list[str]:

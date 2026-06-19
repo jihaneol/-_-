@@ -25,7 +25,7 @@ def command_text(argv: list[str]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Block dangerous commands before harness execution.")
+    parser = argparse.ArgumentParser(description="Block dangerous commands before workflow execution.")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 

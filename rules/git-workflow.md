@@ -70,9 +70,9 @@ test/payment-ui-flow
 
 ## Work Unit Rule
 
-하나의 작업은 현재 `scripts/execute.py`가 진행 중인 `harness/phases/*.md` 범위만 포함한다.
+하나의 작업은 현재 `scripts/execute.py`가 진행 중인 `workflow/phases/*.md` 범위만 포함한다.
 
-완료된 작업의 상세 과정과 수정 이유는 Obsidian에 보관한다. 프로젝트 안의 `harness/phases/` 파일은 실행 가능한 phase 최종본만 유지한다.
+완료된 작업의 상세 과정과 수정 이유는 Obsidian에 보관한다. 프로젝트 안의 `workflow/phases/` 파일은 실행 가능한 phase 최종본만 유지한다.
 
 장시간 구현 모드에서는 커밋을 자동으로 만든다. `python3 scripts/execute.py complete`가 완료 게이트를 모두 통과하면 완료된 phase 단위로 자동 커밋한다. 커밋 전에는 다음 조건을 만족해야 한다.
 

@@ -15,7 +15,7 @@
 | Batch processing | Daily settlement job in the `batch` module | Batch adapter test |
 | Data reconciliation | Ledger-settlement mismatch report | Reconciliation test |
 | Docker readiness | Local compose stack | One-command setup |
-| Communication | Decision log and dev log | README and harness docs |
+| Communication | Decision log and dev log | README and workflow docs |
 | Mocking strategy | MockK for outbound ports | Application use case tests |
 
 ## Priority

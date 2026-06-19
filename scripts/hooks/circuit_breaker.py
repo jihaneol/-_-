@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-STATE_FILE = ROOT / "harness" / "state" / "circuit-breaker.json"
+STATE_FILE = ROOT / "workflow" / "state" / "circuit-breaker.json"
 THRESHOLD = 6
 
 

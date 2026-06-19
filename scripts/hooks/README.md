@@ -20,7 +20,7 @@ The guard fails when production source files change without an active phase, wit
 
 ## Dangerous Command Guard
 
-`scripts/hooks/guard_command.py` blocks known destructive commands before harness execution, including hard resets, forced cleans, recursive removes, sudo, raw disk writes, filesystem formatting, broad process kills, and downloaded script execution.
+`scripts/hooks/guard_command.py` blocks known destructive commands before workflow execution, including hard resets, forced cleans, recursive removes, sudo, raw disk writes, filesystem formatting, broad process kills, and downloaded script execution.
 
 Use:
 
@@ -32,7 +32,7 @@ for manual commands during long-running work.
 
 ## Circuit Breaker
 
-`scripts/hooks/circuit_breaker.py` tracks repeated command failures in `harness/state/circuit-breaker.json`.
+`scripts/hooks/circuit_breaker.py` tracks repeated command failures in `workflow/state/circuit-breaker.json`.
 
 After the same command fails 6 consecutive times, the breaker opens and the agent must stop retrying. The next step is to write an alternative plan, reduce scope, or switch to another phase.
 

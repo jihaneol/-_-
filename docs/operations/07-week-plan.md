@@ -2,7 +2,7 @@
 
 ## Day 1
 
-- Finalize harness docs.
+- Finalize workflow docs.
 - Create Spring Boot project.
 - Create DDD/hexagonal multi-module structure.
 - Add MySQL Docker Compose.

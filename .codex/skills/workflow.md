@@ -1,4 +1,4 @@
-# Harness Skill
+# Workflow Skill
 
 Use this skill when converting the project brain and user discussion into executable implementation phases.
 
@@ -6,9 +6,9 @@ Use this skill when converting the project brain and user discussion into execut
 
 - All relevant files under `docs/`.
 - Current user request.
-- Existing active phase files under `harness/phases/`.
-- Completed phase files under `harness/archive/` when historical context is needed.
-- Current state in `harness/state/run-state.md`.
+- Existing active phase files under `workflow/phases/`.
+- Completed phase files under `workflow/archive/` when historical context is needed.
+- Current state in `workflow/state/run-state.md`.
 
 ## Process
 
@@ -17,7 +17,7 @@ Use this skill when converting the project brain and user discussion into execut
 2. Identify the actual goal, unresolved questions, and implementation risks.
 3. Discuss ambiguous product, architecture, transaction, or UI decisions with the user before creating phases.
 4. Split work into phases that can each be implemented and verified independently.
-5. Create one markdown file per phase under `harness/phases/`.
+5. Create one markdown file per phase under `workflow/phases/`.
 6. Keep each phase small enough that one validation command can prove meaningful progress.
 7. Run `python3 scripts/execute.py lint-phases` after phase files are ready.
 8. Use `python3 scripts/execute.py show` before implementation and `python3 scripts/execute.py checkpoint "message"` during long or risky work.
@@ -65,5 +65,5 @@ Use this skill when converting the project brain and user discussion into execut
 - `Done Criteria` checkboxes must be marked `[x]` before completion.
 - A phase must not mix unrelated backend, frontend, and documentation work unless they share one done criterion.
 - A phase that changes payment correctness, idempotency, ledger, settlement, reconciliation, concurrency, persistence, or UI operator flow requires review.
-- Completed phases are removed from `harness/phases/` by `scripts/execute.py complete` and kept under `harness/archive/YYYY-MM-DD/`.
+- Completed phases are removed from `workflow/phases/` by `scripts/execute.py complete` and kept under `workflow/archive/YYYY-MM-DD/`.
 - Repeating the same failing command 6 times opens the circuit breaker. Stop retrying and choose an alternative plan, narrower scope, or another phase.

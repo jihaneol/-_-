@@ -25,5 +25,5 @@ Source: project planning
 Problem: Need a controlled place to collect new features before changing development scope.  
 User / operator: developer, reviewer, future portfolio reader  
 Expected value: avoid scope drift and make implementation decisions traceable.  
-Rough idea: use this `harness/phases/` folder as the source of truth for new feature planning.  
+Rough idea: use this `workflow/phases/` folder as the source of truth for new feature planning.  
 Unknowns: none yet.

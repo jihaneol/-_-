@@ -1,12 +1,12 @@
-# Harness
+# Workflow
 
-`harness/` is the execution workspace. It is not the project brain.
+`workflow/` is the execution workspace. It is not the project brain.
 
 ## Flow
 
 1. Read `docs/`.
 2. Discuss unclear decisions with the user.
-3. Create ordered phase files in `harness/phases/`.
+3. Create ordered phase files in `workflow/phases/`.
 4. Run `python3 scripts/execute.py lint-phases`.
 5. Run `python3 scripts/execute.py status`.
 6. Inspect the next phase with `python3 scripts/execute.py show`.
@@ -19,12 +19,12 @@
 13. Mark all completed `Done Criteria` checkboxes as `[x]`.
 14. Complete with `python3 scripts/execute.py complete`.
 
-Completion automatically moves the finished phase into `harness/archive/YYYY-MM-DD/` and commits the result when all gates pass.
+Completion automatically moves the finished phase into `workflow/archive/YYYY-MM-DD/` and commits the result when all gates pass.
 
 `scripts/execute.py` automatically syncs phase state to:
 
-- `harness/state/execute-state.json`
-- `harness/state/run-state.md`
+- `workflow/state/execute-state.json`
+- `workflow/state/run-state.md`
 - `.codex/context/active-handoff.md`
 - Obsidian active handoff: `09.Context Handoffs/01.Active Work/card-service/현재작업.md`
 - Obsidian day log under `07.Build Logs/card-service/days/`
@@ -54,7 +54,7 @@ Completion automatically moves the finished phase into `harness/archive/YYYY-MM-
 - All `Done Criteria` checkboxes marked `[x]`.
 - Review accepted when the phase has `Review Focus`.
 - No pre-existing dirty files from phase start remain changed.
-- Completed phase file archived under `harness/archive/YYYY-MM-DD/`.
+- Completed phase file archived under `workflow/archive/YYYY-MM-DD/`.
 - Auto commit succeeds or there are no changes to commit.
 
 `scripts/execute.py validate` requires:
@@ -68,6 +68,6 @@ Completion automatically moves the finished phase into `harness/archive/YYYY-MM-
 
 | Path | Role |
 |---|---|
-| `harness/phases/` | Ordered implementation phase files |
-| `harness/archive/` | Completed phase files grouped by completion date |
-| `harness/state/` | Execution state, run handoff, and phase status |
+| `workflow/phases/` | Ordered implementation phase files |
+| `workflow/archive/` | Completed phase files grouped by completion date |
+| `workflow/state/` | Execution state, run handoff, and phase status |

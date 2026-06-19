@@ -11,10 +11,10 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_DIR = ROOT / "scripts"
-PHASE_DIR = ROOT / "harness" / "phases"
-ARCHIVE_DIR = ROOT / "harness" / "archive"
-STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
-RUN_STATE_FILE = ROOT / "harness" / "state" / "run-state.md"
+PHASE_DIR = ROOT / "workflow" / "phases"
+ARCHIVE_DIR = ROOT / "workflow" / "archive"
+STATE_FILE = ROOT / "workflow" / "state" / "execute-state.json"
+RUN_STATE_FILE = ROOT / "workflow" / "state" / "run-state.md"
 HOOK_DIR = SCRIPT_DIR / "hooks"
 VALIDATE_HOOK = HOOK_DIR / "validate.sh"
 COMMAND_GUARD = HOOK_DIR / "guard_command.py"
@@ -41,7 +41,7 @@ REQUIRED_PHASE_SECTIONS = [
 SOURCE_PREFIXES = ("modules/", "src/", "app/", "frontend/")
 SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
-ALWAYS_ALLOWED_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "scripts/hooks/", "scripts/execute.py", "README.md", "AGENT.md")
+ALWAYS_ALLOWED_PREFIXES = ("docs/", "workflow/", ".codex/", "rules/", "scripts/hooks/", "scripts/execute.py", "README.md", "AGENT.md")
 AUTO_COMMIT_ON_COMPLETE = True
 
 
@@ -202,7 +202,7 @@ def git_commit_message(phase_name: str) -> str:
     lowered = clean_title.lower()
     if "test" in lowered or "테스트" in clean_title:
         prefix = "test"
-    elif "docs" in lowered or "문서" in clean_title or "harness" in lowered:
+    elif "docs" in lowered or "문서" in clean_title or "workflow" in lowered:
         prefix = "docs"
     elif "fix" in lowered or "bug" in lowered or "수정" in clean_title:
         prefix = "fix"
@@ -387,7 +387,7 @@ def format_phase_summary(phase_name: str) -> str:
         "Review Focus",
     ]
     phase_path = find_phase_path(phase_name)
-    path_text = str(phase_path.relative_to(ROOT)) if phase_path else f"harness/phases/{phase_name}"
+    path_text = str(phase_path.relative_to(ROOT)) if phase_path else f"workflow/phases/{phase_name}"
     lines = [f"# {phase_title(phase_name)}", "", f"Path: {path_text}"]
     for section in sections:
         content = phase_section(phase_name, section)
@@ -400,7 +400,7 @@ def phase_path_text(phase_name: str | None) -> str:
     if not phase_name:
         return "-"
     path = find_phase_path(phase_name)
-    return f"`{path.relative_to(ROOT)}`" if path else f"`harness/phases/{phase_name}`"
+    return f"`{path.relative_to(ROOT)}`" if path else f"`workflow/phases/{phase_name}`"
 
 
 def validation_text(phase: dict | None) -> str:
@@ -569,11 +569,11 @@ tags:
 ## Local Source Of Truth
 
 - Constitution: `{ROOT / "AGENT.md"}`
-- Harness skill: `{ROOT / ".codex/skills/harness.md"}`
+- Workflow skill: `{ROOT / ".codex/skills/workflow.md"}`
 - Review skill: `{ROOT / ".codex/skills/review.md"}`
 - Project brain: `{ROOT / "docs"}`
-- Active phase files: `{ROOT / "harness/phases"}`
-- Archived phase files: `{ROOT / "harness/archive"}`
+- Active phase files: `{ROOT / "workflow/phases"}`
+- Archived phase files: `{ROOT / "workflow/archive"}`
 - Execute state: `{STATE_FILE}`
 - Run state: `{RUN_STATE_FILE}`
 - Local handoff: `{LOCAL_HANDOFF_FILE}`
@@ -587,7 +587,7 @@ tags:
 ## Resume Instruction
 
 1. Run `python3 scripts/execute.py resume` first after context compression, thread resume, or handoff.
-2. Read `AGENT.md` and `.codex/skills/harness.md` only if the resume output is not enough.
+2. Read `AGENT.md` and `.codex/skills/workflow.md` only if the resume output is not enough.
 3. If a phase is in progress, continue that phase.
 4. If no phase is in progress, inspect the next pending phase with `python3 scripts/execute.py show`.
 5. Do not edit production code before following the phase `Test First` section.

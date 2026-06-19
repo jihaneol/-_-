@@ -60,5 +60,5 @@ When to run:
 Prompt:
 
 ```text
-Review this project as hiring evidence for a payment server role. Check whether the README, harness docs, tests, and implementation prove the required skills. Identify weak claims, missing proof, and unclear tradeoffs.
+Review this project as hiring evidence for a payment server role. Check whether the README, workflow docs, tests, and implementation prove the required skills. Identify weak claims, missing proof, and unclear tradeoffs.
 ```
