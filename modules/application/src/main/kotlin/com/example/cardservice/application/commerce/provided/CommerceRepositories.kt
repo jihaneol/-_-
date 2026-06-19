@@ -15,6 +15,7 @@ interface MemberRepository : Repository<Member, Long> {
     fun save(member: Member): Member
     fun findAllByDeletedAtIsNull(): List<Member>
     fun findByIdAndDeletedAtIsNull(id: Long): Member?
+    fun countByDeletedAtIsNull(): Long
 }
 
 /**
@@ -24,6 +25,7 @@ interface ProductRepository : Repository<Product, Long> {
     fun save(product: Product): Product
     fun findAllByDeletedAtIsNull(): List<Product>
     fun findByIdAndDeletedAtIsNull(id: Long): Product?
+    fun countByDeletedAtIsNull(): Long
 }
 
 /**
@@ -41,6 +43,8 @@ interface CommerceOrderRepository : Repository<CommerceOrder, Long> {
     fun save(order: CommerceOrder): CommerceOrder
     fun findAllByDeletedAtIsNull(): List<CommerceOrder>
     fun findByIdAndDeletedAtIsNull(id: Long): CommerceOrder?
+    fun countByDeletedAtIsNull(): Long
+    fun countByStatusAndDeletedAtIsNull(status: com.example.cardservice.domain.commerce.model.OrderStatus): Long
 }
 
 /**
@@ -51,6 +55,7 @@ interface CouponRepository : Repository<Coupon, Long> {
     fun findAllByMemberId(memberId: Long): List<Coupon>
     fun findAllByOrderId(orderId: Long): List<Coupon>
     fun countByOrderId(orderId: Long): Long
+    fun countByStatus(status: com.example.cardservice.domain.commerce.model.CouponStatus): Long
 }
 
 /**
