@@ -4,7 +4,7 @@
 |---|---|---|
 | Kotlin + Spring Boot | Payment REST API | Source code, API tests |
 | DDD | Aggregates, value objects, invariants | Domain tests |
-| Hexagonal architecture | `domain`, `application`, `bootstrap`, `batch`, `infra`, `external` Gradle modules | Module dependencies, architecture notes |
+| Hexagonal architecture | `domain`, `application`, `admin-api`, `shop-api`, `batch`, `infra`, `external` Gradle modules | Module dependencies, architecture notes |
 | CQRS | Separate command/query use cases, ports, and adapters | Command domain tests, infra QueryDSL adapter tests |
 | RDBMS modeling | MySQL schema for merchant, payment, ledger, settlement | ERD, `sql/` schema files |
 | Query optimization | QueryDSL read adapters and indexes for merchant/date/status lookup | Query-plan note |

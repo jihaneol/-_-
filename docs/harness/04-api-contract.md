@@ -4,9 +4,7 @@ Detailed route contracts live in `docs/how/02-api-contract.md`.
 
 ## Current Runtime
 
-The current implementation still has a single Spring Boot HTTP runtime. Existing `/api/*` routes are the migration source.
-
-## Target Runtime
+The HTTP runtime is split into `admin-api` and `shop-api`.
 
 ### Admin API
 
@@ -39,4 +37,4 @@ Shop API must not expose product creation, inventory adjustment, full member lis
 
 ## Migration Rule
 
-Every route moved from `/api/*` must be classified as admin or shop before implementation. Ambiguous routes stay out of scope until clarified.
+New routes must be classified as admin or shop before implementation. Ambiguous routes stay out of scope until clarified.

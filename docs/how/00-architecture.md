@@ -49,7 +49,7 @@ modules/application/src/main/kotlin/com/example/cardservice/application
   payment.provided
   payment
 
-modules/admin-api/src/main/kotlin/com/example/cardservice/adminapi
+modules/admin-api/src/main/kotlin/com/example/cardservice
   AdminApiApplication
   web.common
   web.dashboard
@@ -60,7 +60,7 @@ modules/admin-api/src/main/kotlin/com/example/cardservice/adminapi
   web.payment
   web.coupon
 
-modules/shop-api/src/main/kotlin/com/example/cardservice/shopapi
+modules/shop-api/src/main/kotlin/com/example/cardservice
   ShopApiApplication
   web.common
   web.member
@@ -107,8 +107,9 @@ HTTP / Batch inbound adapter
 
 Current implementation note:
 
-- The current runtime still uses `modules/bootstrap`; the target architecture is to replace that boundary with `modules/admin-api` and `modules/shop-api` through approved phases.
-- The first implemented runtime flow is `POST /api/coupon-orders`.
+- The HTTP runtime boundary is split into `modules/admin-api` and `modules/shop-api`.
+- The legacy `modules/bootstrap` runtime has been removed from Gradle modules.
+- The first implemented payment runtime flow is available to admin users as `POST /api/admin/coupon-orders`.
 - Query use cases and QueryDSL read adapters are rules for the next read-side work item and are not implemented yet.
 - Ledger, settlement, reconciliation, and outbox flows are target architecture until their active work items are selected.
 
@@ -160,8 +161,7 @@ Application use case
 - `batch` owns scheduled/batch inbound adapters and delegates work to application use cases.
 - `infra` depends inward on `application` and `domain`; it owns JPA command persistence and QueryDSL read adapters.
 - `external` depends inward on `application` and `domain`; it owns external-system clients, message adapters, and broker details.
-- `admin-api` and `shop-api` are the executable Spring Boot HTTP modules after the split.
-- Until the split phase is complete, the existing `bootstrap` module remains the only executable Spring Boot HTTP module.
+- `admin-api` and `shop-api` are the executable Spring Boot HTTP modules.
 - Web DTOs must not leak into use cases or domain objects.
 - Controller request/response models live under `application/{domain}/request` and `application/{domain}/response`.
 - Controllers, services, request models, and response models are split by feature responsibility when a domain has multiple operator workflows.
@@ -177,7 +177,7 @@ Application use case
 - Query use cases must read through query outbound ports backed by QueryDSL adapters.
 - Query responses should be projections/read models, not mutable domain aggregates.
 - Change persistence adapters and query adapters are separated inside `infra` even if they read from the same database.
-- QueryDSL belongs in the `infra` module; `domain`, `application`, `bootstrap`, `batch`, and `external` must not depend on QueryDSL.
+- QueryDSL belongs in the `infra` module; `domain`, `application`, `admin-api`, `shop-api`, `batch`, and `external` must not depend on QueryDSL.
 
 ## Reliability Decisions
 

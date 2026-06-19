@@ -40,15 +40,11 @@ Split the current `bootstrap` HTTP runtime into `admin-api` and `shop-api` modul
 ## Files To Touch
 
 - `settings.gradle.kts`
-- root `build.gradle.kts`
 - `modules/admin-api`
 - `modules/shop-api`
 - `modules/bootstrap`
-- `modules/application/src/main/kotlin/com/example/cardservice/application/commerce/request`
-- `modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response`
 - `docs/how/00-architecture.md`
-- `docs/how/02-api-contract.md`
-- `docs/how/05-api-state-contract.md`
+- `docs/harness/09-dev-log.md`
 
 ## Test First
 
@@ -60,28 +56,29 @@ Split the current `bootstrap` HTTP runtime into `admin-api` and `shop-api` modul
 
 ## Implementation Steps
 
-- [ ] Add `admin-api` and `shop-api` modules to Gradle.
-- [ ] Add `AdminApiApplication` and `ShopApiApplication` entrypoints.
-- [ ] Move common web response and exception handling into both API modules or a shared web package if duplication becomes harmful.
-- [ ] Move admin controllers to `admin-api` and prefix routes with `/api/admin`.
-- [ ] Move shop controllers to `shop-api` and prefix routes with `/api/shop`.
-- [ ] Remove or retire the old `bootstrap` module once both runtime modules compile and tests pass.
-- [ ] Update tests to target the correct API module.
-- [ ] Run backend validation.
+- [x] Add `admin-api` and `shop-api` modules to Gradle.
+- [x] Add `AdminApiApplication` and `ShopApiApplication` entrypoints.
+- [x] Move common web response and exception handling into both API modules or a shared web package if duplication becomes harmful.
+- [x] Move admin controllers to `admin-api` and prefix routes with `/api/admin`.
+- [x] Move shop controllers to `shop-api` and prefix routes with `/api/shop`.
+- [x] Remove or retire the old `bootstrap` module once both runtime modules compile and tests pass.
+- [x] Update tests to target the correct API module.
+- [x] Run backend validation.
 
 ## Done Criteria
 
-- [ ] `admin-api` starts independently.
-- [ ] `shop-api` starts independently.
-- [ ] Admin routes are available only from `admin-api`.
-- [ ] Shop routes are available only from `shop-api`.
-- [ ] Shared application/domain/infra dependencies compile without duplicating business logic.
-- [ ] Old `bootstrap` runtime is removed or clearly marked as retired.
-- [ ] Relevant Gradle tests pass.
+- [x] `admin-api` starts independently.
+- [x] `shop-api` starts independently.
+- [x] Admin routes are available only from `admin-api`.
+- [x] Shop routes are available only from `shop-api`.
+- [x] Shared application/domain/infra dependencies compile without duplicating business logic.
+- [x] Old `bootstrap` runtime is removed or clearly marked as retired.
+- [x] Relevant Gradle tests pass.
 
 ## Validation
 
 - `JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :admin-api:test :shop-api:test`
+- `JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test`
 
 ## Review Focus
 
