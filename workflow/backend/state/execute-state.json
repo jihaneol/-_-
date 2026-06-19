@@ -35,6 +35,22 @@
       "completed_at": null,
       "last_validation": null,
       "last_checkpoint": null
+    },
+    "phase-006-admin-shop-api-runtime-split.md": {
+      "status": "completed",
+      "started_at": "2026-06-19T14:09:00+00:00",
+      "completed_at": "2026-06-19T14:10:00+00:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-19T14:09:00+00:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test"
+        ]
+      },
+      "last_checkpoint": null,
+      "archive_path": "workflow/backend/archive/2026-06-19/phase-006-admin-shop-api-runtime-split.md",
+      "reviewed_at": "2026-06-19T14:10:00+00:00",
+      "review_note": "admin/shop runtime boundary verified on main integration; Gradle test passed"
     }
   }
 }
