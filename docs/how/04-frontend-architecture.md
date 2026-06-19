@@ -16,25 +16,18 @@ frontend/
       router/
       styles/
     pages/
-      dashboard/
-      payments/
-      settlements/
-      reconciliation/
+      commerce-dashboard/
     widgets/
-      payment-table/
-      payment-detail-panel/
-      settlement-summary/
-      reconciliation-result/
+      order-table/
+      coupon-history-table/
     features/
-      authorize-payment/
-      cancel-payment/
-      run-settlement/
-      run-reconciliation/
+      create-member/
+      create-product/
+      create-order/
+      pay-order/
+      refund-order/
     entities/
-      payment/
-      merchant/
-      settlement/
-      reconciliation/
+      commerce/
     shared/
       api/
       config/

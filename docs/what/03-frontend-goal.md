@@ -2,7 +2,7 @@
 
 ## Role
 
-Build an operator-facing React admin UI for the payment backend.
+Build an operator-facing React admin UI for the commerce order coupon backend.
 
 The frontend is not a marketing site. It exists to make payment flows, settlement results, reconciliation mismatches, and failure states visible.
 
@@ -10,12 +10,12 @@ The frontend is not a marketing site. It exists to make payment flows, settlemen
 
 This UI should help a reviewer understand the backend system quickly:
 
-- Create a payment authorization request.
-- See payment status and ledger-like history.
-- Cancel a payment.
-- Run daily settlement.
-- Run reconciliation.
-- Inspect mismatches.
+- Create a member.
+- Create a product and initial inventory.
+- Create an order.
+- Pay the order and inspect issued stamp coupons.
+- Run a full refund and inspect voided coupons.
+- Inspect coupon history.
 - See API errors and retryable states clearly.
 
 ## Stack

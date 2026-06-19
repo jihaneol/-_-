@@ -6,11 +6,11 @@ Use Vitest and React Testing Library.
 
 Test:
 
-- Authorize payment form validation.
-- Cancel payment confirmation behavior.
-- Payment status badge rendering.
-- Settlement summary formatting.
-- Reconciliation mismatch table states.
+- Order payment form validation.
+- Refund action behavior.
+- Order status badge rendering.
+- Coupon stamp status rendering.
+- Coupon history table states.
 
 ## API Mocking
 
@@ -18,12 +18,12 @@ Use MSW for API responses.
 
 Create handlers for:
 
-- Payment list success.
-- Payment authorization success.
+- Member/product/order list success.
+- Order creation success.
+- Order payment success.
 - Duplicate idempotency error.
-- Cancellation success.
-- Settlement result.
-- Reconciliation mismatch result.
+- Full refund success.
+- Coupon and coupon history success.
 - Server error and retry path.
 
 ## Integration-Like UI Tests
@@ -31,10 +31,10 @@ Create handlers for:
 Test one full user flow with MSW:
 
 ```text
-Given the payment page is open
-When an operator submits a valid authorization request
-Then the success result is shown
-And the payment list is refreshed
+Given the commerce dashboard is open
+When an operator creates an order and pays it
+Then the issued coupon count is shown
+And the order list is refreshed
 ```
 
 ## Optional E2E
@@ -43,8 +43,8 @@ Use Playwright only if backend and frontend are both stable.
 
 Priority E2E flow:
 
-- Authorize payment.
-- Open detail.
-- Cancel payment.
-- Run settlement.
-- Run reconciliation.
+- Create member/product/inventory.
+- Create order.
+- Pay order.
+- Inspect issued coupons.
+- Refund order.
