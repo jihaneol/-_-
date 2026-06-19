@@ -8,9 +8,9 @@ Represent payment history as immutable append-only ledger records.
 
 ## Docs Read
 
-- `docs/backend/03-domain-model.md`
-- `docs/backend/05-architecture.md`
-- `docs/backend/06-test-strategy.md`
+- `docs/how/01-domain-model.md`
+- `docs/how/00-architecture.md`
+- `docs/how/03-test-strategy.md`
 - `rules/test-rule.md`
 - `rules/database-schema-rule.md`
 

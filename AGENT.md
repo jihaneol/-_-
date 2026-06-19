@@ -36,6 +36,7 @@ If two files conflict, follow the higher authority and update the lower one when
 | `hooks/` | Automatic validation scripts |
 | `execute.py` | Phase runner and state manager |
 | `harness/phases/` | Ordered implementation phase files |
+| `harness/archive/` | Completed phase files, moved here by `execute.py complete` |
 | `harness/state/` | Execution state and run handoff |
 | `rules/` | Detailed coding rules |
 
@@ -54,7 +55,7 @@ If two files conflict, follow the higher authority and update the lower one when
 1. Read all relevant `docs/` files before planning implementation.
 2. Discuss unclear product, architecture, or UI decisions with the user before creating new phases.
 3. Split implementation into small ordered phase files under `harness/phases/`.
-4. Use `execute.py` to lint, inspect, start, checkpoint, validate, review, complete, and sync phases.
+4. Use `execute.py` to lint, inspect, start, checkpoint, validate, review, complete, archive, and sync phases.
 5. Run `hooks/validate.sh` before marking a phase complete.
 6. Let `execute.py` update `harness/state/run-state.md`, `.codex/context/active-handoff.md`, and Obsidian handoff records after each phase event.
 7. Use `.codex/skills/review.md` after each meaningful phase or milestone.
@@ -81,6 +82,7 @@ Build `card-service` as a payment/card-service portfolio project that proves tra
 - Start phases from a clean worktree unless there is a deliberate `python3 execute.py start --allow-dirty` reason.
 - Use `python3 execute.py checkpoint "message"` before risky edits, long pauses, or context-heavy changes.
 - In long-running implementation mode, completed phases are auto-committed by `execute.py complete` after all gates pass.
+- Completed phase files leave `harness/phases/` and move to `harness/archive/YYYY-MM-DD/`; active phases only stay in `harness/phases/`.
 - Preserve user changes. Never revert unrelated files.
 - Prefer finished, tested transactional slices over broad shallow scope.
 
@@ -97,4 +99,5 @@ A phase is complete only when:
 - `harness/state/run-state.md` records what changed, what was verified, and the next phase.
 - Obsidian active work and today build-log detail have been updated by `execute.py`.
 - Review-required phases have moved through `review_required` and have a review note before completion.
+- The completed phase file has been archived by `execute.py`.
 - The completed phase is auto-committed unless the user explicitly disables auto commit.

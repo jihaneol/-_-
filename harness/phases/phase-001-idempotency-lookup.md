@@ -8,11 +8,11 @@ Return an existing authorized payment result when the same idempotency key has a
 
 ## Docs Read
 
-- `docs/backend/03-domain-model.md`
-- `docs/backend/04-api-contract.md`
-- `docs/backend/05-architecture.md`
-- `docs/backend/06-test-strategy.md`
-- `docs/02-roadmap.md`
+- `docs/how/01-domain-model.md`
+- `docs/how/02-api-contract.md`
+- `docs/how/00-architecture.md`
+- `docs/how/03-test-strategy.md`
+- `docs/what/02-roadmap.md`
 - `rules/concurrency-rule.md`
 - `rules/test-rule.md`
 

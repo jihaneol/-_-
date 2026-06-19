@@ -1,6 +1,6 @@
 # Architecture
 
-Visual diagrams: `docs/backend/10-architecture-diagram.md`
+Visual diagrams: `docs/how/07-architecture-diagram.md`
 
 ## Style
 

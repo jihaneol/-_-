@@ -6,7 +6,8 @@ Use this skill when converting the project brain and user discussion into execut
 
 - All relevant files under `docs/`.
 - Current user request.
-- Existing phase files under `harness/phases/`.
+- Existing active phase files under `harness/phases/`.
+- Completed phase files under `harness/archive/` when historical context is needed.
 - Current state in `harness/state/run-state.md`.
 
 ## Process
@@ -49,6 +50,7 @@ Use this skill when converting the project brain and user discussion into execut
 ## Phase Rules
 
 - A phase must name the docs it depends on.
+- `docs/what/` defines goals and MVP scope, `docs/how/` defines data flow and implementation patterns, and `docs/why/` records tradeoffs and selection reasons.
 - A phase that touches production code must include `## Test First` with the test file(s), expected first failure, and validation command.
 - A phase must name the smallest meaningful validation.
 - If a phase lists executable commands in `## Validation`, `execute.py validate` runs those commands. If no command is listed, it falls back to `hooks/validate.sh`.
@@ -56,3 +58,4 @@ Use this skill when converting the project brain and user discussion into execut
 - `Done Criteria` checkboxes must be marked `[x]` before completion.
 - A phase must not mix unrelated backend, frontend, and documentation work unless they share one done criterion.
 - A phase that changes payment correctness, idempotency, ledger, settlement, reconciliation, concurrency, persistence, or UI operator flow requires review.
+- Completed phases are removed from `harness/phases/` by `execute.py complete` and kept under `harness/archive/YYYY-MM-DD/`.

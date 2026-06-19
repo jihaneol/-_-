@@ -5,9 +5,9 @@
 ## Flow
 
 ```text
-docs/00-inbox.md
-  -> docs/01-feature-candidates.md
-  -> docs/02-roadmap.md
+docs/operations/00-inbox.md
+  -> docs/operations/01-feature-candidates.md
+  -> docs/what/02-roadmap.md
   -> harness/phases/phase-NNN-title.md
 ```
 
@@ -15,20 +15,20 @@ docs/00-inbox.md
 
 | File | Role | Rule |
 |---|---|---|
-| `docs/00-inbox.md` | 원문에 가까운 아이디어 접수함 | 판단하지 말고 먼저 기록한다. |
-| `docs/01-feature-candidates.md` | 개발 후보 정리 | 가치, 범위, 제외 범위, API/UI 영향, 테스트를 정리한다. |
-| `docs/02-roadmap.md` | 우선순위 최종본 | Now/Next/Later로 배치한다. |
+| `docs/operations/00-inbox.md` | 원문에 가까운 아이디어 접수함 | 판단하지 말고 먼저 기록한다. |
+| `docs/operations/01-feature-candidates.md` | 개발 후보 정리 | 가치, 범위, 제외 범위, API/UI 영향, 테스트를 정리한다. |
+| `docs/what/02-roadmap.md` | 우선순위 최종본 | Now/Next/Later로 배치한다. |
 | `harness/phases/*.md` | phase 구현 계약 | 하나의 phase마다 독립적인 완료/검증 기준을 둔다. |
 
 ## Intake Rule
 
 새 기능이나 범위 변경이 나오면:
 
-1. `docs/00-inbox.md`에 사용자 요청과 날짜를 기록한다.
-2. 구현할 가치가 있으면 `docs/01-feature-candidates.md`에 후보로 다듬는다.
-3. 후보가 현재 목표와 맞으면 `docs/02-roadmap.md`에 Now/Next/Later로 배치한다.
+1. `docs/operations/00-inbox.md`에 사용자 요청과 날짜를 기록한다.
+2. 구현할 가치가 있으면 `docs/operations/01-feature-candidates.md`에 후보로 다듬는다.
+3. 후보가 현재 목표와 맞으면 `docs/what/02-roadmap.md`에 Now/Next/Later로 배치한다.
 4. 실제 개발을 시작할 때만 `harness/phases/phase-NNN-title.md`로 승격한다.
-5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 상태는 `execute.py`와 `harness/state/`에 기록한다.
+5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 파일은 `harness/archive/YYYY-MM-DD/`로 이동하며, phase 상태는 `execute.py`와 `harness/state/`에 기록한다.
 
 ## Multiple Work Rule
 
@@ -58,7 +58,7 @@ React admin frontend scaffold
 Daily settlement batch
 ```
 
-이 경우 `docs/02-roadmap.md`에서 순서를 정하고, `harness/phases/`에는 순서가 드러나는 phase 파일로 하나씩 올린다.
+이 경우 `docs/what/02-roadmap.md`에서 순서를 정하고, `harness/phases/`에는 순서가 드러나는 phase 파일로 하나씩 올린다.
 
 ## Active Work Shape
 
@@ -98,4 +98,4 @@ Daily settlement batch
 - 관련 테스트나 문서 검증이 완료되어야 한다.
 - 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
 - 완료 내용, 수정 이유, 검증 결과, 남은 위험이 Obsidian에 기록되어야 한다.
-- 커밋은 사용자가 명시적으로 요청한 경우에만 한다.
+- 장시간 구현 모드에서는 `execute.py complete`가 검증된 완료 작업을 자동 커밋한다.

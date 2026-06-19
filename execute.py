@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
 PHASE_DIR = ROOT / "harness" / "phases"
+ARCHIVE_DIR = ROOT / "harness" / "archive"
 STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
 RUN_STATE_FILE = ROOT / "harness" / "state" / "run-state.md"
 VALIDATE_HOOK = ROOT / "hooks" / "validate.sh"
@@ -67,6 +68,14 @@ def phase_files() -> list[Path]:
     return sorted(PHASE_DIR.glob("*.md"))
 
 
+def find_phase_path(phase_name: str) -> Path | None:
+    active_path = PHASE_DIR / phase_name
+    if active_path.exists():
+        return active_path
+    matches = sorted(ARCHIVE_DIR.glob(f"**/{phase_name}")) if ARCHIVE_DIR.exists() else []
+    return matches[0] if matches else None
+
+
 def ensure_known_phases(state: dict) -> dict:
     phases = state.setdefault("phases", {})
     for phase in phase_files():
@@ -82,7 +91,8 @@ def ensure_known_phases(state: dict) -> dict:
             item.setdefault(key, value)
     known = {phase.name for phase in phase_files()}
     for name in list(phases):
-        if name not in known:
+        item = phases[name]
+        if name not in known and item.get("status") != "completed" and not item.get("archive_path"):
             phases[name]["status"] = "missing"
     return state
 
@@ -155,8 +165,8 @@ def git_auto_commit(phase_name: str) -> tuple[bool, str]:
 def phase_title(phase_name: str | None) -> str:
     if not phase_name:
         return "-"
-    phase_path = PHASE_DIR / phase_name
-    if not phase_path.exists():
+    phase_path = find_phase_path(phase_name)
+    if not phase_path or not phase_path.exists():
         return phase_name
     for line in phase_path.read_text().splitlines():
         if line.startswith("# "):
@@ -165,8 +175,8 @@ def phase_title(phase_name: str | None) -> str:
 
 
 def phase_text(phase_name: str) -> str:
-    phase_path = PHASE_DIR / phase_name
-    return phase_path.read_text() if phase_path.exists() else ""
+    phase_path = find_phase_path(phase_name)
+    return phase_path.read_text() if phase_path and phase_path.exists() else ""
 
 
 def phase_section(phase_name: str, heading: str) -> str:
@@ -321,7 +331,9 @@ def format_phase_summary(phase_name: str) -> str:
         "Validation",
         "Review Focus",
     ]
-    lines = [f"# {phase_title(phase_name)}", "", f"Path: harness/phases/{phase_name}"]
+    phase_path = find_phase_path(phase_name)
+    path_text = str(phase_path.relative_to(ROOT)) if phase_path else f"harness/phases/{phase_name}"
+    lines = [f"# {phase_title(phase_name)}", "", f"Path: {path_text}"]
     for section in sections:
         content = phase_section(phase_name, section)
         if content:
@@ -330,7 +342,10 @@ def format_phase_summary(phase_name: str) -> str:
 
 
 def phase_path_text(phase_name: str | None) -> str:
-    return f"`harness/phases/{phase_name}`" if phase_name else "-"
+    if not phase_name:
+        return "-"
+    path = find_phase_path(phase_name)
+    return f"`{path.relative_to(ROOT)}`" if path else f"`harness/phases/{phase_name}`"
 
 
 def validation_text(phase: dict | None) -> str:
@@ -502,7 +517,8 @@ tags:
 - Harness skill: `{ROOT / ".codex/skills/harness.md"}`
 - Review skill: `{ROOT / ".codex/skills/review.md"}`
 - Project brain: `{ROOT / "docs"}`
-- Phase files: `{ROOT / "harness/phases"}`
+- Active phase files: `{ROOT / "harness/phases"}`
+- Archived phase files: `{ROOT / "harness/archive"}`
 - Execute state: `{STATE_FILE}`
 - Run state: `{RUN_STATE_FILE}`
 - Local handoff: `{LOCAL_HANDOFF_FILE}`
@@ -535,9 +551,19 @@ def cmd_status(_: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     save_state(state)
     print(f"Current phase: {state.get('current_phase') or '-'}")
+    print("Active phases:")
     for phase in phase_files():
         item = state["phases"][phase.name]
         print(f"{item['status']:>10}  {phase.name}")
+    archived = [
+        (name, item)
+        for name, item in sorted(state["phases"].items())
+        if item.get("status") == "completed" and item.get("archive_path")
+    ]
+    if archived:
+        print("Archived phases:")
+        for name, item in archived:
+            print(f"{item['status']:>10}  {name} -> {item['archive_path']}")
     return 0
 
 
@@ -739,6 +765,22 @@ def cmd_review(args: argparse.Namespace) -> int:
     return 0
 
 
+def archive_phase_file(phase_name: str) -> str | None:
+    source = PHASE_DIR / phase_name
+    if not source.exists():
+        archived = find_phase_path(phase_name)
+        return str(archived.relative_to(ROOT)) if archived else None
+
+    target_dir = ARCHIVE_DIR / today_text()
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / phase_name
+    if target.exists():
+        suffix = now_local().strftime("%H%M%S")
+        target = target_dir / f"{source.stem}-{suffix}{source.suffix}"
+    source.rename(target)
+    return str(target.relative_to(ROOT))
+
+
 def cmd_complete(_: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     current = state.get("current_phase")
@@ -775,9 +817,12 @@ def cmd_complete(_: argparse.Namespace) -> int:
 
     state["phases"][current]["status"] = "completed"
     state["phases"][current]["completed_at"] = now_utc()
+    archive_path = archive_phase_file(current)
+    if archive_path:
+        state["phases"][current]["archive_path"] = archive_path
     state["current_phase"] = None
     save_state(state)
-    append_run_state(f"- Completed phase: `{current}`\n- Commit: pending")
+    append_run_state(f"- Completed phase: `{current}`\n- Archive: `{archive_path or '-'}`\n- Commit: pending")
     append_day_event("phase completed", current, details="commit: pending")
     sync_handoff(state, event="phase completed")
 

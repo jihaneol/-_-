@@ -18,7 +18,7 @@
 12. Mark all completed `Done Criteria` checkboxes as `[x]`.
 13. Complete with `python3 execute.py complete`.
 
-Completion automatically commits the finished phase when all gates pass.
+Completion automatically moves the finished phase into `harness/archive/YYYY-MM-DD/` and commits the result when all gates pass.
 
 `execute.py` automatically syncs phase state to:
 
@@ -51,6 +51,7 @@ Completion automatically commits the finished phase when all gates pass.
 - All `Done Criteria` checkboxes marked `[x]`.
 - Review accepted when the phase has `Review Focus`.
 - No pre-existing dirty files from phase start remain changed.
+- Completed phase file archived under `harness/archive/YYYY-MM-DD/`.
 - Auto commit succeeds or there are no changes to commit.
 
 `execute.py validate` requires:
@@ -63,4 +64,5 @@ Completion automatically commits the finished phase when all gates pass.
 | Path | Role |
 |---|---|
 | `harness/phases/` | Ordered implementation phase files |
+| `harness/archive/` | Completed phase files grouped by completion date |
 | `harness/state/` | Execution state, run handoff, and phase status |

@@ -8,9 +8,9 @@ Avoid repeated external payment approval and coupon accrual when a coupon order 
 
 ## Docs Read
 
-- `docs/backend/04-api-contract.md`
-- `docs/backend/05-architecture.md`
-- `docs/backend/06-test-strategy.md`
+- `docs/how/02-api-contract.md`
+- `docs/how/00-architecture.md`
+- `docs/how/03-test-strategy.md`
 - `rules/concurrency-rule.md`
 - `rules/transaction-rule.md`
 - `rules/test-rule.md`

@@ -38,11 +38,12 @@
 
 | File | Role | History policy |
 |---|---|---|
-| `docs/00-inbox.md` | 아직 정리되지 않은 새 아이디어 | 처리 후 Obsidian에 기록하고 항목 삭제 가능 |
-| `docs/01-feature-candidates.md` | 현재 검토 중인 기능 후보 | 승인/거절 후 Obsidian에 기록하고 정리 |
-| `docs/02-roadmap.md` | 현재 우선순위 최종본 | 변경 이유는 Obsidian에 기록 |
-| `harness/phases/*.md` | phase 구현 계약 | 완료 후 Obsidian에 기록하고 실행 상태는 `harness/state/`에 보관 |
-| `docs/05-dev-checklist.md` | 현재 체크리스트 최종본 | 변경 이유는 Obsidian에 기록 |
+| `docs/operations/00-inbox.md` | 아직 정리되지 않은 새 아이디어 | 처리 후 Obsidian에 기록하고 항목 삭제 가능 |
+| `docs/operations/01-feature-candidates.md` | 현재 검토 중인 기능 후보 | 승인/거절 후 Obsidian에 기록하고 정리 |
+| `docs/what/02-roadmap.md` | 현재 우선순위 최종본 | 변경 이유는 Obsidian에 기록 |
+| `harness/phases/*.md` | active phase 구현 계약 | 완료 후 Obsidian에 기록하고 phase 파일은 `harness/archive/YYYY-MM-DD/`로 이동 |
+| `harness/archive/` | 완료된 phase 파일 | 실행 대기열에서 제거된 완료 계약 |
+| `docs/operations/05-dev-checklist.md` | 현재 체크리스트 최종본 | 변경 이유는 Obsidian에 기록 |
 | `AGENT.md` | Codex 프로젝트 운영 진입점 | 변경 이유는 Obsidian에 기록 |
 | `rules/backend-architecture.md` | 백엔드 모듈, CQRS, QueryDSL 규칙 | 변경 이유는 Obsidian에 기록 |
 | `rules/controller-code-rule.md` | 컨트롤러 코드 작성 규칙 | 변경 이유는 Obsidian에 기록 |
@@ -177,11 +178,11 @@ Next:
 
 삭제하면 안 되는 파일:
 
-- `docs/00-inbox.md`
-- `docs/01-feature-candidates.md`
-- `docs/02-roadmap.md`
+- `docs/operations/00-inbox.md`
+- `docs/operations/01-feature-candidates.md`
+- `docs/what/02-roadmap.md`
 - `harness/phases/*.md`
-- `docs/05-dev-checklist.md`
+- `docs/operations/05-dev-checklist.md`
 - `.codex/templates/*`
 - `AGENT.md`
 - `rules/backend-architecture.md`

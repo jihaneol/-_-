@@ -76,9 +76,9 @@ docker compose up -d mysql
 
 ## Project Notes
 
-- Current phase: `harness/phases/phase-001-payment-idempotency-ledger.md`
+- Next phase: `harness/phases/phase-001-idempotency-lookup.md`
 - Current run state: `harness/state/run-state.md`
 - Project brain: `docs/`
 - Agent skills: `.codex/skills`
 - Validation hooks: `hooks/`
-- Completed work history is archived in Obsidian.
+- Completed work history is archived in Obsidian, and completed phase files move to `harness/archive/YYYY-MM-DD/`.

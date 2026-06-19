@@ -19,7 +19,7 @@ type/short-topic
 예시:
 
 ```text
-docs/backend-update
+docs/project-brain-update
 chore/project-scaffold
 chore/frontend-scaffold
 feat/payment-authorization
@@ -196,7 +196,7 @@ feat: 정산과 대사 화면 추가
 test: MSW 기반 결제 UI 흐름 추가
 ```
 
-프론트 작업은 `docs/frontend/`와 프론트 phase 파일이 준비된 뒤 시작한다.
+프론트 작업은 `docs/what/`, `docs/how/`의 프론트 계획과 프론트 phase 파일이 준비된 뒤 시작한다.
 
 ## Commit Before Checklist
 
