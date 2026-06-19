@@ -11,12 +11,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_DIR = ROOT / "scripts"
-PHASE_DIR = ROOT / "workflow" / "phases"
-ARCHIVE_DIR = ROOT / "workflow" / "archive"
-STATE_FILE = ROOT / "workflow" / "state" / "execute-state.json"
-RUN_STATE_FILE = ROOT / "workflow" / "state" / "run-state.md"
 HOOK_DIR = SCRIPT_DIR / "hooks"
-VALIDATE_HOOK = HOOK_DIR / "validate.sh"
 COMMAND_GUARD = HOOK_DIR / "guard_command.py"
 CIRCUIT_BREAKER = HOOK_DIR / "circuit_breaker.py"
 PROJECT_NAME = "card-service"
@@ -27,6 +22,16 @@ OBSIDIAN_INDEX_FILE = OBSIDIAN_BUILD_DIR / "작업기록.md"
 OBSIDIAN_ACTIVE_FILE = OBSIDIAN_ROOT / "09.Context Handoffs" / "01.Active Work" / PROJECT_NAME / "현재작업.md"
 LOCAL_HANDOFF_FILE = ROOT / ".codex" / "context" / "active-handoff.md"
 SEOUL = ZoneInfo("Asia/Seoul")
+LANE = "backend"
+PHASE_DIR = ROOT / "workflow" / LANE / "phases"
+ARCHIVE_DIR = ROOT / "workflow" / LANE / "archive"
+STATE_FILE = ROOT / "workflow" / LANE / "state" / "execute-state.json"
+RUN_STATE_FILE = ROOT / "workflow" / LANE / "state" / "run-state.md"
+VALIDATE_HOOK = HOOK_DIR / f"validate_{LANE}.sh"
+LANE_VALIDATE_HOOKS = {
+    "backend": HOOK_DIR / "validate_backend.sh",
+    "frontend": HOOK_DIR / "validate_frontend.sh",
+}
 REQUIRED_PHASE_SECTIONS = [
     "Goal",
     "Docs Read",
@@ -43,6 +48,18 @@ SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
 ALWAYS_ALLOWED_PREFIXES = ("docs/", "workflow/", ".codex/", "rules/", "scripts/hooks/", "scripts/execute.py", "README.md", "AGENT.md")
 AUTO_COMMIT_ON_COMPLETE = True
+
+
+def configure_lane(lane: str) -> None:
+    global LANE, PHASE_DIR, ARCHIVE_DIR, STATE_FILE, RUN_STATE_FILE, VALIDATE_HOOK
+    if lane not in LANE_VALIDATE_HOOKS:
+        raise ValueError(f"Unknown lane: {lane}")
+    LANE = lane
+    PHASE_DIR = ROOT / "workflow" / lane / "phases"
+    ARCHIVE_DIR = ROOT / "workflow" / lane / "archive"
+    STATE_FILE = ROOT / "workflow" / lane / "state" / "execute-state.json"
+    RUN_STATE_FILE = ROOT / "workflow" / lane / "state" / "run-state.md"
+    VALIDATE_HOOK = LANE_VALIDATE_HOOKS[lane]
 
 
 def load_state() -> dict:
@@ -115,6 +132,7 @@ def current_or_next_phase(state: dict) -> str | None:
 
 def append_run_state(message: str) -> None:
     timestamp = now_utc()
+    RUN_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     with RUN_STATE_FILE.open("a") as file:
         file.write(f"\n## scripts/execute.py {timestamp}\n\n{message}\n")
 
@@ -152,13 +170,13 @@ def guard_command(command: list[str]) -> int:
 
 
 def circuit_check(key: str) -> int:
-    result = subprocess.run(["python3", str(CIRCUIT_BREAKER), "check", "--key", key], cwd=ROOT)
+    result = subprocess.run(["python3", str(CIRCUIT_BREAKER), "--lane", LANE, "check", "--key", key], cwd=ROOT)
     return result.returncode
 
 
 def circuit_record(key: str, status: str, summary: str = "-") -> int:
     result = subprocess.run(
-        ["python3", str(CIRCUIT_BREAKER), "record", "--key", key, "--status", status, "--summary", summary],
+        ["python3", str(CIRCUIT_BREAKER), "--lane", LANE, "record", "--key", key, "--status", status, "--summary", summary],
         cwd=ROOT,
     )
     return result.returncode
@@ -366,7 +384,7 @@ def lint_phase(phase_path: Path) -> tuple[list[str], list[str]]:
 
 
 def enforce_tdd_guard() -> int:
-    return run_guarded_command(["python3", "scripts/hooks/enforce_tdd.py"])
+    return run_guarded_command(["python3", "scripts/hooks/enforce_tdd.py", "--lane", LANE])
 
 
 def scope_check(phase_name: str) -> list[str]:
@@ -973,6 +991,7 @@ def cmd_complete(_: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Phase runner and state manager.")
+    parser.add_argument("--lane", choices=sorted(LANE_VALIDATE_HOOKS), default="backend")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("status").set_defaults(func=cmd_status)
@@ -998,6 +1017,7 @@ def main() -> int:
     subparsers.add_parser("complete").set_defaults(func=cmd_complete)
 
     args = parser.parse_args()
+    configure_lane(args.lane)
     return args.func(args)
 
 

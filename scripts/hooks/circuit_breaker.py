@@ -8,8 +8,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-STATE_FILE = ROOT / "workflow" / "state" / "circuit-breaker.json"
 THRESHOLD = 6
+LANE = "backend"
+STATE_FILE = ROOT / "workflow" / LANE / "state" / "circuit-breaker.json"
+
+
+def configure_lane(lane: str) -> None:
+    global LANE, STATE_FILE
+    if lane not in {"backend", "frontend"}:
+        raise ValueError(f"Unknown lane: {lane}")
+    LANE = lane
+    STATE_FILE = ROOT / "workflow" / lane / "state" / "circuit-breaker.json"
 
 
 def now_utc() -> str:
@@ -79,6 +88,7 @@ def cmd_record(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Track repeated workflow failures.")
+    parser.add_argument("--lane", choices=["backend", "frontend"], default="backend")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     check = subparsers.add_parser("check")
@@ -92,6 +102,7 @@ def main() -> int:
     record.set_defaults(func=cmd_record)
 
     args = parser.parse_args()
+    configure_lane(args.lane)
     return args.func(args)
 
 

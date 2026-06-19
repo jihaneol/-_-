@@ -35,13 +35,6 @@
       "completed_at": null,
       "last_validation": null,
       "last_checkpoint": null
-    },
-    "phase-006-commerce-admin-frontend.md": {
-      "status": "missing",
-      "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
     }
   }
 }

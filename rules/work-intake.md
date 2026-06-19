@@ -1,6 +1,6 @@
 # Work Intake Rule
 
-이 프로젝트는 새 기능을 바로 구현하지 않고, 작은 phase로 다듬은 뒤 `workflow/phases/*.md`에 올린 작업만 구현한다.
+이 프로젝트는 새 기능을 바로 구현하지 않고, 작은 phase로 다듬은 뒤 lane별 phase 폴더에 올린 작업만 구현한다.
 
 ## Flow
 
@@ -8,7 +8,7 @@
 docs/operations/00-inbox.md
   -> docs/operations/01-feature-candidates.md
   -> docs/what/02-roadmap.md
-  -> workflow/phases/phase-NNN-title.md
+  -> workflow/{backend,frontend}/phases/phase-NNN-title.md
 ```
 
 ## File Roles
@@ -18,7 +18,8 @@ docs/operations/00-inbox.md
 | `docs/operations/00-inbox.md` | 원문에 가까운 아이디어 접수함 | 판단하지 말고 먼저 기록한다. |
 | `docs/operations/01-feature-candidates.md` | 개발 후보 정리 | 가치, 범위, 제외 범위, API/UI 영향, 테스트를 정리한다. |
 | `docs/what/02-roadmap.md` | 우선순위 최종본 | Now/Next/Later로 배치한다. |
-| `workflow/phases/*.md` | phase 구현 계약 | 하나의 phase마다 독립적인 완료/검증 기준을 둔다. |
+| `workflow/backend/phases/*.md` | backend phase 구현 계약 | 하나의 phase마다 독립적인 완료/검증 기준을 둔다. |
+| `workflow/frontend/phases/*.md` | frontend phase 구현 계약 | 하나의 phase마다 독립적인 완료/검증 기준을 둔다. |
 
 ## Intake Rule
 
@@ -27,8 +28,8 @@ docs/operations/00-inbox.md
 1. `docs/operations/00-inbox.md`에 사용자 요청과 날짜를 기록한다.
 2. 구현할 가치가 있으면 `docs/operations/01-feature-candidates.md`에 후보로 다듬는다.
 3. 후보가 현재 목표와 맞으면 `docs/what/02-roadmap.md`에 Now/Next/Later로 배치한다.
-4. 실제 개발을 시작할 때만 `workflow/phases/phase-NNN-title.md`로 승격한다.
-5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 파일은 `workflow/archive/YYYY-MM-DD/`로 이동하며, phase 상태는 `scripts/execute.py`와 `workflow/state/`에 기록한다.
+4. 실제 개발을 시작할 때만 lane별 `phases/phase-NNN-title.md`로 승격한다.
+5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 파일은 lane별 `archive/YYYY-MM-DD/`로 이동하며, phase 상태는 `scripts/execute.py --lane <backend|frontend>`와 lane별 `state/`에 기록한다.
 
 ## Multiple Work Rule
 
@@ -58,11 +59,11 @@ React admin frontend scaffold
 Daily settlement batch
 ```
 
-이 경우 `docs/what/02-roadmap.md`에서 순서를 정하고, `workflow/phases/`에는 순서가 드러나는 phase 파일로 하나씩 올린다.
+이 경우 `docs/what/02-roadmap.md`에서 순서를 정하고, lane별 `phases/`에는 순서가 드러나는 phase 파일로 하나씩 올린다.
 
 ## Active Work Shape
 
-`workflow/phases/*.md`에는 최소한 다음 항목을 둔다.
+lane별 phase 파일에는 최소한 다음 항목을 둔다.
 
 ```md
 # Phase NNN: Title

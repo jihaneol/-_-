@@ -40,7 +40,7 @@ Create a React admin UI where an operator can create member/product/inventory da
 ## Test First
 
 - Add a UI test that renders the order workflow and verifies paid amount plus issued coupon count.
-- Validation command: `npm test -- --run`
+- Validation command: `npm --prefix frontend test -- --run`
 
 ## Implementation Steps
 
@@ -60,8 +60,8 @@ Create a React admin UI where an operator can create member/product/inventory da
 
 ## Validation
 
-- `npm test -- --run`
-- `npm run build`
+- `npm --prefix frontend test -- --run`
+- `npm --prefix frontend run build`
 
 ## Review Focus
 

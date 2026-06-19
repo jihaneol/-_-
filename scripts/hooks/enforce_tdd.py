@@ -3,17 +3,29 @@ import subprocess
 import sys
 import json
 import re
+import argparse
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-STATE_FILE = ROOT / "workflow" / "state" / "execute-state.json"
-PHASE_DIR = ROOT / "workflow" / "phases"
-ARCHIVE_DIR = ROOT / "workflow" / "archive"
+LANE = "backend"
+STATE_FILE = ROOT / "workflow" / LANE / "state" / "execute-state.json"
+PHASE_DIR = ROOT / "workflow" / LANE / "phases"
+ARCHIVE_DIR = ROOT / "workflow" / LANE / "archive"
 SOURCE_PREFIXES = ("modules/", "src/", "app/", "frontend/")
 SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
 DOC_PREFIXES = ("docs/", "workflow/", ".codex/", "rules/", "scripts/hooks/")
+
+
+def configure_lane(lane: str) -> None:
+    global LANE, STATE_FILE, PHASE_DIR, ARCHIVE_DIR
+    if lane not in {"backend", "frontend"}:
+        raise ValueError(f"Unknown lane: {lane}")
+    LANE = lane
+    STATE_FILE = ROOT / "workflow" / lane / "state" / "execute-state.json"
+    PHASE_DIR = ROOT / "workflow" / lane / "phases"
+    ARCHIVE_DIR = ROOT / "workflow" / lane / "archive"
 
 
 def git_changed_files() -> list[str]:
@@ -77,6 +89,11 @@ def meaningful_section(text: str, heading: str) -> bool:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Enforce TDD for active workflow lane.")
+    parser.add_argument("--lane", choices=["backend", "frontend"], default="backend")
+    args = parser.parse_args()
+    configure_lane(args.lane)
+
     files = git_changed_files()
     source_changes = [path for path in files if is_source_file(path)]
     test_changes = [path for path in files if is_test_file(path)]

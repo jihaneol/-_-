@@ -6,12 +6,12 @@ Only shaped feature candidates should appear here.
 
 | Feature | Why now | Development basis |
 |---|---|---|
-| Payment idempotency lookup | Prevent duplicate payment creation before ledger work | `workflow/phases/phase-001-idempotency-lookup.md` |
-| Payment ledger domain | Add immutable history record model after idempotency lookup | `workflow/phases/phase-002-payment-ledger-domain.md` |
-| Ledger append port | Connect authorization flow to append-only ledger records | `workflow/phases/phase-003-ledger-append-port.md` |
-| Coupon order duplicate flow | Prevent duplicate external side effects in the first API workflow | `workflow/phases/phase-004-coupon-order-duplicate-flow.md` |
-| Commerce order coupon MVP | Add member/product/inventory/order CRUD, stamp coupon issuance, full refund, and soft delete policy | `workflow/phases/phase-005-commerce-order-coupon-mvp.md` |
-| Commerce admin frontend | Add React admin UI for the commerce order coupon MVP | `workflow/phases/phase-006-commerce-admin-frontend.md` |
+| Payment idempotency lookup | Prevent duplicate payment creation before ledger work | `workflow/backend/phases/phase-001-idempotency-lookup.md` |
+| Payment ledger domain | Add immutable history record model after idempotency lookup | `workflow/backend/phases/phase-002-payment-ledger-domain.md` |
+| Ledger append port | Connect authorization flow to append-only ledger records | `workflow/backend/phases/phase-003-ledger-append-port.md` |
+| Coupon order duplicate flow | Prevent duplicate external side effects in the first API workflow | `workflow/backend/phases/phase-004-coupon-order-duplicate-flow.md` |
+| Commerce order coupon MVP | Add member/product/inventory/order CRUD, stamp coupon issuance, full refund, and soft delete policy | `workflow/backend/phases/phase-005-commerce-order-coupon-mvp.md` |
+| Commerce admin frontend | Add React admin UI for the commerce order coupon MVP | `workflow/frontend/archive/2026-06-19/phase-006-commerce-admin-frontend.md` |
 
 ## Next
 

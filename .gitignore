@@ -8,7 +8,7 @@
 .idea/dictionaries/
 .idea/shelf/
 .codex/context/
-workflow/state/circuit-breaker.json
+workflow/*/state/circuit-breaker.json
 
 # Build outputs
 build/
