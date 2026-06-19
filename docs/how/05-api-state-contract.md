@@ -14,6 +14,7 @@ Responsibilities:
 ## Query Keys
 
 ```text
+commerce.summary
 commerce.members
 commerce.products
 commerce.orders
@@ -26,12 +27,14 @@ commerce.histories(memberId)
 
 | Mutation | Invalidates |
 |---|---|
-| createMember | `commerce.members` |
-| createProduct | `commerce.products` |
+| createMember | `commerce.members`, `commerce.summary` |
+| createProduct | `commerce.products`, `commerce.summary` |
 | createInventory | `commerce.inventory(productId)` |
-| createOrder | `commerce.orders` |
-| payOrder | `commerce.orders`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
-| refundOrder | `commerce.orders`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
+| increaseInventory | `commerce.inventory(productId)` |
+| createOrder | `commerce.orders`, `commerce.summary` |
+| cancelOrder | `commerce.orders`, `commerce.summary` |
+| payOrder | `commerce.orders`, `commerce.summary`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
+| refundOrder | `commerce.orders`, `commerce.summary`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
 
 ## Error Model
 
