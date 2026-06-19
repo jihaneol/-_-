@@ -4,11 +4,15 @@
 
 ```mermaid
 flowchart TB
-    Bootstrap["bootstrap\nSpring Boot runtime\nREST web adapter"] --> Application["application\ndomain-root services/models\nrequired/provided ports\nrequest/response"]
-    Bootstrap --> Batch["batch\nscheduled/batch adapter"]
-    Bootstrap --> Infra["infra\nJPA persistence\nQueryDSL read adapter"]
-    Bootstrap --> External["external\nexternal system/message adapter"]
-    Bootstrap --> Domain["domain\naggregate/JPA entity\nvalue/domainservice"]
+    AdminApi["admin-api\noperator Spring Boot runtime\nREST web adapter"] --> Application["application\ndomain-root services/models\nrequired/provided ports\nrequest/response"]
+    ShopApi["shop-api\ncustomer Spring Boot runtime\nREST web adapter"] --> Application
+    AdminApi --> Batch["batch\nscheduled/batch adapter"]
+    AdminApi --> Infra["infra\nJPA persistence\nQueryDSL read adapter"]
+    ShopApi --> Infra
+    AdminApi --> External["external\nexternal system/message adapter"]
+    ShopApi --> External
+    AdminApi --> Domain["domain\naggregate/JPA entity\nvalue/domainservice"]
+    ShopApi --> Domain
 
     Batch --> Application
     Batch --> Domain
@@ -26,9 +30,15 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    subgraph Bootstrap["bootstrap"]
+    subgraph AdminApi["admin-api"]
         WebCommon["web.common\nApiResponse\nApiErrorResponse\nGlobalApiExceptionHandler"]
         WebPayment["web.payment\nCouponOrderController"]
+        WebAdminCommerce["web.commerce\nAdmin commerce controllers"]
+    end
+
+    subgraph ShopApi["shop-api"]
+        ShopCommon["web.common\nApiResponse\nApiErrorResponse\nGlobalApiExceptionHandler"]
+        WebShop["web.shop\nShop controllers"]
     end
 
     subgraph Application["application"]
@@ -65,7 +75,7 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant Client
-    participant Controller as bootstrap/web/payment Controller
+    participant Controller as admin-api or shop-api Controller
     participant Required as application/payment/required UseCase
     participant Service as application/payment Service/Facade
     participant Domain as domain/payment
@@ -92,7 +102,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Client
-    participant Controller as bootstrap/web/payment QueryController
+    participant Controller as admin-api or shop-api QueryController
     participant Required as application/payment/required QueryUseCase
     participant Service as application/payment QueryService/Facade
     participant Provided as application/payment/provided QueryPort

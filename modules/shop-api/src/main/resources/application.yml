@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: card-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/card_service}
+    username: ${SPRING_DATASOURCE_USERNAME:card_service}
+    password: ${SPRING_DATASOURCE_PASSWORD:card_service}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

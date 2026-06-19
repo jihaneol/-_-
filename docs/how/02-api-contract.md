@@ -2,9 +2,9 @@
 
 ## Implemented API
 
-### Create Coupon Order
+### Legacy Create Coupon Order
 
-`POST /api/coupon-orders`
+`POST /api/admin/coupon-orders`
 
 This is the first concrete payment scenario. It creates a coupon order, approves payment through a mock external payment port, and accrues coupons after payment approval.
 
@@ -54,13 +54,13 @@ Implementation notes:
 
 The following endpoints are target contracts for upcoming work and are not implemented in the current runtime.
 
-## Current Commerce Coupon MVP API
+## Current Admin Commerce Coupon MVP API
 
-The following endpoints define the current MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund. These routes exist under the current single `bootstrap` runtime and are the migration source for the planned admin/shop split.
+The following endpoints define the current admin MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund. These routes are exposed by `admin-api`.
 
 ### Dashboard
 
-- `GET /api/dashboard/summary`: main page counters for active members, products, orders, paid orders, refunded orders, and issued stamp coupons.
+- `GET /api/admin/dashboard/summary`: main page counters for active members, products, orders, paid orders, refunded orders, and issued stamp coupons.
 
 Success:
 
@@ -81,35 +81,35 @@ Success:
 
 ### Members
 
-- `POST /api/members`
-- `GET /api/members`
-- `GET /api/members/{memberId}`
-- `PATCH /api/members/{memberId}`
-- `DELETE /api/members/{memberId}`: soft delete only.
+- `POST /api/admin/members`
+- `GET /api/admin/members`
+- `GET /api/admin/members/{memberId}`
+- `PATCH /api/admin/members/{memberId}`
+- `DELETE /api/admin/members/{memberId}`: soft delete only.
 
 ### Products
 
-- `POST /api/products`
-- `GET /api/products`
-- `GET /api/products/{productId}`
-- `PATCH /api/products/{productId}`
-- `DELETE /api/products/{productId}`: soft delete only.
+- `POST /api/admin/products`
+- `GET /api/admin/products`
+- `GET /api/admin/products/{productId}`
+- `PATCH /api/admin/products/{productId}`
+- `DELETE /api/admin/products/{productId}`: soft delete only.
 
 ### Inventory
 
-- `POST /api/products/{productId}/inventory`
-- `GET /api/products/{productId}/inventory`
-- `POST /api/products/{productId}/inventory/increase`
-- `POST /api/products/{productId}/inventory/decrease`
+- `POST /api/admin/products/{productId}/inventory`
+- `GET /api/admin/products/{productId}/inventory`
+- `POST /api/admin/products/{productId}/inventory/increase`
+- `POST /api/admin/products/{productId}/inventory/decrease`
 
 ### Orders
 
-- `POST /api/orders`
-- `GET /api/orders`
-- `GET /api/orders/{orderId}`
-- `POST /api/orders/{orderId}/cancel`: allowed only before payment.
-- `POST /api/orders/{orderId}/pay`: authorizes payment, deducts inventory, and issues stamp coupons.
-- `POST /api/orders/{orderId}/refund`: full refund only. Partial refund is rejected. Issued coupons are voided with reversal history.
+- `POST /api/admin/orders`
+- `GET /api/admin/orders`
+- `GET /api/admin/orders/{orderId}`
+- `POST /api/admin/orders/{orderId}/cancel`: allowed only before payment.
+- `POST /api/admin/orders/{orderId}/pay`: authorizes payment, deducts inventory, and issues stamp coupons.
+- `POST /api/admin/orders/{orderId}/refund`: full refund only. Partial refund is rejected. Issued coupons are voided with reversal history.
 
 Pay order request:
 
@@ -138,42 +138,11 @@ Pay order success:
 
 ### Coupons
 
-- `GET /api/members/{memberId}/coupons`: issued stamp coupon records.
-- `GET /api/members/{memberId}/coupon-histories`
-- `GET /api/orders/{orderId}/coupon-histories`
-
-## Planned Admin And Shop API Split
-
-The target HTTP runtime split introduces two explicit API namespaces. Existing `/api/*` commerce routes should be migrated into one of these namespaces through approved backend phases.
-
-### Admin API
-
-Admin routes expose operator workflows only.
-
-- `GET /api/admin/dashboard/summary`
-- `POST /api/admin/members`
-- `GET /api/admin/members`
-- `GET /api/admin/members/{memberId}`
-- `PATCH /api/admin/members/{memberId}`
-- `DELETE /api/admin/members/{memberId}`
-- `POST /api/admin/products`
-- `GET /api/admin/products`
-- `GET /api/admin/products/{productId}`
-- `PATCH /api/admin/products/{productId}`
-- `DELETE /api/admin/products/{productId}`
-- `POST /api/admin/products/{productId}/inventory`
-- `GET /api/admin/products/{productId}/inventory`
-- `POST /api/admin/products/{productId}/inventory/increase`
-- `POST /api/admin/products/{productId}/inventory/decrease`
-- `GET /api/admin/orders`
-- `GET /api/admin/orders/{orderId}`
-- `POST /api/admin/orders/{orderId}/cancel`
-- `POST /api/admin/orders/{orderId}/refund`
-- `GET /api/admin/members/{memberId}/coupons`
+- `GET /api/admin/members/{memberId}/coupons`: issued stamp coupon records.
 - `GET /api/admin/members/{memberId}/coupon-histories`
 - `GET /api/admin/orders/{orderId}/coupon-histories`
 
-### Shop API
+## Current Shop API
 
 Shop routes expose customer workflows only. They must not expose product creation, inventory adjustment, full member listing, dashboard, or operational refund endpoints.
 
@@ -181,10 +150,13 @@ Shop routes expose customer workflows only. They must not expose product creatio
 - `GET /api/shop/products`: sale product catalog.
 - `GET /api/shop/products/{productId}`: sale product detail.
 - `POST /api/shop/orders`: create a customer order.
-- `GET /api/shop/members/{memberId}/orders`: customer order history.
+- `GET /api/shop/orders/{orderId}`: customer order detail by order id.
 - `POST /api/shop/orders/{orderId}/pay`: pay a customer order and issue stamp coupons.
 - `GET /api/shop/members/{memberId}/coupons`: customer coupon wallet.
 - `GET /api/shop/members/{memberId}/coupon-histories`: customer coupon history.
+
+## Planned Shop Coupon Exchange
+
 - `POST /api/shop/members/{memberId}/coupons/exchange`: exchange ten issued stamp coupons for one product.
 
 Shop coupon exchange marks coupons as `EXCHANGED`, appends coupon history, and deducts product inventory. Whether exchange creates an order record is still a planning decision.
