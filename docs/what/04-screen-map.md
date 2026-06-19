@@ -1,6 +1,6 @@
 # Screen Map
 
-## Routes
+## Admin App Routes
 
 | Route | Purpose |
 |---|---|
@@ -8,6 +8,16 @@
 | `/members` | Member creation, member list, member coupon inspection |
 | `/products` | Product creation, inventory creation, inventory increase |
 | `/orders-payments` | Order creation, payment, cancellation, full refund |
+
+## Shop App Routes
+
+| Route | Purpose |
+|---|---|
+| `/` | Customer product catalog and shopping entry |
+| `/signup` | Demo member signup before authentication exists |
+| `/cart` | Cart review and order payment |
+| `/coupons` | Customer coupon wallet and stamp progress |
+| `/orders` | Customer order result and simple history |
 
 ## Main Page
 
@@ -37,6 +47,24 @@
 - Order table with status badges.
 - Pre-payment order cancellation.
 - Full refund action for paid orders.
+
+## Shop Catalog Page
+
+- Sale product catalog from shop-scoped product API.
+- Add-to-cart action.
+- Selected demo member state until authentication exists.
+
+## Shop Coupon Wallet Page
+
+- Usable issued coupon count.
+- Ten-stamp progress.
+- Coupon exchange entry point after policy is approved.
+
+## Separation Rules
+
+- Admin screens use only `/api/admin/**`.
+- Shop screens use only `/api/shop/**`.
+- Shop screens must not expose product creation, inventory adjustment, full member list, operational refund, or dashboard APIs.
 
 ## Required UI States
 

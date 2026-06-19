@@ -13,27 +13,44 @@ main
 작업 브랜치 형식:
 
 ```text
-frontend/short-topic
-backend/short-topic
+docs/short-topic
+back/short-topic
+front/short-topic
+common/short-topic
 ```
 
 예시:
 
 ```text
-frontend/admin-ui
-frontend/payment-admin-page
-backend/payment-authorization
-backend/payment-cancellation
-backend/settlement-batch
-backend/reconciliation
+docs/admin-shop-split-planning
+back/payment-authorization
+back/payment-cancellation
+back/settlement-batch
+back/reconciliation
+front/admin-ui
+front/payment-admin-page
+common/branch-prefix-guard
 ```
 
 규칙:
 
-- 프론트 작업 브랜치는 `frontend/{issue-number-or-topic}` 형식을 사용한다.
-- 백엔드 작업 브랜치는 `backend/{issue-number-or-topic}` 형식을 사용한다.
+- 문서/기획 작업 브랜치는 `docs/{issue-number-or-topic}` 형식을 사용한다.
+- 백엔드 작업 브랜치는 `back/{issue-number-or-topic}` 형식을 사용한다.
+- 프론트 작업 브랜치는 `front/{issue-number-or-topic}` 형식을 사용한다.
+- 백엔드, 프론트, 문서가 아닌 도구/설정 작업은 `common/{issue-number-or-topic}` 형식을 사용한다.
 - 이슈 번호가 있으면 topic보다 이슈 번호를 우선 사용한다.
-- `codex/*`, `feat/*`, `chore/*` 같은 prefix는 사용하지 않는다.
+- `codex/*`, `feat/*`, `chore/*`, `backend/*`, `frontend/*` 같은 prefix는 사용하지 않는다.
+- `.githooks/pre-commit`은 브랜치 prefix와 staged path 범위를 검사한다.
+- 로컬 clone은 `git config core.hooksPath .githooks`로 tracked hook을 활성화한다.
+
+## Branch Path Rule
+
+| Branch prefix | Allowed work |
+|---|---|
+| `docs/*` | `docs/**`, `workflow/**`, `rules/**` |
+| `back/*` | Backend work. `frontend/**` is blocked. |
+| `front/*` | Frontend work. `modules/**`, `sql/**`, and backend workflow paths are blocked. |
+| `common/*` | Non-docs, non-backend, non-frontend tooling and root config. `docs/**`, `workflow/**`, `modules/**`, `frontend/**`, and `sql/**` are blocked. |
 
 ## Frontend Branch Rule
 
@@ -43,33 +60,33 @@ backend/reconciliation
 
 ```text
 main
-  -> chore/project-scaffold
-  -> frontend/scaffold
+  -> common/project-scaffold
+  -> front/scaffold
 ```
 
 백엔드 스캐폴딩이 `main`에 반영된 뒤라면:
 
 ```text
 main
-  -> frontend/scaffold
+  -> front/scaffold
 ```
 
 규칙:
 
-- React/Vite 초기 생성은 `frontend/scaffold`에서 한다.
-- 프론트 기능 구현은 스캐폴딩과 분리해 `frontend/*` 브랜치에서 한다.
+- React/Vite 초기 생성은 `front/scaffold`에서 한다.
+- 프론트 기능 구현은 스캐폴딩과 분리해 `front/*` 브랜치에서 한다.
 - API 계약이 아직 없으면 실제 API 연동 대신 MSW mock과 화면 구조까지만 만든다.
 - 백엔드 기능 브랜치와 프론트 기능 브랜치를 한 브랜치에 섞지 않는다.
 
 프론트 브랜치 예시:
 
 ```text
-frontend/scaffold
-frontend/admin-dashboard
-frontend/payment-admin-page
-frontend/settlement-screen
-frontend/reconciliation-screen
-frontend/payment-ui-flow
+front/scaffold
+front/admin-dashboard
+front/payment-admin-page
+front/settlement-screen
+front/reconciliation-screen
+front/payment-ui-flow
 ```
 
 ## Work Unit Rule

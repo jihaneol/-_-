@@ -20,6 +20,7 @@ If two files conflict, follow the higher authority and update the lower one when
   -> docs
   -> discuss with user
   -> workflow/{backend,frontend}/phases
+  -> workflow/features
   -> scripts/execute.py
   -> hooks
   -> review
@@ -39,6 +40,7 @@ If two files conflict, follow the higher authority and update the lower one when
 | `scripts/execute.py` | Lane-aware phase runner and state manager |
 | `workflow/backend/phases/` | Backend implementation phase files |
 | `workflow/frontend/phases/` | Frontend implementation phase files |
+| `workflow/features/` | Full-stack feature pipelines that order backend and frontend phases |
 | `workflow/backend/archive/`, `workflow/frontend/archive/` | Completed phase files by lane |
 | `workflow/backend/state/`, `workflow/frontend/state/` | Execution state and run handoff by lane |
 | `rules/` | Detailed coding rules |
@@ -59,10 +61,12 @@ If two files conflict, follow the higher authority and update the lower one when
 1. Read all relevant `docs/` files before planning implementation.
 2. Discuss unclear product, architecture, or UI decisions with the user before creating new phases.
 3. Split implementation into small ordered phase files under the correct lane: `workflow/backend/phases/` or `workflow/frontend/phases/`.
-4. Use `scripts/execute.py --lane <backend|frontend>` to lint, inspect, start, checkpoint, validate, review, complete, archive, sync, and resume phases.
-5. Run lane validation before marking a phase complete: backend uses `scripts/hooks/validate_backend.sh`, frontend uses `scripts/hooks/validate_frontend.sh`.
-6. Let `scripts/execute.py` update lane run state, `.codex/context/active-handoff.md`, and Obsidian handoff records after each phase event.
-7. Use `.codex/skills/review.md` after each meaningful phase or milestone.
+4. If a feature spans backend and frontend, create or update a `workflow/features/*.md` pipeline before implementation.
+5. Use `scripts/execute.py --lane <backend|frontend>` to lint, inspect, start, checkpoint, validate, review, complete, archive, sync, and resume phases.
+6. Run lane validation before marking a phase complete: backend uses `scripts/hooks/validate_backend.sh`, frontend uses `scripts/hooks/validate_frontend.sh`.
+7. Use `python3 scripts/execute.py feature gate <feature>` before reporting a full-stack feature as complete.
+8. Let `scripts/execute.py` update lane run state, `.codex/context/active-handoff.md`, and Obsidian handoff records after each phase event.
+9. Use `.codex/skills/review.md` after each meaningful phase or milestone.
 
 ## Project Goal
 
@@ -89,6 +93,7 @@ Build `card-service` as a payment/card-service portfolio project that proves tra
 - Use `python3 scripts/execute.py --lane <backend|frontend> checkpoint "message"` before risky edits, long pauses, or context-heavy changes.
 - In long-running implementation mode, completed phases are auto-committed by `scripts/execute.py complete` after all gates pass.
 - Completed phase files leave the lane `phases/` folder and move to the lane `archive/YYYY-MM-DD/`; active phases only stay in the lane `phases/`.
+- A backend phase that belongs to a full-stack feature is not the final delivery. Continue through the matching frontend phase before reporting completion.
 - Backend and frontend work must run in separate Codex threads or worktrees for true parallel development. Backend agents do not edit `frontend/**`; frontend agents do not edit `modules/**`.
 - `docs/how/05-api-state-contract.md` is the shared contract between lanes. API changes must update this document before dependent implementation.
 - Preserve user changes. Never revert unrelated files.
@@ -110,3 +115,11 @@ A phase is complete only when:
 - Review-required phases have moved through `review_required` and have a review note before completion.
 - The completed phase file has been archived by `scripts/execute.py`.
 - The completed phase is auto-committed unless the user explicitly disables auto commit.
+
+A full-stack feature is complete only when:
+
+- Its `workflow/features/*.md` pipeline lists the backend and frontend phases in execution order.
+- Every backend phase in the pipeline is completed with passing validation.
+- Every frontend phase in the pipeline is completed with passing validation.
+- Required backend, frontend, and portfolio review notes are recorded.
+- `python3 scripts/execute.py feature gate <feature>` passes.

@@ -53,6 +53,118 @@ Target user:
 
 ## Candidates
 
+## Feature: Admin And Shop Runtime Split
+
+Status: draft
+Source: 2026-06-19 user planning
+Target user: operator, customer, developer, future portfolio reviewer
+
+### Problem
+
+The current frontend and backend surfaces are operator-oriented and share one runtime boundary. Customer shopping workflows should not be mixed with admin workflows, and shop APIs should not expose admin capabilities such as product creation, inventory adjustment, full member listing, or operational refunds.
+
+### Proposed Behavior
+
+1. The frontend is split into two apps: an admin app and a shop app.
+2. The backend HTTP runtime boundary is split into `modules/admin-api` and `modules/shop-api`.
+3. `admin-api` exposes operator workflows under `/api/admin/**`.
+4. `shop-api` exposes customer workflows under `/api/shop/**`.
+5. `domain`, `application`, `infra`, `external`, and `batch` remain shared modules.
+6. API contracts and screen maps document admin and shop responsibilities separately before implementation phases are created.
+
+### Backend Impact
+
+- API: introduce `/api/admin/**` and `/api/shop/**` namespaces.
+- Domain: no split. Existing domain models remain shared.
+- Persistence: no split. Existing infra adapters remain shared.
+- Async/batch: no immediate change.
+
+### Frontend Impact
+
+- Page: separate admin routes from shop routes.
+- Widget: shared UI can stay in a shared package only when genuinely reusable.
+- Feature: admin flows and shop flows should not import each other's feature modules.
+- State handling: admin and shop query keys should be separated.
+
+### Tests
+
+- Domain: none for the runtime split itself.
+- Application: none unless use case contracts change.
+- Integration: each API runtime should expose only its route namespace.
+- UI: admin app smoke test and shop app smoke test.
+
+### Excluded Scope
+
+- Authentication and authorization.
+- Separate databases per runtime.
+- Separate domain/application modules per runtime.
+- Full deployment automation for two services.
+
+### Risks
+
+- Module split can become too large if mixed with customer coupon feature behavior.
+- Route migration can break existing frontend tests unless compatibility is planned.
+- Shared web configuration and error handling need an explicit owner to avoid duplication.
+
+### Decision
+
+Draft direction agreed: use `admin-api` and `shop-api` as explicit backend runtime modules. Do not implement until roadmap, architecture, API contract, and lane phase files are approved.
+
+## Feature: Customer Shop Signup And Coupon Redemption
+
+Status: draft
+Source: 2026-06-19 user request
+Target user: customer, developer, future portfolio reviewer
+
+### Problem
+
+The current UI is mostly operator-facing. A customer cannot sign up from the shop app, see how many usable coupon stamps they have after purchase, or use earned coupons to get a product.
+
+### Proposed Behavior
+
+1. A customer can create a demo member from the shop app.
+2. A customer can choose themselves, add sale products to a cart, and pay by the existing order payment flow.
+3. After payment, the UI refreshes and shows the member's usable issued coupon count.
+4. A customer can redeem ten issued coupons for one selected sale product.
+5. Redeemed coupons become `EXCHANGED` and immutable coupon history records are appended.
+6. Redemption deducts inventory for the selected product.
+
+### Backend Impact
+
+- API: add shop-scoped endpoints under `/api/shop/**`, including coupon exchange.
+- Domain: add coupon exchange state transition and history type.
+- Persistence: reuse existing coupon and coupon history tables.
+- Async/batch: none.
+
+### Frontend Impact
+
+- Page: build shop-app customer-facing signup, shopping, coupon status, and redemption flow.
+- Widget: member signup form, selected member coupon summary, cart checkout, coupon exchange action.
+- Feature: create member, pay order, inspect coupon count, redeem coupons.
+- State handling: validation, loading, success, API errors, and disabled redemption below ten stamps.
+
+### Tests
+
+- Domain: exchange only issued coupons.
+- Application: exchange ten issued coupons and records histories.
+- Integration: optional follow-up for full HTTP flow.
+- UI: signup, paid purchase coupon count, and coupon redemption happy path.
+
+### Excluded Scope
+
+- Partial coupon payment mixed with money payment.
+- Product-specific coupon pricing rules.
+- Redemption order receipt and cancellation.
+
+### Risks
+
+- Redemption can become a full order/payment workflow if mixed tender or cancellations are added.
+- Existing MVP previously deferred exchange, so this feature must stay narrow.
+
+### Decision
+
+Draft only. This feature depends on the admin/shop runtime split decision and must not be implemented until backend and frontend phases are created.
+
 ## Feature: Paid Order Coupon Accrual
 
 Status: approved
