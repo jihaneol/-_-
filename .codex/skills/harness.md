@@ -21,6 +21,7 @@ Use this skill when converting the project brain and user discussion into execut
 6. Keep each phase small enough that one validation command can prove meaningful progress.
 7. Run `python3 execute.py lint-phases` after phase files are ready.
 8. Use `python3 execute.py show` before implementation and `python3 execute.py checkpoint "message"` during long or risky work.
+9. Run manual commands through `python3 execute.py run -- <command>` during long-running implementation so dangerous-command and circuit-breaker guards apply.
 
 ## Resume Rule
 
@@ -57,6 +58,7 @@ Use this skill when converting the project brain and user discussion into execut
 - A phase must name the docs it depends on.
 - `docs/what/` defines goals and MVP scope, `docs/how/` defines data flow and implementation patterns, and `docs/why/` records tradeoffs and selection reasons.
 - A phase that touches production code must include `## Test First` with the test file(s), expected first failure, and validation command.
+- TDD is enforced by `hooks/enforce_tdd.py`; production source changes require an active phase, a Test First plan or explicit exception, and a test file change.
 - A phase must name the smallest meaningful validation.
 - If a phase lists executable commands in `## Validation`, `execute.py validate` runs those commands. If no command is listed, it falls back to `hooks/validate.sh`.
 - `Files To Touch` is enforced for production source changes during validation.
@@ -64,3 +66,4 @@ Use this skill when converting the project brain and user discussion into execut
 - A phase must not mix unrelated backend, frontend, and documentation work unless they share one done criterion.
 - A phase that changes payment correctness, idempotency, ledger, settlement, reconciliation, concurrency, persistence, or UI operator flow requires review.
 - Completed phases are removed from `harness/phases/` by `execute.py complete` and kept under `harness/archive/YYYY-MM-DD/`.
+- Repeating the same failing command 6 times opens the circuit breaker. Stop retrying and choose an alternative plan, narrower scope, or another phase.

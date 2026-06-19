@@ -38,6 +38,7 @@ Completion automatically moves the finished phase into `harness/archive/YYYY-MM-
 | `python3 execute.py show [phase]` | Print the phase implementation contract |
 | `python3 execute.py sync` | Sync Obsidian active work and local handoff |
 | `python3 execute.py resume` | Load Obsidian/local handoff, print recovery context, and record resume |
+| `python3 execute.py run -- <command>` | Run a manual command through dangerous-command and circuit-breaker guards |
 | `python3 execute.py start` | Mark the next pending phase in progress; requires a clean worktree |
 | `python3 execute.py start --allow-dirty` | Start with existing dirty files recorded as baseline; completion refuses to auto-commit those files |
 | `python3 execute.py checkpoint "message"` | Record a recovery point during implementation |
@@ -60,6 +61,8 @@ Completion automatically moves the finished phase into `harness/archive/YYYY-MM-
 
 - TDD guard passes.
 - Production source changes stay within `Files To Touch`.
+- Dangerous-command guard allows the command.
+- Circuit breaker has not opened after 6 repeated failures of the same command.
 
 ## Contents
 

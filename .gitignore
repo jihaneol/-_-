@@ -8,6 +8,7 @@
 .idea/dictionaries/
 .idea/shelf/
 .codex/context/
+harness/state/circuit-breaker.json
 
 # Build outputs
 build/

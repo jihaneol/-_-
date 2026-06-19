@@ -15,6 +15,8 @@ ARCHIVE_DIR = ROOT / "harness" / "archive"
 STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
 RUN_STATE_FILE = ROOT / "harness" / "state" / "run-state.md"
 VALIDATE_HOOK = ROOT / "hooks" / "validate.sh"
+COMMAND_GUARD = ROOT / "hooks" / "guard_command.py"
+CIRCUIT_BREAKER = ROOT / "hooks" / "circuit_breaker.py"
 PROJECT_NAME = "card-service"
 OBSIDIAN_ROOT = Path("/Users/bigs/Documents/Obsidian Vault/02. Area/03. Idea Lab")
 OBSIDIAN_BUILD_DIR = OBSIDIAN_ROOT / "07.Build Logs" / PROJECT_NAME
@@ -136,6 +138,48 @@ def section_text(text: str, heading: str) -> str:
 def run_text(command: list[str]) -> str:
     result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     return result.stdout.strip() if result.returncode == 0 else "-"
+
+
+def command_key(command: list[str]) -> str:
+    return " ".join(shlex.quote(part) for part in command)
+
+
+def guard_command(command: list[str]) -> int:
+    result = subprocess.run(["python3", str(COMMAND_GUARD), "--", *command], cwd=ROOT)
+    return result.returncode
+
+
+def circuit_check(key: str) -> int:
+    result = subprocess.run(["python3", str(CIRCUIT_BREAKER), "check", "--key", key], cwd=ROOT)
+    return result.returncode
+
+
+def circuit_record(key: str, status: str, summary: str = "-") -> int:
+    result = subprocess.run(
+        ["python3", str(CIRCUIT_BREAKER), "record", "--key", key, "--status", status, "--summary", summary],
+        cwd=ROOT,
+    )
+    return result.returncode
+
+
+def run_guarded_command(command: list[str]) -> int:
+    key = command_key(command)
+    guard_result = guard_command(command)
+    if guard_result != 0:
+        circuit_record(key, "failed", f"command guard blocked: {guard_result}")
+        return guard_result
+
+    circuit_result = circuit_check(key)
+    if circuit_result != 0:
+        return circuit_result
+
+    result = subprocess.run(command, cwd=ROOT)
+    if result.returncode == 0:
+        circuit_record(key, "passed")
+        return 0
+
+    record_result = circuit_record(key, "failed", f"exit code {result.returncode}")
+    return record_result if record_result != 0 else result.returncode
 
 
 def git_summary() -> dict:
@@ -320,8 +364,7 @@ def lint_phase(phase_path: Path) -> tuple[list[str], list[str]]:
 
 
 def enforce_tdd_guard() -> int:
-    result = subprocess.run(["python3", "hooks/enforce_tdd.py"], cwd=ROOT)
-    return result.returncode
+    return run_guarded_command(["python3", "hooks/enforce_tdd.py"])
 
 
 def scope_check(phase_name: str) -> list[str]:
@@ -596,6 +639,16 @@ def cmd_sync(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_run(args: argparse.Namespace) -> int:
+    command = args.command
+    if command and command[0] == "--":
+        command = command[1:]
+    if not command:
+        print("No command provided. Use `python3 execute.py run -- <command>`.")
+        return 1
+    return run_guarded_command(command)
+
+
 def cmd_resume(_: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     save_state(state)
@@ -773,14 +826,12 @@ def cmd_validate(_: argparse.Namespace) -> int:
         executed = []
         for command in commands:
             executed.append(command)
-            result = subprocess.run(shlex.split(command), cwd=ROOT)
-            if result.returncode != 0:
-                returncode = result.returncode
+            returncode = run_guarded_command(shlex.split(command))
+            if returncode != 0:
                 break
     else:
         executed = [str(VALIDATE_HOOK)]
-        result = subprocess.run([str(VALIDATE_HOOK)], cwd=ROOT)
-        returncode = result.returncode
+        returncode = run_guarded_command([str(VALIDATE_HOOK)])
     status = "passed" if returncode == 0 else "failed"
     state["phases"][current]["last_validation"] = {
         "status": status,
@@ -929,6 +980,9 @@ def main() -> int:
     show_parser.set_defaults(func=cmd_show)
     subparsers.add_parser("sync").set_defaults(func=cmd_sync)
     subparsers.add_parser("resume").set_defaults(func=cmd_resume)
+    run_parser = subparsers.add_parser("run")
+    run_parser.add_argument("command", nargs=argparse.REMAINDER)
+    run_parser.set_defaults(func=cmd_run)
     start_parser = subparsers.add_parser("start")
     start_parser.add_argument("--allow-dirty", action="store_true")
     start_parser.set_defaults(func=cmd_start)

@@ -76,7 +76,8 @@ Build `card-service` as a payment/card-service portfolio project that proves tra
 
 - Do not implement from scattered ideas. Implementation starts from an approved phase file.
 - TDD is mandatory for behavior changes. Write or update the failing test first, then change production code.
-- If a feature or fix has no relevant test, stop and create the test before modifying production code.
+- If a feature or fix has no relevant test, `hooks/enforce_tdd.py` must fail and the work must stop until the test is added.
+- Run shell commands through `python3 execute.py run -- ...` or `python3 execute.py validate` during long-running work so dangerous command and circuit-breaker guards apply.
 - Keep `docs/` as the project brain, not as a work log.
 - Keep detailed completed-work history in Obsidian, not in growing local logs.
 - Use `execute.py` for phase state changes so Obsidian and local handoff files stay synchronized.
@@ -98,6 +99,7 @@ A phase is complete only when:
 - Production source changes are within `Files To Touch`.
 - The phase did not auto-commit pre-existing dirty files.
 - The relevant validation hook passes or the reason it cannot run is documented.
+- Dangerous command guard and circuit breaker did not block the validation path.
 - `harness/state/run-state.md` records what changed, what was verified, and the next phase.
 - Obsidian active work and today build-log detail have been updated by `execute.py`.
 - Review-required phases have moved through `review_required` and have a review note before completion.
