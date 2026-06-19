@@ -1,16 +1,16 @@
 {
-  "name": "card-service-admin",
+  "name": "card-service-frontends",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "dev:admin": "vite --host 127.0.0.1 index.html",
-    "dev:shop": "vite --host 127.0.0.1 shop.html",
-    "build": "tsc -b && vite build",
-    "build:admin": "tsc -b && vite build --mode admin",
-    "build:shop": "tsc -b && vite build --mode shop",
-    "test": "vitest"
+    "dev": "vite --config vite.config.ts --host 127.0.0.1",
+    "dev:admin": "vite --config vite.config.ts --host 127.0.0.1 --mode admin",
+    "dev:shop": "vite --config vite.config.ts --host 127.0.0.1 --mode shop",
+    "build": "tsc -b && vite build --config vite.config.ts",
+    "build:admin": "tsc -b && vite build --config vite.config.ts --mode admin",
+    "build:shop": "tsc -b && vite build --config vite.config.ts --mode shop",
+    "test": "vitest --config vite.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
