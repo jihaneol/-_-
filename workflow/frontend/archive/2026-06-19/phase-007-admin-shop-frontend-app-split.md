@@ -54,26 +54,33 @@ Split the current single frontend runtime into admin and shop apps so operator w
 
 ## Implementation Steps
 
-- [ ] Choose and document the frontend app folder shape.
-- [ ] Move current operator pages into the admin app.
-- [ ] Move approved customer pages into the shop app.
-- [ ] Split route entrypoints and Vite build scripts.
-- [ ] Split API clients/query keys into admin and shop namespaces.
-- [ ] Update MSW handlers and UI tests.
-- [ ] Run frontend validation.
+- [x] Choose and document the frontend app folder shape.
+- [x] Move current operator pages into the admin app.
+- [x] Move approved customer pages into the shop app.
+- [x] Split route entrypoints and Vite build scripts.
+- [x] Split API clients/query keys into admin and shop namespaces.
+- [x] Update MSW handlers and UI tests.
+- [x] Run frontend validation.
 
 ## Done Criteria
 
-- [ ] Admin app renders operator navigation and workflows.
-- [ ] Shop app renders customer shopping workflows only.
-- [ ] Admin and shop apps can be tested independently.
-- [ ] Admin and shop apps can be built from documented npm scripts.
-- [ ] Shared frontend code is intentional and not a dumping ground.
+- [x] Admin app renders operator navigation and workflows.
+- [x] Shop app renders customer shopping workflows only.
+- [x] Admin and shop apps can be tested independently.
+- [x] Admin and shop apps can be built from documented npm scripts.
+- [x] Shared frontend code is intentional and not a dumping ground.
 
 ## Validation
 
 - `npm --prefix frontend test -- --run`
 - `npm --prefix frontend run build`
+
+Passed:
+
+- `npm --prefix frontend test -- --run`
+- `npm --prefix frontend run build`
+- `npm --prefix frontend run build:admin`
+- `npm --prefix frontend run build:shop`
 
 ## Review Focus
 

@@ -4,7 +4,7 @@ import { BadgeDollarSign, Ban, RotateCcw, ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { commerceApi, commerceKeys } from '../../entities/commerce/api'
+import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { ApiError } from '../../shared/api/client'
 import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
 
@@ -26,9 +26,9 @@ export function OrdersPaymentsPage() {
   const queryClient = useQueryClient()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const members = useQuery({ queryKey: commerceKeys.members, queryFn: commerceApi.listMembers })
-  const products = useQuery({ queryKey: commerceKeys.products, queryFn: commerceApi.listProducts })
-  const orders = useQuery({ queryKey: commerceKeys.orders, queryFn: commerceApi.listOrders })
+  const members = useQuery({ queryKey: adminCommerceKeys.members, queryFn: adminCommerceApi.listMembers })
+  const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
+  const orders = useQuery({ queryKey: adminCommerceKeys.orders, queryFn: adminCommerceApi.listOrders })
   const orderForm = useForm<OrderForm>({
     resolver: zodResolver(orderSchema) as never,
     defaultValues: { quantity: 1 },
@@ -38,15 +38,15 @@ export function OrdersPaymentsPage() {
     defaultValues: { idempotencyKey: `pay-${Date.now()}` },
   })
   const invalidateOrders = async () => {
-    await queryClient.invalidateQueries({ queryKey: commerceKeys.orders })
-    await queryClient.invalidateQueries({ queryKey: commerceKeys.summary })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.orders })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
   }
   const onError = (apiError: ApiError) => {
     setError(apiError.message)
     setNotice('')
   }
   const createOrder = useMutation({
-    mutationFn: commerceApi.createOrder,
+    mutationFn: adminCommerceApi.createOrder,
     onSuccess: async (order) => {
       setNotice(`주문 #${order.id} 생성`)
       setError('')
@@ -56,7 +56,7 @@ export function OrdersPaymentsPage() {
     onError,
   })
   const payOrder = useMutation({
-    mutationFn: (form: PaymentForm) => commerceApi.payOrder(form.orderId, { idempotencyKey: form.idempotencyKey }),
+    mutationFn: (form: PaymentForm) => adminCommerceApi.payOrder(form.orderId, { idempotencyKey: form.idempotencyKey }),
     onSuccess: async (result) => {
       setNotice(`결제 완료: 쿠폰 ${result.issuedCouponCount}장 발급`)
       setError('')
@@ -66,7 +66,7 @@ export function OrdersPaymentsPage() {
     onError,
   })
   const cancelOrder = useMutation({
-    mutationFn: commerceApi.cancelOrder,
+    mutationFn: adminCommerceApi.cancelOrder,
     onSuccess: async (order) => {
       setNotice(`주문 #${order.id} 취소`)
       setError('')
@@ -75,7 +75,7 @@ export function OrdersPaymentsPage() {
     onError,
   })
   const refundOrder = useMutation({
-    mutationFn: commerceApi.refundOrder,
+    mutationFn: adminCommerceApi.refundOrder,
     onSuccess: async (result) => {
       setNotice(`환불 완료: 쿠폰 ${result.voidedCouponCount}장 무효화`)
       setError('')

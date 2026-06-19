@@ -22,10 +22,7 @@ admin.inventory(productId)
 admin.coupons(memberId)
 admin.histories(memberId)
 
-shop.member(memberId)
 shop.products
-shop.product(productId)
-shop.orders(memberId)
 shop.coupons(memberId)
 shop.histories(memberId)
 ```
@@ -45,8 +42,8 @@ shop.histories(memberId)
 
 | Mutation | Invalidates |
 |---|---|
-| signupMember | `shop.member(memberId)` |
-| createOrder | `shop.orders(memberId)` |
+| signupMember | `shop.coupons(memberId)` |
+| createOrder | none directly; pay after creation refreshes coupon state |
 | payOrder | `shop.orders(memberId)`, `shop.coupons(memberId)`, `shop.histories(memberId)` |
 | exchangeCoupons | `shop.coupons(memberId)`, `shop.histories(memberId)`, `shop.product(productId)` |
 
@@ -75,3 +72,10 @@ Use Zod schemas for:
 ## Optimistic Updates
 
 Avoid optimistic updates for money-moving actions. Prefer refetch after success so the UI reflects persisted backend state.
+
+## Runtime Namespaces
+
+- Admin UI calls only `/api/admin/**`.
+- Shop UI calls only `/api/shop/**`.
+- `adminCommerceApi` and `adminCommerceKeys` are used by operator pages.
+- `shopCommerceApi` and `shopCommerceKeys` are used by the customer shop app.

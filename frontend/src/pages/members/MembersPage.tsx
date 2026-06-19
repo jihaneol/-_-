@@ -4,7 +4,7 @@ import { Coffee, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { commerceApi, commerceKeys } from '../../entities/commerce/api'
+import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { ApiError } from '../../shared/api/client'
 import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
 
@@ -20,27 +20,27 @@ export function MembersPage() {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const members = useQuery({ queryKey: commerceKeys.members, queryFn: commerceApi.listMembers })
+  const members = useQuery({ queryKey: adminCommerceKeys.members, queryFn: adminCommerceApi.listMembers })
   const coupons = useQuery({
-    queryKey: selectedMemberId ? commerceKeys.coupons(selectedMemberId) : ['commerce', 'coupons', 'idle'],
-    queryFn: () => commerceApi.listCoupons(selectedMemberId!),
+    queryKey: selectedMemberId ? adminCommerceKeys.coupons(selectedMemberId) : adminCommerceKeys.couponsIdle,
+    queryFn: () => adminCommerceApi.listCoupons(selectedMemberId!),
     enabled: selectedMemberId !== null,
   })
   const histories = useQuery({
-    queryKey: selectedMemberId ? commerceKeys.histories(selectedMemberId) : ['commerce', 'coupon-histories', 'idle'],
-    queryFn: () => commerceApi.listCouponHistories(selectedMemberId!),
+    queryKey: selectedMemberId ? adminCommerceKeys.histories(selectedMemberId) : adminCommerceKeys.historiesIdle,
+    queryFn: () => adminCommerceApi.listCouponHistories(selectedMemberId!),
     enabled: selectedMemberId !== null,
   })
   const form = useForm<MemberForm>({ resolver: zodResolver(memberSchema), defaultValues: { name: '', email: '' } })
   const createMember = useMutation({
-    mutationFn: commerceApi.createMember,
+    mutationFn: adminCommerceApi.createMember,
     onSuccess: async (member) => {
       setSelectedMemberId(member.id)
       setNotice(`회원 #${member.id} 생성`)
       setError('')
       form.reset({ name: '', email: '' })
-      await queryClient.invalidateQueries({ queryKey: commerceKeys.members })
-      await queryClient.invalidateQueries({ queryKey: commerceKeys.summary })
+      await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.members })
+      await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
     },
     onError: (apiError: ApiError) => {
       setError(apiError.message)

@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Coffee, CreditCard, Package, RotateCcw, ShoppingCart, Users } from 'lucide-react'
-import { commerceApi, commerceKeys } from '../../entities/commerce/api'
+import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import { Metric, Row, StatusBadge } from '../../shared/ui'
 
 export function MainPage() {
-  const summary = useQuery({ queryKey: commerceKeys.summary, queryFn: commerceApi.getDashboardSummary })
-  const orders = useQuery({ queryKey: commerceKeys.orders, queryFn: commerceApi.listOrders })
+  const summary = useQuery({ queryKey: adminCommerceKeys.summary, queryFn: adminCommerceApi.getDashboardSummary })
+  const orders = useQuery({ queryKey: adminCommerceKeys.orders, queryFn: adminCommerceApi.listOrders })
 
   return (
     <div className="page">

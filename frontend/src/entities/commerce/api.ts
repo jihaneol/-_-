@@ -1,38 +1,60 @@
 import { request } from '../../shared/api/client'
 import type { Coupon, CouponHistory, DashboardSummary, Inventory, Member, Order, PayOrderResult, Product, RefundOrderResult } from './types'
 
-export const commerceKeys = {
-  summary: ['commerce', 'dashboard', 'summary'] as const,
-  members: ['commerce', 'members'] as const,
-  products: ['commerce', 'products'] as const,
-  orders: ['commerce', 'orders'] as const,
-  coupons: (memberId: number) => ['commerce', 'coupons', memberId] as const,
-  histories: (memberId: number) => ['commerce', 'coupon-histories', memberId] as const,
-  inventory: (productId: number) => ['commerce', 'inventory', productId] as const,
+export const adminCommerceKeys = {
+  summary: ['admin', 'commerce', 'dashboard', 'summary'] as const,
+  members: ['admin', 'commerce', 'members'] as const,
+  products: ['admin', 'commerce', 'products'] as const,
+  orders: ['admin', 'commerce', 'orders'] as const,
+  couponsIdle: ['admin', 'commerce', 'coupons', 'idle'] as const,
+  historiesIdle: ['admin', 'commerce', 'coupon-histories', 'idle'] as const,
+  coupons: (memberId: number) => ['admin', 'commerce', 'coupons', memberId] as const,
+  histories: (memberId: number) => ['admin', 'commerce', 'coupon-histories', memberId] as const,
+  inventory: (productId: number) => ['admin', 'commerce', 'inventory', productId] as const,
 }
 
-export const commerceApi = {
-  getDashboardSummary: () => request<DashboardSummary>('/api/dashboard/summary'),
-  listMembers: () => request<Member[]>('/api/members'),
+export const shopCommerceKeys = {
+  products: ['shop', 'commerce', 'products'] as const,
+  couponsIdle: ['shop', 'commerce', 'coupons', 'idle'] as const,
+  historiesIdle: ['shop', 'commerce', 'coupon-histories', 'idle'] as const,
+  coupons: (memberId: number) => ['shop', 'commerce', 'coupons', memberId] as const,
+  histories: (memberId: number) => ['shop', 'commerce', 'coupon-histories', memberId] as const,
+}
+
+export const adminCommerceApi = {
+  getDashboardSummary: () => request<DashboardSummary>('/api/admin/dashboard/summary'),
+  listMembers: () => request<Member[]>('/api/admin/members'),
   createMember: (body: { name: string; email: string }) =>
-    request<Member>('/api/members', { method: 'POST', body: JSON.stringify(body) }),
-  listProducts: () => request<Product[]>('/api/products'),
+    request<Member>('/api/admin/members', { method: 'POST', body: JSON.stringify(body) }),
+  listProducts: () => request<Product[]>('/api/admin/products'),
   createProduct: (body: { name: string; price: number }) =>
-    request<Product>('/api/products', { method: 'POST', body: JSON.stringify(body) }),
+    request<Product>('/api/admin/products', { method: 'POST', body: JSON.stringify(body) }),
   createInventory: (productId: number, body: { quantity: number }) =>
-    request<Inventory>(`/api/products/${productId}/inventory`, { method: 'POST', body: JSON.stringify(body) }),
+    request<Inventory>(`/api/admin/products/${productId}/inventory`, { method: 'POST', body: JSON.stringify(body) }),
   increaseInventory: (productId: number, body: { quantity: number }) =>
-    request<Inventory>(`/api/products/${productId}/inventory/increase`, { method: 'POST', body: JSON.stringify(body) }),
-  getInventory: (productId: number) => request<Inventory>(`/api/products/${productId}/inventory`),
-  listOrders: () => request<Order[]>('/api/orders'),
+    request<Inventory>(`/api/admin/products/${productId}/inventory/increase`, { method: 'POST', body: JSON.stringify(body) }),
+  getInventory: (productId: number) => request<Inventory>(`/api/admin/products/${productId}/inventory`),
+  listOrders: () => request<Order[]>('/api/admin/orders'),
   createOrder: (body: { memberId: number; lines: Array<{ productId: number; quantity: number }> }) =>
-    request<Order>('/api/orders', { method: 'POST', body: JSON.stringify(body) }),
+    request<Order>('/api/admin/orders', { method: 'POST', body: JSON.stringify(body) }),
   cancelOrder: (orderId: number) =>
-    request<Order>(`/api/orders/${orderId}/cancel`, { method: 'POST' }),
+    request<Order>(`/api/admin/orders/${orderId}/cancel`, { method: 'POST' }),
   payOrder: (orderId: number, body: { idempotencyKey: string }) =>
-    request<PayOrderResult>(`/api/orders/${orderId}/pay`, { method: 'POST', body: JSON.stringify(body) }),
+    request<PayOrderResult>(`/api/admin/orders/${orderId}/pay`, { method: 'POST', body: JSON.stringify(body) }),
   refundOrder: (orderId: number) =>
-    request<RefundOrderResult>(`/api/orders/${orderId}/refund`, { method: 'POST' }),
-  listCoupons: (memberId: number) => request<Coupon[]>(`/api/members/${memberId}/coupons`),
-  listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/members/${memberId}/coupon-histories`),
+    request<RefundOrderResult>(`/api/admin/orders/${orderId}/refund`, { method: 'POST' }),
+  listCoupons: (memberId: number) => request<Coupon[]>(`/api/admin/members/${memberId}/coupons`),
+  listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/admin/members/${memberId}/coupon-histories`),
+}
+
+export const shopCommerceApi = {
+  createMember: (body: { name: string; email: string }) =>
+    request<Member>('/api/shop/members', { method: 'POST', body: JSON.stringify(body) }),
+  listProducts: () => request<Product[]>('/api/shop/products'),
+  createOrder: (body: { memberId: number; lines: Array<{ productId: number; quantity: number }> }) =>
+    request<Order>('/api/shop/orders', { method: 'POST', body: JSON.stringify(body) }),
+  payOrder: (orderId: number, body: { idempotencyKey: string }) =>
+    request<PayOrderResult>(`/api/shop/orders/${orderId}/pay`, { method: 'POST', body: JSON.stringify(body) }),
+  listCoupons: (memberId: number) => request<Coupon[]>(`/api/shop/members/${memberId}/coupons`),
+  listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/shop/members/${memberId}/coupon-histories`),
 }
