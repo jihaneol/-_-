@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 STATE_FILE = ROOT / "harness" / "state" / "circuit-breaker.json"
 THRESHOLD = 6
 
@@ -78,7 +78,7 @@ def cmd_record(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Track repeated harness failures.")
+    parser = argparse.ArgumentParser(description="Track repeated workflow failures.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     check = subparsers.add_parser("check")

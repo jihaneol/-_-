@@ -7,7 +7,7 @@ Use this checklist before and after implementing any feature.
 - [ ] The idea exists in `00-inbox.md` or `01-feature-candidates.md`.
 - [ ] The feature is prioritized in `02-roadmap.md`.
 - [ ] `harness/phases/*.md` describes the current implementation contract.
-- [ ] `python3 execute.py lint-phases` passes.
+- [ ] `python3 scripts/execute.py lint-phases` passes.
 - [ ] `harness/phases/*.md` includes `Test First`.
 - [ ] The first expected failing test is named.
 - [ ] Backend impact is known.

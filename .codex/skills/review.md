@@ -8,7 +8,7 @@ Use this skill after a phase is implemented or when the user asks for structural
 2. Check the relevant `docs/` files for contract drift.
 3. Check architecture boundaries and rule files.
 4. Check tests and validation output.
-5. If review passes, record the acceptance with `python3 execute.py review "note"`.
+5. If review passes, record the acceptance with `python3 scripts/execute.py review "note"`.
 6. Report findings before summaries.
 
 ## Review Focus Areas

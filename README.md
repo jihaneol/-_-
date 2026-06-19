@@ -80,5 +80,5 @@ docker compose up -d mysql
 - Current run state: `harness/state/run-state.md`
 - Project brain: `docs/`
 - Agent skills: `.codex/skills`
-- Validation hooks: `hooks/`
+- Validation hooks: `scripts/hooks/`
 - Completed work history is archived in Obsidian, and completed phase files move to `harness/archive/YYYY-MM-DD/`.

@@ -28,7 +28,7 @@ docs/operations/00-inbox.md
 2. 구현할 가치가 있으면 `docs/operations/01-feature-candidates.md`에 후보로 다듬는다.
 3. 후보가 현재 목표와 맞으면 `docs/what/02-roadmap.md`에 Now/Next/Later로 배치한다.
 4. 실제 개발을 시작할 때만 `harness/phases/phase-NNN-title.md`로 승격한다.
-5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 파일은 `harness/archive/YYYY-MM-DD/`로 이동하며, phase 상태는 `execute.py`와 `harness/state/`에 기록한다.
+5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 파일은 `harness/archive/YYYY-MM-DD/`로 이동하며, phase 상태는 `scripts/execute.py`와 `harness/state/`에 기록한다.
 
 ## Multiple Work Rule
 
@@ -98,4 +98,4 @@ Daily settlement batch
 - 관련 테스트나 문서 검증이 완료되어야 한다.
 - 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
 - 완료 내용, 수정 이유, 검증 결과, 남은 위험이 Obsidian에 기록되어야 한다.
-- 장시간 구현 모드에서는 `execute.py complete`가 검증된 완료 작업을 자동 커밋한다.
+- 장시간 구현 모드에서는 `scripts/execute.py complete`가 검증된 완료 작업을 자동 커밋한다.

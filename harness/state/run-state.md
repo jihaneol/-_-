@@ -6,13 +6,13 @@ This file is the handoff point for long-running Codex work. Update it whenever a
 
 - Active work: `harness/phases/phase-001-idempotency-lookup.md`
 - Current task: Payment idempotency lookup
-- Current status: Agent operating structure uses `docs/what`, `docs/how`, `docs/why`, `AGENT.md`, `hooks/`, `execute.py`, and `harness/phases/`. Feature implementation has not started in this run.
+- Current status: Agent operating structure uses `docs/what`, `docs/how`, `docs/why`, `AGENT.md`, `scripts/hooks/`, `scripts/execute.py`, and `harness/phases/`. Feature implementation has not started in this run.
 
 ## Last Known Verification
 
-- `python3 execute.py status`
+- `python3 scripts/execute.py status`
 - Result: phase `phase-001-idempotency-lookup.md` detected as pending
-- `hooks/validate.sh`
+- `scripts/hooks/validate.sh`
 - Result: passed
 
 ## Next Files To Read
@@ -33,15 +33,15 @@ Discuss whether phase 001 should be split into smaller phases before implementat
 
 - Do not implement work that is not summarized in `harness/phases/phase-001-idempotency-lookup.md`.
 - Keep completed-work history in Obsidian, not in growing local work logs.
-- Use `execute.py` for phase state and `hooks/validate.sh` for automatic validation.
+- Use `scripts/execute.py` for phase state and `scripts/hooks/validate.sh` for automatic validation.
 
-## execute.py 2026-06-19T03:42:30+00:00
+## scripts/execute.py 2026-06-19T03:42:30+00:00
 
 - Resume context loaded
 - Current phase: -
 - Next phase: `harness/phases/phase-001-idempotency-lookup.md`
 - Git: 90d82ff docs: 하네스 문서 구조와 phase 보관 정리; M .codex/skills/harness.md
  M AGENT.md
- M execute.py
- M harness/README.md
- M hooks/README.md
+ M scripts/execute.py
+ M workflow/README.md
+ M scripts/hooks/README.md

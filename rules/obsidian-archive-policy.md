@@ -64,14 +64,14 @@
 
 문서를 수정할 때마다 우리 대화에서 나온 결정, 요청, 수정 이유를 기준으로 Obsidian 일차별 작업기록에 남긴다.
 
-Phase 상태 변경은 `execute.py`로 수행한다. `execute.py`는 다음 파일을 자동 갱신한다.
+Phase 상태 변경은 `scripts/execute.py`로 수행한다. `scripts/execute.py`는 다음 파일을 자동 갱신한다.
 
 - `harness/state/run-state.md`
 - `.codex/context/active-handoff.md`
 - `09.Context Handoffs/01.Active Work/card-service/현재작업.md`
 - `07.Build Logs/card-service/days/YYYY-MM-DD-N일차.md`
 
-긴 작업 중에는 `python3 execute.py checkpoint "현재 상태"`로 중간 복구 지점을 남긴다. 이 기록은 로컬 handoff와 Obsidian 현재작업에 함께 반영된다.
+긴 작업 중에는 `python3 scripts/execute.py checkpoint "현재 상태"`로 중간 복구 지점을 남긴다. 이 기록은 로컬 handoff와 Obsidian 현재작업에 함께 반영된다.
 
 ```text
 Date:

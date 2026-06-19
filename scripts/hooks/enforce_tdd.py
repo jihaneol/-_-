@@ -6,14 +6,14 @@ import re
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
 PHASE_DIR = ROOT / "harness" / "phases"
 ARCHIVE_DIR = ROOT / "harness" / "archive"
 SOURCE_PREFIXES = ("modules/", "src/", "app/", "frontend/")
 SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
-DOC_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "hooks/")
+DOC_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "scripts/hooks/")
 
 
 def git_changed_files() -> list[str]:
@@ -86,7 +86,7 @@ def main() -> int:
         current_phase = state.get("current_phase")
         if not current_phase:
             print("TDD guard failed: source files changed without an active phase.", file=sys.stderr)
-            print("Start a phase with `python3 execute.py start` before production edits.", file=sys.stderr)
+            print("Start a phase with `python3 scripts/execute.py start` before production edits.", file=sys.stderr)
             return 1
 
         phase_path = find_phase_path(current_phase)

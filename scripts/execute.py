@@ -9,14 +9,16 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = ROOT / "scripts"
 PHASE_DIR = ROOT / "harness" / "phases"
 ARCHIVE_DIR = ROOT / "harness" / "archive"
 STATE_FILE = ROOT / "harness" / "state" / "execute-state.json"
 RUN_STATE_FILE = ROOT / "harness" / "state" / "run-state.md"
-VALIDATE_HOOK = ROOT / "hooks" / "validate.sh"
-COMMAND_GUARD = ROOT / "hooks" / "guard_command.py"
-CIRCUIT_BREAKER = ROOT / "hooks" / "circuit_breaker.py"
+HOOK_DIR = SCRIPT_DIR / "hooks"
+VALIDATE_HOOK = HOOK_DIR / "validate.sh"
+COMMAND_GUARD = HOOK_DIR / "guard_command.py"
+CIRCUIT_BREAKER = HOOK_DIR / "circuit_breaker.py"
 PROJECT_NAME = "card-service"
 OBSIDIAN_ROOT = Path("/Users/bigs/Documents/Obsidian Vault/02. Area/03. Idea Lab")
 OBSIDIAN_BUILD_DIR = OBSIDIAN_ROOT / "07.Build Logs" / PROJECT_NAME
@@ -39,7 +41,7 @@ REQUIRED_PHASE_SECTIONS = [
 SOURCE_PREFIXES = ("modules/", "src/", "app/", "frontend/")
 SOURCE_EXTENSIONS = (".kt", ".java", ".ts", ".tsx", ".js", ".jsx")
 TEST_MARKERS = ("/src/test/", "/src/integrationTest/", "__tests__", ".spec.", ".test.")
-ALWAYS_ALLOWED_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "hooks/", "execute.py", "README.md", "AGENT.md")
+ALWAYS_ALLOWED_PREFIXES = ("docs/", "harness/", ".codex/", "rules/", "scripts/hooks/", "scripts/execute.py", "README.md", "AGENT.md")
 AUTO_COMMIT_ON_COMPLETE = True
 
 
@@ -114,7 +116,7 @@ def current_or_next_phase(state: dict) -> str | None:
 def append_run_state(message: str) -> None:
     timestamp = now_utc()
     with RUN_STATE_FILE.open("a") as file:
-        file.write(f"\n## execute.py {timestamp}\n\n{message}\n")
+        file.write(f"\n## scripts/execute.py {timestamp}\n\n{message}\n")
 
 
 def read_optional_text(path: Path, limit: int | None = None) -> str:
@@ -253,7 +255,7 @@ def phase_requires_review(phase_name: str) -> bool:
 def phase_validation_commands(phase_name: str) -> list[str]:
     section = phase_section(phase_name, "Validation")
     commands = re.findall(r"`([^`]+)`", section)
-    return [command for command in commands if not command.startswith("python3 execute.py")]
+    return [command for command in commands if not command.startswith("python3 scripts/execute.py")]
 
 
 def phase_test_plan(phase_name: str) -> str:
@@ -364,7 +366,7 @@ def lint_phase(phase_path: Path) -> tuple[list[str], list[str]]:
 
 
 def enforce_tdd_guard() -> int:
-    return run_guarded_command(["python3", "hooks/enforce_tdd.py"])
+    return run_guarded_command(["python3", "scripts/hooks/enforce_tdd.py"])
 
 
 def scope_check(phase_name: str) -> list[str]:
@@ -584,10 +586,10 @@ tags:
 
 ## Resume Instruction
 
-1. Run `python3 execute.py resume` first after context compression, thread resume, or handoff.
+1. Run `python3 scripts/execute.py resume` first after context compression, thread resume, or handoff.
 2. Read `AGENT.md` and `.codex/skills/harness.md` only if the resume output is not enough.
 3. If a phase is in progress, continue that phase.
-4. If no phase is in progress, inspect the next pending phase with `python3 execute.py show`.
+4. If no phase is in progress, inspect the next pending phase with `python3 scripts/execute.py show`.
 5. Do not edit production code before following the phase `Test First` section.
 """
 
@@ -644,7 +646,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     if command and command[0] == "--":
         command = command[1:]
     if not command:
-        print("No command provided. Use `python3 execute.py run -- <command>`.")
+        print("No command provided. Use `python3 scripts/execute.py run -- <command>`.")
         return 1
     return run_guarded_command(command)
 
@@ -703,11 +705,11 @@ def cmd_resume(_: argparse.Namespace) -> int:
     print("## Resume Instruction")
     if current:
         print("1. Continue the current phase.")
-        print("2. Run `python3 execute.py show` before editing if context is unclear.")
-        print("3. Use `python3 execute.py checkpoint \"message\"` before a risky or long edit.")
+        print("2. Run `python3 scripts/execute.py show` before editing if context is unclear.")
+        print("3. Use `python3 scripts/execute.py checkpoint \"message\"` before a risky or long edit.")
     elif next_phase:
-        print("1. Run `python3 execute.py show` to inspect the next phase.")
-        print("2. If the phase is still correctly scoped, run `python3 execute.py start`.")
+        print("1. Run `python3 scripts/execute.py show` to inspect the next phase.")
+        print("2. If the phase is still correctly scoped, run `python3 scripts/execute.py start`.")
         print("3. Follow the `Test First` section before production edits.")
     else:
         print("1. No pending phase. Update `docs/` and create new phase files before implementation.")
@@ -795,7 +797,7 @@ def cmd_validate(_: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     current = state.get("current_phase")
     if not current:
-        print("No current phase. Run `python3 execute.py start` first.")
+        print("No current phase. Run `python3 scripts/execute.py start` first.")
         return 1
 
     tdd_result = enforce_tdd_guard()
@@ -851,7 +853,7 @@ def cmd_checkpoint(args: argparse.Namespace) -> int:
     state = ensure_known_phases(load_state())
     current = state.get("current_phase")
     if not current:
-        print("No current phase. Run `python3 execute.py start` first.")
+        print("No current phase. Run `python3 scripts/execute.py start` first.")
         return 1
 
     message = " ".join(args.message).strip()
@@ -916,7 +918,7 @@ def cmd_complete(_: argparse.Namespace) -> int:
 
     validation = state["phases"][current].get("last_validation")
     if not validation or validation.get("status") != "passed":
-        print("Current phase has no passing validation. Run `python3 execute.py validate` first.")
+        print("Current phase has no passing validation. Run `python3 scripts/execute.py validate` first.")
         return 1
 
     if not done_criteria_complete(current):
