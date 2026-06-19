@@ -13,6 +13,28 @@ modules/bootstrap/src/main/kotlin/com/example/cardservice/web/{domain}
 modules/bootstrap/src/main/kotlin/com/example/cardservice/web/common
 ```
 
+## Feature Split Rule
+
+도메인 하나가 여러 운영 기능을 가지면 컨트롤러를 하나의 큰 클래스로 합치지 않고 기능 책임별로 분리한다.
+
+예시:
+
+```text
+MemberController       -> 회원 생성/수정/삭제/조회
+ProductController      -> 상품 생성/수정/삭제/조회
+InventoryController    -> 재고 생성/증감/조회
+OrderController        -> 주문 생성/취소/삭제/조회
+OrderPaymentController -> 주문 결제/전체 환불
+CouponController       -> 쿠폰과 쿠폰 히스토리 조회
+```
+
+규칙:
+
+- 한 컨트롤러는 하나의 운영 책임만 가진다.
+- 하나의 컨트롤러에 회원, 상품, 주문, 결제, 쿠폰 API를 모두 넣지 않는다.
+- 기능별 컨트롤러는 필요한 use case만 주입받는다.
+- 공통 응답 조립이 필요하면 private helper나 공통 web utility를 사용하되, 비즈니스 판단을 넣지 않는다.
+
 ## Controller Rule
 
 - 컨트롤러는 Swagger annotation, use case 호출, HTTP status/body 조립만 담당한다.
@@ -58,6 +80,8 @@ ResponseEntity.ok(ApiResponse.success(result))
 
 - request는 `application/{domain}/request` 패키지에 둔다.
 - response는 `application/{domain}/response` 패키지에 둔다.
+- request/response 파일도 기능 책임별로 분리한다. 예: `MemberRequests.kt`, `OrderPaymentResponses.kt`.
+- 여러 기능의 DTO를 `CommerceRequests.kt`, `CommerceResponses.kt` 같은 대형 파일에 모으지 않는다.
 - request/response에는 도메인 entity나 JPA entity를 노출하지 않는다.
 - request/response DTO에는 bean validation annotation을 사용하지 않는다.
 - `@Valid`, `@get:NotBlank`, `@field:NotBlank`, `@get:Min`, `@field:Min`은 사용하지 않는다.

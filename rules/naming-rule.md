@@ -131,11 +131,18 @@ PaymentEventPublisherAdapter
 PaymentController
 PaymentQueryController
 CouponOrderController
+MemberController
+ProductController
+InventoryController
+OrderController
+OrderPaymentController
+CouponController
 ```
 
 규칙:
 
 - 단일 변경 기능이면 `{Feature}Controller`를 사용한다.
+- 한 도메인 안에서도 운영 책임이 다르면 기능별 controller 이름을 사용한다.
 - 조회가 분리되면 `{Domain}QueryController`를 사용한다.
 - `ApiController` 접미사는 사용하지 않는다.
 

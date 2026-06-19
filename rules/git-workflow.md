@@ -13,23 +13,27 @@ main
 작업 브랜치 형식:
 
 ```text
-type/short-topic
+frontend/short-topic
+backend/short-topic
 ```
 
 예시:
 
 ```text
-docs/project-brain-update
-chore/project-scaffold
-chore/frontend-scaffold
-feat/payment-authorization
-feat/payment-cancellation
-feat/settlement-batch
-feat/reconciliation
-feat/admin-payment-page
-test/payment-concurrency
-refactor/payment-domain
+frontend/admin-ui
+frontend/payment-admin-page
+backend/payment-authorization
+backend/payment-cancellation
+backend/settlement-batch
+backend/reconciliation
 ```
+
+규칙:
+
+- 프론트 작업 브랜치는 `frontend/{issue-number-or-topic}` 형식을 사용한다.
+- 백엔드 작업 브랜치는 `backend/{issue-number-or-topic}` 형식을 사용한다.
+- 이슈 번호가 있으면 topic보다 이슈 번호를 우선 사용한다.
+- `codex/*`, `feat/*`, `chore/*` 같은 prefix는 사용하지 않는다.
 
 ## Frontend Branch Rule
 
@@ -40,32 +44,32 @@ refactor/payment-domain
 ```text
 main
   -> chore/project-scaffold
-  -> chore/frontend-scaffold
+  -> frontend/scaffold
 ```
 
 백엔드 스캐폴딩이 `main`에 반영된 뒤라면:
 
 ```text
 main
-  -> chore/frontend-scaffold
+  -> frontend/scaffold
 ```
 
 규칙:
 
-- React/Vite 초기 생성은 `chore/frontend-scaffold`에서 한다.
-- 프론트 기능 구현은 스캐폴딩과 분리해 `feat/*` 브랜치에서 한다.
+- React/Vite 초기 생성은 `frontend/scaffold`에서 한다.
+- 프론트 기능 구현은 스캐폴딩과 분리해 `frontend/*` 브랜치에서 한다.
 - API 계약이 아직 없으면 실제 API 연동 대신 MSW mock과 화면 구조까지만 만든다.
 - 백엔드 기능 브랜치와 프론트 기능 브랜치를 한 브랜치에 섞지 않는다.
 
 프론트 브랜치 예시:
 
 ```text
-chore/frontend-scaffold
-feat/admin-dashboard
-feat/payment-admin-page
-feat/settlement-screen
-feat/reconciliation-screen
-test/payment-ui-flow
+frontend/scaffold
+frontend/admin-dashboard
+frontend/payment-admin-page
+frontend/settlement-screen
+frontend/reconciliation-screen
+frontend/payment-ui-flow
 ```
 
 ## Work Unit Rule
@@ -121,7 +125,8 @@ type: 한국어 요약
 - 한 커밋에는 하나의 의도만 담는다.
 - 테스트나 검증을 했다면 필요할 때만 본문에 `Verified:`를 남긴다.
 - 완료 작업의 상세 설명은 Git 커밋 본문이 아니라 Obsidian에 남긴다.
-- Obsidian에는 나중에 추적할 수 있도록 `commit hash + title`만 연결한다.
+- 사용자에게 커밋 완료를 보고할 때는 `b01c645 feat: ...`처럼 해시를 제목 앞에 붙이지 않는다.
+- 해시가 필요하면 커밋 제목과 분리해 별도 값으로만 적는다.
 
 ## Commit Examples
 
@@ -251,14 +256,15 @@ Obsidian 작업기록에는 이 정도만 Git 연결값으로 남긴다:
 
 ```text
 Git:
-- Commit: `abc1234 feat: 결제 승인 유스케이스 추가`
+- Commit: `feat: 결제 승인 유스케이스 추가`
+- Hash: `abc1234`
 ```
 
 작업이 여러 커밋으로 나뉘면 관련 커밋을 짧게 나열한다.
 
 ```text
 Git:
-- `abc1234 feat: Payment 도메인 모델 추가`
-- `def5678 feat: 결제 승인 유스케이스 추가`
-- `fed9876 test: 결제 승인 검증`
+- `feat: Payment 도메인 모델 추가` (`abc1234`)
+- `feat: 결제 승인 유스케이스 추가` (`def5678`)
+- `test: 결제 승인 검증` (`fed9876`)
 ```

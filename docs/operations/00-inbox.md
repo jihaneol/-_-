@@ -19,6 +19,15 @@ Unknowns:
 
 ## Inbox
 
+### 2026-06-19 - Order payment coupon accrual flow
+
+Source: user planning
+Problem: Need a simple commerce flow where a paid order grants a coupon accrual/reward history.
+User / operator: developer, future portfolio reviewer
+Expected value: expands the payment service into a transaction-heavy order/reward scenario while keeping the first version small.
+Rough idea: model member, product, inventory, order, payment, coupon, and immutable history around one successful order payment flow.
+Unknowns: exact coupon accrual rule, whether payment reuses the existing authorization flow, cancellation/refund behavior, and whether inventory is reserved before or during payment.
+
 ### 2026-06-18 - Initial project setup
 
 Source: project planning  

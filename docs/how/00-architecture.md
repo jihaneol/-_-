@@ -51,6 +51,11 @@ modules/bootstrap/src/main/kotlin/com/example/cardservice
   CardServiceApplication
   web.common
   web.payment
+  web.commerce.member
+  web.commerce.product
+  web.commerce.inventory
+  web.commerce.order
+  web.commerce.coupon
 
 modules/batch/src/main/kotlin/com/example/cardservice/batch
   payment
@@ -144,6 +149,8 @@ Application use case
 - `bootstrap` is the only executable Spring Boot module.
 - Web DTOs must not leak into use cases or domain objects.
 - Controller request/response models live under `application/{domain}/request` and `application/{domain}/response`.
+- Controllers, services, request models, and response models are split by feature responsibility when a domain has multiple operator workflows.
+- Commerce is split into member, product, inventory, order, order payment, and coupon query responsibilities instead of one large controller/service/DTO file.
 - JPA entities are the domain model in this project. Keep QueryDSL and persistence adapter technology in `infra`.
 - `infra` is the only DB access module. `external` must not contain JPA, QueryDSL, or database repositories.
 

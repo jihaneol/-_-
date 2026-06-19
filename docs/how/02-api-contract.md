@@ -54,6 +54,73 @@ Implementation notes:
 
 The following endpoints are target contracts for upcoming work and are not implemented in the current runtime.
 
+## Commerce Coupon MVP API
+
+The following endpoints define the MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund.
+
+### Members
+
+- `POST /api/members`
+- `GET /api/members`
+- `GET /api/members/{memberId}`
+- `PATCH /api/members/{memberId}`
+- `DELETE /api/members/{memberId}`: soft delete only.
+
+### Products
+
+- `POST /api/products`
+- `GET /api/products`
+- `GET /api/products/{productId}`
+- `PATCH /api/products/{productId}`
+- `DELETE /api/products/{productId}`: soft delete only.
+
+### Inventory
+
+- `POST /api/products/{productId}/inventory`
+- `GET /api/products/{productId}/inventory`
+- `POST /api/products/{productId}/inventory/increase`
+- `POST /api/products/{productId}/inventory/decrease`
+
+### Orders
+
+- `POST /api/orders`
+- `GET /api/orders`
+- `GET /api/orders/{orderId}`
+- `POST /api/orders/{orderId}/cancel`: allowed only before payment.
+- `POST /api/orders/{orderId}/pay`: authorizes payment, deducts inventory, and issues stamp coupons.
+- `POST /api/orders/{orderId}/refund`: full refund only. Partial refund is rejected. Issued coupons are voided with reversal history.
+
+Pay order request:
+
+```json
+{
+  "idempotencyKey": "pay-20260619-0001"
+}
+```
+
+Pay order success:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "orderId": "1",
+    "paymentId": "1",
+    "orderStatus": "PAID",
+    "paymentStatus": "AUTHORIZED",
+    "paidAmount": 12000,
+    "issuedCouponCount": 2
+  }
+}
+```
+
+### Coupons
+
+- `GET /api/members/{memberId}/coupons`: issued stamp coupon records.
+- `GET /api/members/{memberId}/coupon-histories`
+- `GET /api/orders/{orderId}/coupon-histories`
+
 ### Authorize Payment
 
 `POST /api/payments/authorize`
@@ -95,6 +162,11 @@ The following endpoints are target contracts for upcoming work and are not imple
 - 같은 중복 요청 방지 키로 다른 요청 본문이 들어오면 거절한다.
 - 결제를 찾을 수 없습니다.
 - 이미 취소된 결제입니다.
+- 이미 환불된 결제입니다.
 - 금액은 0보다 커야 합니다.
 - 가맹점을 찾을 수 없습니다.
 - 쿠폰 수량은 1개 이상이어야 합니다.
+- 재고가 부족합니다.
+- 결제 완료된 주문은 주문 취소할 수 없습니다.
+- 결제 전 주문은 환불할 수 없습니다.
+- 부분 환불은 지원하지 않습니다.

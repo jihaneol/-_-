@@ -21,6 +21,9 @@ modules/application/src/main/kotlin/com/example/cardservice/application/{domain}
 - service/facade는 별도 `service` 폴더를 만들지 않고 도메인 루트 패키지에 둔다.
 - 단일 도메인 규칙 실행은 `{Action}Service`를 사용한다.
 - 여러 use case와 provided port를 묶는 조율 흐름은 `{Feature}Facade`를 사용한다.
+- 회원, 상품, 재고, 주문, 결제, 쿠폰처럼 책임이 다른 기능은 하나의 service에 합치지 않는다.
+- CRUD성 기능도 aggregate 책임이 다르면 `MemberService`, `ProductService`, `InventoryService`, `OrderService`처럼 분리한다.
+- 결제처럼 여러 aggregate와 port를 조율하는 흐름은 `OrderPaymentFacade`처럼 별도 facade로 분리한다.
 - service/facade는 domain model을 생성/로드하고 domain 규칙을 실행한다.
 - service/facade는 DB, 외부 API, 메시징을 직접 호출하지 않고 `provided` port를 호출한다.
 - service/facade는 controller response wrapper인 `ApiResponse<T>`를 알면 안 된다.

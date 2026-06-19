@@ -17,6 +17,12 @@
 - Behavior-style unit/application tests.
 - MockK for mocked outbound ports.
 - Integration tests.
+- Minimum commerce CRUD for member, product, inventory, and order.
+- Stamp coupon issuance after successful order payment.
+- One issued stamp coupon per `5000 KRW` paid amount.
+- Full refund for paid orders. Partial refund is excluded.
+- Soft delete for user-facing member/product/order delete actions.
+- Immutable coupon issuance and refund history.
 
 ## Stretch
 
@@ -24,6 +30,8 @@
 - Transactional outbox.
 - Failed event retry and dead-letter handling.
 - Partial cancellation.
+- Partial refund.
+- Coupon coffee exchange/redemption.
 - k6 or Gatling load test.
 
 ## Out of Scope
