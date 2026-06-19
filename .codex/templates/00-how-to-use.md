@@ -8,8 +8,8 @@ Use these templates when starting a new portfolio project.
 2. Extract required capabilities from the job post.
 3. Fill the placeholders in `backend-template.md`.
 4. If a frontend is included, fill the placeholders in `frontend-template.md`.
-5. Copy the generated backend files into `docs/harness`.
-6. Copy the generated frontend files into `docs/frontend-harness`.
+5. Copy the generated backend files into `harness/backend`.
+6. Copy the generated frontend files into `harness/frontend`.
 7. Keep the generated docs as the project-specific instance.
 
 ## Placeholder Translation

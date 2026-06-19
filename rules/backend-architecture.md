@@ -93,6 +93,10 @@ bootstrap web request
 - command use case는 transaction boundary를 소유한다.
 - command persistence adapter는 aggregate 저장과 ledger/outbox 같은 쓰기 모델 저장을 담당한다.
 - command side에서 화면 목록/검색용 DTO를 직접 만들지 않는다.
+- transaction 세부 기준은 `rules/transaction-rule.md`를 따른다.
+- 동시성/idempotency 기준은 `rules/concurrency-rule.md`를 따른다.
+- event/outbox 기준은 `rules/event-publication-rule.md`를 따른다.
+- DB schema/index 기준은 `rules/database-schema-rule.md`를 따른다.
 
 ## Query Side Rule
 
@@ -166,6 +170,8 @@ PaymentEventPublisherAdapter
 - Query use cases are tested against query ports and projection contracts.
 - QueryDSL adapters are tested in the `infra` module with integration tests when database behavior matters.
 - Controller tests must verify that command endpoints call command use cases and query endpoints call query use cases.
+- Transaction, concurrency, and outbox guarantees must have integration tests when database behavior matters.
+- 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
 
 ## Controller Rule Link
 

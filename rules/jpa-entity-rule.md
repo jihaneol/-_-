@@ -102,14 +102,21 @@ class Payment protected constructor() {
 - 생성은 companion object factory나 도메인 메서드로 제공한다.
 - 비즈니스 검증은 value object 또는 factory에서 유지한다.
 
-## Migration Rule
+## SQL Schema Rule
 
-entity를 만들거나 컬럼을 바꾸면 Flyway migration도 함께 수정한다.
+entity를 만들거나 컬럼을 바꾸면 `sql/` 아래 schema SQL도 함께 수정한다.
+
+DB schema, constraint, index 세부 기준은 `rules/database-schema-rule.md`를 따른다.
 
 ```sql
 CREATE TABLE payments (
     id BIGINT NOT NULL AUTO_INCREMENT,
+    merchant_id VARCHAR(100) NOT NULL,
+    order_id VARCHAR(100) NOT NULL,
     idempotency_key VARCHAR(150) NOT NULL,
+    amount BIGINT NOT NULL,
+    currency VARCHAR(3) NOT NULL,
+    status VARCHAR(30) NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT uk_payments_idempotency_key UNIQUE (idempotency_key)
 );
@@ -117,8 +124,8 @@ CREATE TABLE payments (
 
 규칙:
 
-- `ddl-auto: validate` 기준으로 schema와 entity가 맞아야 한다.
-- unique constraint는 entity와 migration 양쪽에 맞춘다.
+- schema SQL과 entity가 맞아야 한다.
+- unique constraint는 entity와 schema SQL 양쪽에 맞춘다.
 - repository는 schema를 만들지 않는다.
 
 ## Repository Contract Rule
@@ -138,3 +145,8 @@ interface PaymentRepository : Repository<Payment, Long> {
 - 필요한 메서드만 명시한다.
 - adapter는 `infra`에서 repository 계약을 주입받아 application port를 구현한다.
 - QueryDSL adapter는 계속 `infra`에 둔다.
+
+## Reference
+
+- DB schema 규칙: `rules/database-schema-rule.md`
+- 동시성 규칙: `rules/concurrency-rule.md`

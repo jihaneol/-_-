@@ -6,7 +6,7 @@
 | DDD | Aggregates, value objects, invariants | Domain tests |
 | Hexagonal architecture | `domain`, `application`, `bootstrap`, `batch`, `infra`, `external` Gradle modules | Module dependencies, architecture notes |
 | CQRS | Separate command/query use cases, ports, and adapters | Command domain tests, infra QueryDSL adapter tests |
-| RDBMS modeling | MySQL schema for merchant, payment, ledger, settlement | ERD, migration files |
+| RDBMS modeling | MySQL schema for merchant, payment, ledger, settlement | ERD, `sql/` schema files |
 | Query optimization | QueryDSL read adapters and indexes for merchant/date/status lookup | Query-plan note |
 | Complex business logic | Authorize, cancel, settle, reconcile | Behavior-style domain tests |
 | Concurrency | Idempotency key and locking strategy | Race-condition test |

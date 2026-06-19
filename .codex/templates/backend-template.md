@@ -1,6 +1,6 @@
 # Backend Harness Template
 
-Replace placeholders before copying into `docs/harness`.
+Replace placeholders before copying into `harness/backend`.
 
 ## Placeholders
 

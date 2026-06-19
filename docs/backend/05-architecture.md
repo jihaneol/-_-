@@ -1,6 +1,6 @@
 # Architecture
 
-Visual diagrams: `docs/harness/10-architecture-diagram.md`
+Visual diagrams: `docs/backend/10-architecture-diagram.md`
 
 ## Style
 

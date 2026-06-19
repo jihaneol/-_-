@@ -1,34 +1,34 @@
 # Work Intake Rule
 
-이 프로젝트는 새 기능을 바로 구현하지 않고, 작은 개발 단위로 다듬은 뒤 `work/03-active-work.md`에 올린 작업만 구현한다.
+이 프로젝트는 새 기능을 바로 구현하지 않고, 작은 phase로 다듬은 뒤 `harness/phases/*.md`에 올린 작업만 구현한다.
 
 ## Flow
 
 ```text
-work/00-inbox.md
-  -> work/01-feature-candidates.md
-  -> work/02-prioritized-roadmap.md
-  -> work/03-active-work.md
+docs/00-inbox.md
+  -> docs/01-feature-candidates.md
+  -> docs/02-roadmap.md
+  -> harness/phases/phase-NNN-title.md
 ```
 
 ## File Roles
 
 | File | Role | Rule |
 |---|---|---|
-| `work/00-inbox.md` | 원문에 가까운 아이디어 접수함 | 판단하지 말고 먼저 기록한다. |
-| `work/01-feature-candidates.md` | 개발 후보 정리 | 가치, 범위, 제외 범위, API/UI 영향, 테스트를 정리한다. |
-| `work/02-prioritized-roadmap.md` | 우선순위 최종본 | Now/Next/Later로 배치한다. |
-| `work/03-active-work.md` | 현재 구현 계약 | 지금 구현할 하나의 작업만 둔다. |
+| `docs/00-inbox.md` | 원문에 가까운 아이디어 접수함 | 판단하지 말고 먼저 기록한다. |
+| `docs/01-feature-candidates.md` | 개발 후보 정리 | 가치, 범위, 제외 범위, API/UI 영향, 테스트를 정리한다. |
+| `docs/02-roadmap.md` | 우선순위 최종본 | Now/Next/Later로 배치한다. |
+| `harness/phases/*.md` | phase 구현 계약 | 하나의 phase마다 독립적인 완료/검증 기준을 둔다. |
 
 ## Intake Rule
 
 새 기능이나 범위 변경이 나오면:
 
-1. `work/00-inbox.md`에 사용자 요청과 날짜를 기록한다.
-2. 구현할 가치가 있으면 `work/01-feature-candidates.md`에 후보로 다듬는다.
-3. 후보가 현재 목표와 맞으면 `work/02-prioritized-roadmap.md`에 Now/Next/Later로 배치한다.
-4. 실제 개발을 시작할 때만 `work/03-active-work.md`로 승격한다.
-5. 완료 후 상세 기록은 Obsidian에 보관하고, `work/03-active-work.md`는 다음 작업으로 교체한다.
+1. `docs/00-inbox.md`에 사용자 요청과 날짜를 기록한다.
+2. 구현할 가치가 있으면 `docs/01-feature-candidates.md`에 후보로 다듬는다.
+3. 후보가 현재 목표와 맞으면 `docs/02-roadmap.md`에 Now/Next/Later로 배치한다.
+4. 실제 개발을 시작할 때만 `harness/phases/phase-NNN-title.md`로 승격한다.
+5. 완료 후 상세 기록은 Obsidian에 보관하고, phase 상태는 `execute.py`와 `harness/state/`에 기록한다.
 
 ## Multiple Work Rule
 
@@ -58,36 +58,44 @@ React admin frontend scaffold
 Daily settlement batch
 ```
 
-이 경우 `work/02-prioritized-roadmap.md`에서 순서를 정하고, `work/03-active-work.md`에는 하나씩만 올린다.
+이 경우 `docs/02-roadmap.md`에서 순서를 정하고, `harness/phases/`에는 순서가 드러나는 phase 파일로 하나씩 올린다.
 
 ## Active Work Shape
 
-`work/03-active-work.md`에는 최소한 다음 항목을 둔다.
+`harness/phases/*.md`에는 최소한 다음 항목을 둔다.
 
 ```md
-# Active Work
-
-## Title
+# Phase NNN: Title
 
 ## Goal
 
-## In Scope
+## Docs Read
 
-## Out of Scope
+## Scope
 
-## Task Breakdown
+## Out Of Scope
+
+## Files To Touch
+
+## Test First
+
+## Implementation Steps
 
 ## Done Criteria
 
-## Verification
+## Validation
+
+## Review Focus
 ```
 
 ## Done Rule
 
 작업이 끝났다고 판단하려면:
 
+- 기능/수정 작업은 테스트를 먼저 작성하거나 수정해야 한다.
+- production code 변경이 있는데 테스트 변경이 없으면 완료할 수 없다.
 - `Done Criteria`가 모두 충족되어야 한다.
 - 관련 테스트나 문서 검증이 완료되어야 한다.
+- 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
 - 완료 내용, 수정 이유, 검증 결과, 남은 위험이 Obsidian에 기록되어야 한다.
 - 커밋은 사용자가 명시적으로 요청한 경우에만 한다.
-

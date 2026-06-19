@@ -19,7 +19,7 @@ type/short-topic
 예시:
 
 ```text
-docs/harness-update
+docs/backend-update
 chore/project-scaffold
 chore/frontend-scaffold
 feat/payment-authorization
@@ -70,9 +70,20 @@ test/payment-ui-flow
 
 ## Work Unit Rule
 
-하나의 작업은 `work/03-active-work.md`에 올라온 범위만 포함한다.
+하나의 작업은 현재 `execute.py`가 진행 중인 `harness/phases/*.md` 범위만 포함한다.
 
-완료된 작업의 상세 과정과 수정 이유는 Obsidian에 보관한다. 프로젝트 안의 `work/` 파일은 현재 최종본만 유지한다.
+완료된 작업의 상세 과정과 수정 이유는 Obsidian에 보관한다. 프로젝트 안의 `harness/phases/` 파일은 실행 가능한 phase 최종본만 유지한다.
+
+장시간 구현 모드에서는 커밋을 자동으로 만든다. `python3 execute.py complete`가 완료 게이트를 모두 통과하면 완료된 phase 단위로 자동 커밋한다. 커밋 전에는 다음 조건을 만족해야 한다.
+
+- 현재 phase의 validation이 통과했다.
+- 현재 phase의 `Done Criteria`가 모두 `[x]`다.
+- 해당 phase의 검증과 리뷰 요구가 끝났다.
+- Obsidian 현재작업과 day log가 `execute.py`로 갱신됐다.
+- 변경 범위가 완료된 phase와 맞는다.
+- phase 시작 전부터 있던 dirty file은 자동 커밋에 포함하지 않는다. 기본적으로 `python3 execute.py start`는 clean worktree에서만 시작한다.
+
+사용자가 명시적으로 커밋을 금지한 경우에만 자동 커밋을 멈춘다.
 
 작업 단위는 다음 중 하나로 나눈다.
 
@@ -185,11 +196,11 @@ feat: 정산과 대사 화면 추가
 test: MSW 기반 결제 UI 흐름 추가
 ```
 
-프론트 작업은 `work/03-active-work.md`가 프론트 스캐폴딩이나 프론트 기능 작업으로 바뀐 뒤 시작한다.
+프론트 작업은 `docs/frontend/`와 프론트 phase 파일이 준비된 뒤 시작한다.
 
 ## Commit Before Checklist
 
-- [ ] 변경 범위가 `work/03-active-work.md`와 맞는다.
+- [ ] 변경 범위가 현재 phase 파일과 맞는다.
 - [ ] 불필요한 IDE/local 파일이 포함되지 않았다.
 - [ ] 문서 변경과 코드 변경이 너무 섞이지 않았다.
 - [ ] 관련 테스트 또는 검증을 실행했다.

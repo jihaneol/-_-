@@ -29,7 +29,7 @@ Review this payment backend for domain correctness. Focus on payment authorizati
 
 When to run:
 
-- After schema migrations exist.
+- After `sql/` table/index schema files exist.
 - After merchant/date query and settlement query exist.
 
 Prompt:

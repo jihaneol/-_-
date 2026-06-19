@@ -2,7 +2,7 @@
 
 컨트롤러는 HTTP inbound adapter다. 컨트롤러는 얇게 유지하고 request/response 모델은 `application` 모듈의 별도 패키지에 둔다.
 
-긴 복사용 예시는 `docs/harness/references/controller-code-examples.md`를 필요할 때만 읽는다.
+긴 복사용 예시는 `docs/backend/references/controller-code-examples.md`를 필요할 때만 읽는다.
 
 ## Package Rule
 
@@ -97,11 +97,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 - 성공 응답은 `$.code`, `$.message`, `$.data.*`를 검증한다.
 - use case 예외가 HTTP error response로 변환되는지 검증한다.
 - request DTO에 bean validation annotation이 다시 들어오지 않도록 source convention test로 검증한다.
+- 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
 
 ## Reference
 
 - 네이밍 규칙: `rules/naming-rule.md`
 - 에러 메시지 규칙: `rules/error-message-rule.md`
-- 실제 컨트롤러 예시: `docs/harness/references/controller-code-examples.md`
+- 테스트 규칙: `rules/test-rule.md`
+- 실제 컨트롤러 예시: `docs/backend/references/controller-code-examples.md`
 - 현재 적용 코드: `modules/bootstrap/src/main/kotlin/com/example/cardservice/web/payment/CouponOrderController.kt`
 - 현재 테스트 코드: `modules/bootstrap/src/test/kotlin/com/example/cardservice/web/payment/CouponOrderControllerTest.kt`

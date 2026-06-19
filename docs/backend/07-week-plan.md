@@ -6,7 +6,7 @@
 - Create Spring Boot project.
 - Create DDD/hexagonal multi-module structure.
 - Add MySQL Docker Compose.
-- Add schema migrations.
+- Add SQL table/index schema files under `sql/`.
 
 ## Day 2
 
