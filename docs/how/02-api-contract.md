@@ -58,6 +58,27 @@ The following endpoints are target contracts for upcoming work and are not imple
 
 The following endpoints define the MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund.
 
+### Dashboard
+
+- `GET /api/dashboard/summary`: main page counters for active members, products, orders, paid orders, refunded orders, and issued stamp coupons.
+
+Success:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "memberCount": 3,
+    "productCount": 5,
+    "orderCount": 7,
+    "paidOrderCount": 4,
+    "refundedOrderCount": 1,
+    "issuedCouponCount": 9
+  }
+}
+```
+
 ### Members
 
 - `POST /api/members`
