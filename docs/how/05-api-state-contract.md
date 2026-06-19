@@ -14,21 +14,24 @@ Responsibilities:
 ## Query Keys
 
 ```text
-payments.list(filters)
-payments.detail(paymentId)
-settlements.daily(date)
-reconciliation.daily(date)
-dashboard.summary(date)
+commerce.members
+commerce.products
+commerce.orders
+commerce.inventory(productId)
+commerce.coupons(memberId)
+commerce.histories(memberId)
 ```
 
 ## Mutations
 
 | Mutation | Invalidates |
 |---|---|
-| authorizePayment | `payments.list`, `dashboard.summary` |
-| cancelPayment | `payments.list`, `payments.detail`, `dashboard.summary` |
-| runDailySettlement | `settlements.daily`, `dashboard.summary` |
-| runDailyReconciliation | `reconciliation.daily`, `dashboard.summary` |
+| createMember | `commerce.members` |
+| createProduct | `commerce.products` |
+| createInventory | `commerce.inventory(productId)` |
+| createOrder | `commerce.orders` |
+| payOrder | `commerce.orders`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
+| refundOrder | `commerce.orders`, `commerce.coupons(memberId)`, `commerce.histories(memberId)` |
 
 ## Error Model
 
@@ -46,10 +49,10 @@ type ApiError = {
 
 Use Zod schemas for:
 
-- Authorize payment request.
-- Cancel payment request.
-- Settlement run date.
-- Reconciliation run date.
+- Member creation.
+- Product and inventory creation.
+- Order creation.
+- Order payment.
 
 ## Optimistic Updates
 
