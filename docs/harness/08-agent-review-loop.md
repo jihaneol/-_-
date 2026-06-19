@@ -45,6 +45,17 @@ Focus:
 - loading/error/success states,
 - route and API namespace correctness.
 
+## Full-Stack Feature Gate
+
+Run after a backend phase completes and again before reporting final completion for any feature that also has frontend work.
+
+Focus:
+
+- whether the backend API contract is reflected in the frontend API client and state keys,
+- whether the frontend phase is still pending after backend validation,
+- whether `python3 scripts/execute.py feature gate <feature>` passes,
+- whether the final report describes the whole feature, not only the last lane.
+
 ## Portfolio Reviewer
 
 Run before final polish.

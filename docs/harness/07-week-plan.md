@@ -30,6 +30,7 @@
 
 - Run backend and frontend validations.
 - Add reviewer passes for API boundary and frontend boundary.
+- Run the full-stack feature gate before reporting the admin/shop split as complete.
 
 ## Day 7
 
