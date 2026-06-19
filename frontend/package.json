@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:admin": "vite --host 127.0.0.1 index.html",
+    "dev:shop": "vite --host 127.0.0.1 shop.html",
     "build": "tsc -b && vite build",
+    "build:admin": "tsc -b && vite build --mode admin",
+    "build:shop": "tsc -b && vite build --mode shop",
     "test": "vitest"
   },
   "dependencies": {

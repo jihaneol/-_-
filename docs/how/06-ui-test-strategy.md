@@ -6,6 +6,9 @@ Use Vitest and React Testing Library.
 
 Test:
 
+- Admin app renders operator navigation.
+- Shop app does not render admin navigation.
+- Shop app supports member signup, product purchase, and coupon count refresh.
 - Order payment form validation.
 - Refund action behavior.
 - Order status badge rendering.
@@ -35,6 +38,12 @@ Given the commerce dashboard is open
 When an operator creates an order and pays it
 Then the issued coupon count is shown
 And the order list is refreshed
+```
+
+```text
+Given the shop app is open
+When a customer signs up and buys a product
+Then the issued coupon count is shown without exposing admin navigation
 ```
 
 ## Optional E2E

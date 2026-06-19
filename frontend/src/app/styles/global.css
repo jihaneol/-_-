@@ -259,6 +259,79 @@ button:disabled {
   color: #735300;
 }
 
+.shop-shell {
+  background: #f5f6f4;
+  display: grid;
+  gap: 18px;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.shop-hero {
+  align-items: center;
+  background: #17382e;
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+}
+
+.shop-hero h1 {
+  font-size: 28px;
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.shop-hero p {
+  color: #c9dfd6;
+  margin: 6px 0 0;
+}
+
+.shop-coupon {
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  color: #17382e;
+  display: grid;
+  gap: 4px;
+  min-width: 190px;
+  padding: 14px;
+}
+
+.shop-coupon span {
+  color: #6f8078;
+  font-size: 13px;
+}
+
+.product-list {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.product-card {
+  border: 1px solid #dfe4df;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.product-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.product-card strong {
+  font-size: 17px;
+}
+
+.product-card span {
+  color: #40524a;
+}
+
 .status.bad {
   background: #f6d7d7;
   color: #8f2d2d;

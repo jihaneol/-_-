@@ -13,11 +13,7 @@
 
 | Route | Purpose |
 |---|---|
-| `/` | Customer product catalog and shopping entry |
-| `/signup` | Demo member signup before authentication exists |
-| `/cart` | Cart review and order payment |
-| `/coupons` | Customer coupon wallet and stamp progress |
-| `/orders` | Customer order result and simple history |
+| `/` | Customer signup, product catalog, one-click purchase, coupon count |
 
 ## Main Page
 
@@ -51,8 +47,9 @@
 ## Shop Catalog Page
 
 - Sale product catalog from shop-scoped product API.
-- Add-to-cart action.
+- One-click demo purchase.
 - Selected demo member state until authentication exists.
+- Success feedback after payment.
 
 ## Shop Coupon Wallet Page
 

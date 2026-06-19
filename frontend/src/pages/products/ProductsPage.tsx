@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PackagePlus, Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { commerceApi, commerceKeys } from '../../entities/commerce/api'
+import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { Product } from '../../entities/commerce/types'
 import type { ApiError } from '../../shared/api/client'
 import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
@@ -27,7 +27,7 @@ export function ProductsPage() {
   const queryClient = useQueryClient()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const products = useQuery({ queryKey: commerceKeys.products, queryFn: commerceApi.listProducts })
+  const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
   const productForm = useForm<ProductForm>({
     resolver: zodResolver(productSchema) as never,
     defaultValues: { name: '', price: 5000, stock: 10 },
@@ -41,13 +41,13 @@ export function ProductsPage() {
     setNotice('')
   }
   const invalidateProducts = async () => {
-    await queryClient.invalidateQueries({ queryKey: commerceKeys.products })
-    await queryClient.invalidateQueries({ queryKey: commerceKeys.summary })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.products })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
   }
   const createProduct = useMutation({
     mutationFn: async (form: ProductForm) => {
-      const product = await commerceApi.createProduct({ name: form.name, price: form.price })
-      await commerceApi.createInventory(product.id, { quantity: form.stock })
+      const product = await adminCommerceApi.createProduct({ name: form.name, price: form.price })
+      await adminCommerceApi.createInventory(product.id, { quantity: form.stock })
       return product
     },
     onSuccess: async (product) => {
@@ -59,12 +59,12 @@ export function ProductsPage() {
     onError,
   })
   const increaseStock = useMutation({
-    mutationFn: (form: StockForm) => commerceApi.increaseInventory(form.productId, { quantity: form.quantity }),
+    mutationFn: (form: StockForm) => adminCommerceApi.increaseInventory(form.productId, { quantity: form.quantity }),
     onSuccess: async (inventory) => {
       setNotice(`상품 #${inventory.productId} 재고 ${inventory.quantity}개`)
       setError('')
       stockForm.reset({ productId: inventory.productId, quantity: 1 })
-      await queryClient.invalidateQueries({ queryKey: commerceKeys.inventory(inventory.productId) })
+      await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.inventory(inventory.productId) })
     },
     onError,
   })
@@ -143,8 +143,8 @@ export function ProductsPage() {
 
 function ProductRow(props: { product: Product }) {
   const inventory = useQuery({
-    queryKey: commerceKeys.inventory(props.product.id),
-    queryFn: () => commerceApi.getInventory(props.product.id),
+    queryKey: adminCommerceKeys.inventory(props.product.id),
+    queryFn: () => adminCommerceApi.getInventory(props.product.id),
     retry: false,
   })
   return (

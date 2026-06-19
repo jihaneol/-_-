@@ -10,35 +10,34 @@ This is intentionally lighter than full enterprise FSD. Keep boundaries clear wi
 
 ```text
 frontend/
+  apps/
+    admin/
+      AdminApp.tsx
+      main.tsx
+    shop/
+      ShopApp.tsx
+      main.tsx
   src/
     app/
-      providers/
-      router/
       styles/
     pages/
-      commerce-dashboard/
-    widgets/
-      order-table/
-      coupon-history-table/
-    features/
-      create-member/
-      create-product/
-      create-order/
-      pay-order/
-      refund-order/
+      main/
+      members/
+      products/
+      orders-payments/
     entities/
       commerce/
     shared/
       api/
-      config/
-      lib/
-      ui/
-      types/
+      test/
+      ui.tsx
 ```
 
 ## Layer Rules
 
-- `app` wires providers, router, and global styles.
+- `apps/admin` wires the operator runtime, navigation, and admin entrypoint.
+- `apps/shop` wires the customer shop runtime and shop entrypoint.
+- `app` keeps global styles and legacy compatibility exports only.
 - `pages` compose widgets and features into route-level screens.
 - `widgets` combine entities and features into larger screen blocks.
 - `features` represent user actions such as authorize, cancel, run settlement, and run reconciliation.
@@ -56,7 +55,15 @@ frontend/
 ## Dependency Direction
 
 ```text
-app -> pages -> widgets -> features -> entities -> shared
+apps -> pages -> entities -> shared
 ```
 
 Lower layers must not import from higher layers.
+
+## Runtime Split
+
+- `frontend/index.html` loads `apps/admin/main.tsx`.
+- `frontend/shop.html` loads `apps/shop/main.tsx`.
+- `npm --prefix frontend run build` builds both apps.
+- `npm --prefix frontend run build:admin` builds the admin app.
+- `npm --prefix frontend run build:shop` builds the shop app.
