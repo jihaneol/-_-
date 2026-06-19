@@ -41,3 +41,21 @@ infra/external
 - Use append-only records for ledgers and coupon histories.
 - Prefer transactional outbox before broker publishing.
 - Keep failed event delivery visible and retryable.
+
+## Current Transaction Boundaries
+
+- `OrderPaymentFacade.payOrder` locks the order, checks idempotency, locks inventory, saves payment, marks the order paid, issues coupons, and appends issue histories in one transaction.
+- `OrderPaymentFacade.refundOrder` locks the order/inventory, refunds the payment, restores inventory, voids coupons, and appends void histories in one transaction.
+- `CouponExchangeService.approveCouponExchange` locks the exchange product inventory and ten issued coupons, deducts one inventory item, exchanges the coupons, and appends exchange histories in one transaction.
+
+## Current Persistence And Locking
+
+- `Payment` has a unique idempotency key constraint.
+- `JpaCommerceLockAdapter` uses `PESSIMISTIC_WRITE` for orders, inventory, individual coupons, and exchange coupon selection.
+- Admin and shop runtimes share the same application services so customer and operator paths do not fork business rules.
+
+## Deferred Reliability Work
+
+- Transactional outbox and broker retry UI.
+- Dedicated payment ledger table.
+- Daily settlement and full reconciliation batch.

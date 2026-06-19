@@ -28,13 +28,30 @@ export function Row(props: { colSpan: number; text: string }) {
   )
 }
 
+const statusLabels: Record<string, string> = {
+  AUTHORIZED: '승인 완료',
+  CANCELLED: '취소',
+  CREATED: '생성',
+  EXCHANGED: '교환 완료',
+  ISSUED: '적립 중',
+  ON_SALE: '판매 중',
+  PAID: '결제 완료',
+  REFUNDED: '환불',
+  SOLD_OUT: '품절',
+  VOIDED: '회수',
+}
+
+export function statusLabel(value: string) {
+  return statusLabels[value] ?? value
+}
+
 export function StatusBadge(props: { value: string }) {
   const kind = props.value === 'PAID' || props.value === 'ISSUED' || props.value === 'AUTHORIZED' || props.value === 'ON_SALE'
     ? 'ok'
-    : props.value === 'CREATED'
+    : props.value === 'CREATED' || props.value === 'EXCHANGED'
       ? 'warn'
       : 'bad'
-  return <span className={`status ${kind}`}>{props.value}</span>
+  return <span className={`status ${kind}`}>{statusLabel(props.value)}</span>
 }
 
 export function Notice(props: { text?: string; error?: string }) {

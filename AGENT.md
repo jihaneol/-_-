@@ -68,6 +68,22 @@ If two files conflict, follow the higher authority and update the lower one when
 8. Let `scripts/execute.py` update lane run state, `.codex/context/active-handoff.md`, and Obsidian handoff records after each phase event.
 9. Use `.codex/skills/review.md` after each meaningful phase or milestone.
 
+## Autonomous Completion Loop
+
+When the user explicitly asks to keep looping until completion, Codex must continue in the same turn or active goal until the feature has enough proof to present.
+
+The loop is:
+
+1. Compare the current implementation against active work, API contract, frontend contract, tests, runtime checks, and full-stack feature gate.
+2. If any completion proof is missing, choose the smallest next verifiable slice and update the relevant harness docs before editing code.
+3. Implement that slice with matching tests and operational UI or API evidence.
+4. Run the narrow failing gate first, then the lane or full-stack validation gate.
+5. If a gate fails, fix and rerun it; do not report completion from a failed or unrun gate.
+6. If all gates pass but a Done Criteria item is still missing, repeat from step 1.
+7. Report completion only when the user-visible workflow, transaction correctness, immutable records, consistency/reporting proof, and frontend inspection surface are all present or an explicit out-of-scope decision is documented.
+
+Partial delivery is allowed only as a checkpoint. It is not completion.
+
 ## Project Goal
 
 Build `card-service` as a payment/card-service portfolio project that proves transaction correctness, concurrency handling, immutable records, settlement/reconciliation readiness, and an operator-facing UI.

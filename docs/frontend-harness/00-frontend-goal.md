@@ -16,6 +16,7 @@ The frontend should prove backend states rather than hide them. Admin screens mu
 - Order creation and payment inspection.
 - Refund/cancellation actions.
 - Coupon and history inspection.
+- Ten-coupon exchange approval and consistency report inspection.
 
 ## Shop App
 
@@ -23,7 +24,15 @@ The frontend should prove backend states rather than hide them. Admin screens mu
 - Sale product catalog.
 - Cart/order payment.
 - Coupon wallet.
-- Coupon exchange only after backend policy is approved.
+- Figma-inspired customer journey pages 05-12.
+- No admin-only refund, inventory, dashboard, or consistency diagnostics.
+
+## Design Goal
+
+- Admin UI is dense, operational, and Figma-aligned for coupon exchange management.
+- Shop UI is customer-facing, scan-friendly, and tied to the real purchase/coupon wallet state.
+- Pages 05-08 introduce the coupon program, rules, catalog, and order preview.
+- Pages 09-12 complete main, my page, detail, and checkout flows.
 
 ## Non-Goals
 
@@ -31,3 +40,4 @@ The frontend should prove backend states rather than hide them. Admin screens mu
 - Authentication.
 - Full design system extraction.
 - Complex promotion or discount engine.
+- Customer self-service coupon exchange.

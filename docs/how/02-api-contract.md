@@ -141,6 +141,86 @@ Pay order success:
 - `GET /api/admin/members/{memberId}/coupons`: issued stamp coupon records.
 - `GET /api/admin/members/{memberId}/coupon-histories`
 - `GET /api/admin/orders/{orderId}/coupon-histories`
+- `GET /api/admin/coupon-consistency`: member/order consistency report comparing current coupon state with issue, void, and exchange history counts.
+- `POST /api/admin/members/{memberId}/coupon-exchanges`: operator approval that exchanges ten issued coupons for one 5,000 KRW product.
+
+Coupon exchange success:
+
+Request:
+
+```json
+{
+  "productId": 8
+}
+```
+
+Success:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "memberId": 3,
+    "productId": 8,
+    "productName": "Americano",
+    "exchangedCouponCount": 10,
+    "remainingIssuedCouponCount": 0,
+    "exchangedCouponIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  }
+}
+```
+
+Rules:
+
+- Only `ISSUED` coupons are eligible.
+- Exactly ten issued coupons are exchanged per approval.
+- Only `ON_SALE` products priced at `5000 KRW` are eligible as exchange products in this iteration.
+- Approval marks coupons as `EXCHANGED`, appends `EXCHANGED` histories, and deducts product inventory by one in one transaction.
+- Dedicated exchange-order rows are out of scope for this iteration; coupon histories and inventory movement are the operational evidence.
+
+Coupon consistency success:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "consistent": true,
+    "totalCouponCount": 12,
+    "totalIssueHistoryCount": 12,
+    "totalVoidHistoryCount": 1,
+    "totalExchangeHistoryCount": 10,
+    "memberRows": [
+      {
+        "memberId": 3,
+        "issuedCouponCount": 1,
+        "voidedCouponCount": 1,
+        "exchangedCouponCount": 10,
+        "issueHistoryCount": 12,
+        "voidHistoryCount": 1,
+        "exchangeHistoryCount": 10,
+        "exchangeableSetCount": 0,
+        "remainingToNextExchange": 9,
+        "consistent": true
+      }
+    ],
+    "orderRows": [
+      {
+        "orderId": 7,
+        "memberId": 3,
+        "issuedCouponCount": 1,
+        "voidedCouponCount": 1,
+        "exchangedCouponCount": 10,
+        "issueHistoryCount": 12,
+        "voidHistoryCount": 1,
+        "exchangeHistoryCount": 10,
+        "consistent": true
+      }
+    ]
+  }
+}
+```
 
 ## Current Shop API
 

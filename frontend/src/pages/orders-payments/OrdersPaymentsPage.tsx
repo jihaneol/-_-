@@ -40,6 +40,7 @@ export function OrdersPaymentsPage() {
   const invalidateOrders = async () => {
     await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.orders })
     await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.couponConsistency })
   }
   const onError = (apiError: ApiError) => {
     setError(apiError.message)

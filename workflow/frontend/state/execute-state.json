@@ -44,6 +44,20 @@
       "reviewed_at": "2026-06-19T14:40:45+00:00",
       "review_note": "design harness refactor verified: PRODUCT/DESIGN context added, CSS tokens centralized, admin/shop product UI states improved, tests/build/impeccable detector pass",
       "archive_path": "workflow/frontend/archive/2026-06-19/phase-008-design-harness-refactor.md"
+    },
+    "phase-013-coupon-wallet-exchange-readiness-ui.md": {
+      "status": "missing",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-014-frontend-portfolio-proof.md": {
+      "status": "missing",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
     }
   }
 }

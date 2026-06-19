@@ -78,6 +78,13 @@ export function ProductsPage() {
         </div>
       </header>
       <Notice text={notice} error={error} />
+      <section className="policy-panel">
+        <div>
+          <h2>쿠폰 적립/교환 정책</h2>
+          <p>상품 구매금액 5,000원마다 쿠폰 1장 발급 · 쿠폰 10장으로 5,000원 상품 1개 교환 · 교환 상품은 재고 차감 및 교환 주문으로 기록</p>
+        </div>
+        <button className="button secondary" type="button">정책 수정</button>
+      </section>
       <div className="content two-column">
         <section className="panel">
           <h2>상품 및 재고 생성</h2>
@@ -118,6 +125,12 @@ export function ProductsPage() {
         </section>
       </div>
 
+      <section className="product-card-grid">
+        {products.data?.slice(0, 3).map((product, index) => (
+          <ProductPreviewCard key={product.id} product={product} tone={index} />
+        ))}
+      </section>
+
       <section className="panel">
         <h2>상품 목록</h2>
         <table className="table">
@@ -138,6 +151,31 @@ export function ProductsPage() {
         </table>
       </section>
     </div>
+  )
+}
+
+function ProductPreviewCard(props: { product: Product; tone: number }) {
+  const inventory = useQuery({
+    queryKey: adminCommerceKeys.inventory(props.product.id),
+    queryFn: () => adminCommerceApi.getInventory(props.product.id),
+    retry: false,
+  })
+  const couponCount = Math.floor(props.product.price / 5_000)
+  const exchangeable = props.product.price === 5_000 && props.product.saleStatus === 'ON_SALE'
+  return (
+    <article className="product-admin-card">
+      <div className={`product-admin-image tone-${props.tone % 3}`}>{props.product.price === 5_000 ? '₩5K' : `${couponCount}x`}</div>
+      <div className="product-admin-meta">
+        <div>
+          <strong>{props.product.name}</strong>
+          <span>{props.product.price.toLocaleString()} KRW</span>
+        </div>
+        <span className={`status ${exchangeable ? 'ok' : 'info'}`}>
+          {exchangeable ? '교환 가능' : `쿠폰 ${couponCount}장 적립`}
+        </span>
+      </div>
+      <small>재고 {inventory.data?.quantity ?? '-'}</small>
+    </article>
   )
 }
 

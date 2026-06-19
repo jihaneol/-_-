@@ -9,6 +9,8 @@ export type Product = {
   name: string
   price: number
   saleStatus: 'ON_SALE' | 'STOPPED'
+  couponAccrualCount: number
+  exchangeEligible: boolean
 }
 
 export type Inventory = {
@@ -66,7 +68,67 @@ export type CouponHistory = {
   memberId: number
   orderId: number
   paymentId: number
-  type: 'ISSUED' | 'VOIDED'
+  type: 'ISSUED' | 'VOIDED' | 'EXCHANGED'
+}
+
+export type CouponWallet = {
+  memberId: number
+  issuedCouponCount: number
+  exchangedCouponCount: number
+  voidedCouponCount: number
+  totalCouponCount: number
+  exchangeableSetCount: number
+  remainingToNextExchange: number
+  recentHistories: CouponHistory[]
+}
+
+export type CouponExchangeResult = {
+  coupon: Coupon
+  history: CouponHistory
+}
+
+export type ApproveCouponExchangeResult = {
+  memberId: number
+  productId: number
+  productName: string
+  exchangedCouponCount: number
+  remainingIssuedCouponCount: number
+  exchangedCouponIds: number[]
+}
+
+export type CouponConsistencyReport = {
+  consistent: boolean
+  totalCouponCount: number
+  totalIssueHistoryCount: number
+  totalVoidHistoryCount: number
+  totalExchangeHistoryCount: number
+  memberRows: MemberCouponConsistencyRow[]
+  orderRows: OrderCouponConsistencyRow[]
+}
+
+export type MemberCouponConsistencyRow = {
+  memberId: number
+  issuedCouponCount: number
+  voidedCouponCount: number
+  exchangedCouponCount: number
+  issueHistoryCount: number
+  voidHistoryCount: number
+  exchangeHistoryCount: number
+  exchangeableSetCount: number
+  remainingToNextExchange: number
+  consistent: boolean
+}
+
+export type OrderCouponConsistencyRow = {
+  orderId: number
+  memberId: number
+  issuedCouponCount: number
+  voidedCouponCount: number
+  exchangedCouponCount: number
+  issueHistoryCount: number
+  voidHistoryCount: number
+  exchangeHistoryCount: number
+  consistent: boolean
 }
 
 export type DashboardSummary = {

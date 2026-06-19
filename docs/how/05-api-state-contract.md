@@ -18,6 +18,7 @@ admin.summary
 admin.members
 admin.products
 admin.orders
+admin.couponConsistency
 admin.inventory(productId)
 admin.coupons(memberId)
 admin.histories(memberId)
@@ -36,7 +37,9 @@ shop.histories(memberId)
 | createInventory | `admin.inventory(productId)` |
 | increaseInventory | `admin.inventory(productId)` |
 | cancelOrder | `admin.orders`, `admin.summary` |
-| refundOrder | `admin.orders`, `admin.summary`, `admin.coupons(memberId)`, `admin.histories(memberId)` |
+| payOrder | `admin.orders`, `admin.summary`, `admin.couponConsistency` |
+| refundOrder | `admin.orders`, `admin.summary`, `admin.coupons(memberId)`, `admin.histories(memberId)`, `admin.couponConsistency` |
+| approveCouponExchange | `admin.summary`, `admin.coupons(memberId)`, `admin.histories(memberId)`, `admin.couponConsistency` |
 
 ## Shop Mutations
 
@@ -67,7 +70,11 @@ Use Zod schemas for:
 - Product and inventory creation.
 - Order creation.
 - Order payment.
-- Coupon exchange.
+- Coupon exchange approval.
+
+Admin coupon exchange approval calls `POST /api/admin/members/{memberId}/coupon-exchanges` with a selected 5,000 KRW product id. Controls are disabled unless a member is selected, an exchange product is selected, the member has at least ten `ISSUED` coupons, and no approval request is already pending. Do not apply optimistic updates; refetch persisted coupon and history state after success.
+
+Coupon consistency calls `GET /api/admin/coupon-consistency`. The admin UI uses it as a read-only report after issue, refund, and exchange flows, comparing current coupon statuses with immutable coupon history counts by member/order.
 
 ## Optimistic Updates
 

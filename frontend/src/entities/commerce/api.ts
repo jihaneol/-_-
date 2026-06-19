@@ -1,11 +1,12 @@
 import { request } from '../../shared/api/client'
-import type { Coupon, CouponHistory, DashboardSummary, Inventory, Member, Order, PayOrderResult, Product, RefundOrderResult } from './types'
+import type { ApproveCouponExchangeResult, Coupon, CouponConsistencyReport, CouponExchangeResult, CouponHistory, CouponWallet, DashboardSummary, Inventory, Member, Order, PayOrderResult, Product, RefundOrderResult } from './types'
 
 export const adminCommerceKeys = {
   summary: ['admin', 'commerce', 'dashboard', 'summary'] as const,
   members: ['admin', 'commerce', 'members'] as const,
   products: ['admin', 'commerce', 'products'] as const,
   orders: ['admin', 'commerce', 'orders'] as const,
+  couponConsistency: ['admin', 'commerce', 'coupon-consistency'] as const,
   couponsIdle: ['admin', 'commerce', 'coupons', 'idle'] as const,
   historiesIdle: ['admin', 'commerce', 'coupon-histories', 'idle'] as const,
   coupons: (memberId: number) => ['admin', 'commerce', 'coupons', memberId] as const,
@@ -15,8 +16,10 @@ export const adminCommerceKeys = {
 
 export const shopCommerceKeys = {
   products: ['shop', 'commerce', 'products'] as const,
+  walletIdle: ['shop', 'commerce', 'coupon-wallet', 'idle'] as const,
   couponsIdle: ['shop', 'commerce', 'coupons', 'idle'] as const,
   historiesIdle: ['shop', 'commerce', 'coupon-histories', 'idle'] as const,
+  wallet: (memberId: number) => ['shop', 'commerce', 'coupon-wallet', memberId] as const,
   coupons: (memberId: number) => ['shop', 'commerce', 'coupons', memberId] as const,
   histories: (memberId: number) => ['shop', 'commerce', 'coupon-histories', memberId] as const,
 }
@@ -45,6 +48,11 @@ export const adminCommerceApi = {
     request<RefundOrderResult>(`/api/admin/orders/${orderId}/refund`, { method: 'POST' }),
   listCoupons: (memberId: number) => request<Coupon[]>(`/api/admin/members/${memberId}/coupons`),
   listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/admin/members/${memberId}/coupon-histories`),
+  getCouponConsistencyReport: () => request<CouponConsistencyReport>('/api/admin/coupon-consistency'),
+  exchangeCoupon: (couponId: number) =>
+    request<CouponExchangeResult>(`/api/admin/coupons/${couponId}/exchange`, { method: 'POST' }),
+  approveCouponExchange: (memberId: number, body: { productId: number }) =>
+    request<ApproveCouponExchangeResult>(`/api/admin/members/${memberId}/coupon-exchanges`, { method: 'POST', body: JSON.stringify(body) }),
 }
 
 export const shopCommerceApi = {
@@ -55,6 +63,7 @@ export const shopCommerceApi = {
     request<Order>('/api/shop/orders', { method: 'POST', body: JSON.stringify(body) }),
   payOrder: (orderId: number, body: { idempotencyKey: string }) =>
     request<PayOrderResult>(`/api/shop/orders/${orderId}/pay`, { method: 'POST', body: JSON.stringify(body) }),
+  getCouponWallet: (memberId: number) => request<CouponWallet>(`/api/shop/members/${memberId}/coupon-wallet`),
   listCoupons: (memberId: number) => request<Coupon[]>(`/api/shop/members/${memberId}/coupons`),
   listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/shop/members/${memberId}/coupon-histories`),
 }
