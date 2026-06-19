@@ -68,3 +68,12 @@ export type CouponHistory = {
   paymentId: number
   type: 'ISSUED' | 'VOIDED'
 }
+
+export type DashboardSummary = {
+  memberCount: number
+  productCount: number
+  orderCount: number
+  paidOrderCount: number
+  refundedOrderCount: number
+  issuedCouponCount: number
+}

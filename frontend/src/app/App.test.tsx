@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { CommerceDashboardPage } from './CommerceDashboardPage'
+import { App } from './App'
 
 let members = [{ id: 1, name: 'Kim', email: 'kim@example.com' }]
 let products = [{ id: 1, name: 'Americano', price: 12000, saleStatus: 'ON_SALE' }]
@@ -13,6 +13,14 @@ let coupons: any[] = []
 let histories: any[] = []
 
 const server = setupServer(
+  http.get('/api/dashboard/summary', () => ok({
+    memberCount: members.length,
+    productCount: products.length,
+    orderCount: orders.length,
+    paidOrderCount: orders.filter((order) => order.status === 'PAID').length,
+    refundedOrderCount: orders.filter((order) => order.status === 'REFUNDED').length,
+    issuedCouponCount: coupons.filter((coupon) => coupon.status === 'ISSUED').length,
+  })),
   http.get('/api/members', () => ok(members)),
   http.post('/api/members', async ({ request }) => {
     const body = await request.json() as any
@@ -28,6 +36,9 @@ const server = setupServer(
     return ok(product)
   }),
   http.post('/api/products/:productId/inventory', ({ params }) =>
+    ok({ id: 1, productId: Number(params.productId), quantity: 10 }),
+  ),
+  http.get('/api/products/:productId/inventory', ({ params }) =>
     ok({ id: 1, productId: Number(params.productId), quantity: 10 }),
   ),
   http.get('/api/orders', () => ok(orders)),
@@ -60,19 +71,23 @@ const server = setupServer(
   http.get('/api/members/:memberId/coupon-histories', () => ok(histories)),
 )
 
-describe('CommerceDashboardPage', () => {
+describe('App', () => {
   beforeAll(() => server.listen())
   afterEach(() => {
     server.resetHandlers()
+    window.history.pushState(null, '', '/')
     orders = []
     coupons = []
     histories = []
   })
   afterAll(() => server.close())
 
-  it('creates an order and pays it with stamp coupon result', async () => {
+  it('navigates split pages and pays an order with stamp coupon result', async () => {
     renderPage()
 
+    await screen.findByRole('heading', { name: '메인' })
+    await userEvent.click(screen.getByRole('button', { name: /주문\/결제/ }))
+    await screen.findByRole('heading', { name: '주문/결제' })
     await waitFor(() => expect(screen.getAllByText('#1 Kim').length).toBeGreaterThan(0))
     await userEvent.selectOptions(screen.getByLabelText('회원'), '1')
     await userEvent.selectOptions(screen.getByLabelText('상품'), '1')
@@ -84,9 +99,11 @@ describe('CommerceDashboardPage', () => {
     await userEvent.selectOptions(screen.getByLabelText('주문'), '1')
     await userEvent.clear(screen.getByLabelText('중복 요청 방지 키'))
     await userEvent.type(screen.getByLabelText('중복 요청 방지 키'), 'pay-ui-1')
-    await userEvent.click(screen.getByRole('button', { name: /결제/ }))
+    await userEvent.click(screen.getByRole('button', { name: /^결제$/ }))
 
     await screen.findByText('결제 완료: 쿠폰 2장 발급')
+    await userEvent.click(screen.getByRole('button', { name: /^회원$/ }))
+    await userEvent.selectOptions(screen.getByLabelText('쿠폰 조회 회원'), '1')
     await waitFor(() => expect(screen.getByText('2/10')).toBeInTheDocument())
   })
 })
@@ -97,7 +114,7 @@ function renderPage() {
   })
   render(
     <QueryClientProvider client={queryClient}>
-      <CommerceDashboardPage />
+      <App />
     </QueryClientProvider>,
   )
 }
