@@ -33,3 +33,15 @@ The system is expanding from a single admin-oriented runtime into separate admin
 - `admin-api` and admin frontend for operator workflows.
 - `shop-api` and shop frontend for customer purchase and coupon-wallet workflows.
 - shared domain/application/infra modules for core business rules.
+
+## Presentable Slice
+
+The currently completed slice is the commerce coupon workflow:
+
+- core transaction: order payment deducts inventory and issues coupons once per idempotency key,
+- corrective workflows: full refund voids coupons; admin exchange consumes ten issued coupons for one 5,000 KRW product,
+- immutable records: coupon issue, void, and exchange histories,
+- reporting/reconciliation: dashboard summaries, customer coupon wallet, and admin coupon consistency report,
+- UI proof: React admin operations plus React shop pages 05-12.
+
+Full settlement ledger, Kafka/RabbitMQ, and authentication remain later-scope items.

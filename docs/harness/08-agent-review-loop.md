@@ -65,3 +65,12 @@ Focus:
 - whether docs, tests, and README prove the claims,
 - whether tradeoffs are clear,
 - whether any feature is overclaimed.
+
+## Current Manual Review Pass
+
+Subagents are only spawned when explicitly requested by the user. For this completion pass, apply the same reviewer questions manually:
+
+- Domain: coupon issue, void, and exchange transitions stay in aggregates and histories are append-only.
+- Database/concurrency: payment idempotency has a unique constraint; exchange and payment paths use pessimistic write locks.
+- Frontend: shop uses `/api/shop/**`, admin uses `/api/admin/**`, and customer screens do not expose refund, inventory, dashboard, or consistency diagnostics.
+- Portfolio: README and harness docs distinguish completed coupon consistency reporting from deferred settlement/reconciliation.

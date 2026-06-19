@@ -66,6 +66,9 @@ export function MembersPage() {
   })
   const issuedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'ISSUED').length ?? 0
   const exchangedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'EXCHANGED').length ?? 0
+  const voidedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'VOIDED').length ?? 0
+  const exchangeableSetCount = Math.floor(issuedCouponCount / 10)
+  const remainingToNextExchange = (10 - issuedCouponCount % 10) % 10
   const selectedMember = members.data?.find((member) => member.id === selectedMemberId)
   const exchangeProducts = products.data?.filter((product) => product.price === 5_000 && product.saleStatus === 'ON_SALE') ?? []
   const canApproveExchange = selectedMemberId !== null && selectedProductId !== null && issuedCouponCount >= 10 && !approveCouponExchange.isPending
@@ -136,12 +139,23 @@ export function MembersPage() {
               <option value="">회원 선택</option>
               {members.data?.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
             </select>
-            <span className="status ok"><Coffee size={14} /> {issuedCouponCount}/10</span>
-            <span className="status warn"><Gift size={14} /> 교환 {exchangedCouponCount}</span>
+            <span className={`status ${exchangeableSetCount > 0 ? 'ok' : 'info'}`}>
+              <Coffee size={14} /> {exchangeableSetCount > 0 ? '교환 가능' : '적립 중'}
+            </span>
+            <span className="status warn"><Gift size={14} /> 교환 완료 {exchangedCouponCount}</span>
           </div>
           <div className="exchange-summary">
             <strong>{selectedMember ? `${selectedMember.name} 회원` : '회원 선택 필요'}</strong>
             <span>쿠폰 10장을 5,000원 상품 1개로 교환 승인합니다. 승인 시 쿠폰 10장이 교환 처리되고 상품 재고가 1개 차감됩니다.</span>
+            <div className="exchange-state-grid" aria-label="쿠폰 상태 기준">
+              <span><strong>적립 중</strong> {issuedCouponCount}장</span>
+              <span><strong>교환 가능</strong> {exchangeableSetCount}세트</span>
+              <span><strong>교환 완료</strong> {exchangedCouponCount}장</span>
+              <span><strong>회수</strong> {voidedCouponCount}장</span>
+            </div>
+            <p className="exchange-helper">
+              고객 쿠폰 지갑과 같은 기준으로 표시합니다. 다음 교환까지 {remainingToNextExchange}장 남았습니다.
+            </p>
             <div className="exchange-controls">
               <select
                 aria-label="교환 상품"
@@ -226,16 +240,16 @@ export function MembersPage() {
           <span>쿠폰 {consistency.data?.totalCouponCount ?? 0}</span>
           <span>발급 이력 {consistency.data?.totalIssueHistoryCount ?? 0}</span>
           <span>교환 이력 {consistency.data?.totalExchangeHistoryCount ?? 0}</span>
-          <span>무효 이력 {consistency.data?.totalVoidHistoryCount ?? 0}</span>
+          <span>회수 이력 {consistency.data?.totalVoidHistoryCount ?? 0}</span>
         </div>
         <table className="table">
           <thead>
             <tr>
               <th>회원</th>
-              <th>사용가능</th>
-              <th>교환</th>
-              <th>무효</th>
-              <th>교환 가능 세트</th>
+              <th>적립 중</th>
+              <th>교환 완료</th>
+              <th>회수</th>
+              <th>교환 가능</th>
               <th>다음 교환까지</th>
               <th>정합성</th>
             </tr>

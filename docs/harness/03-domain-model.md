@@ -5,15 +5,14 @@
 | Area | Model | Responsibility |
 |---|---|---|
 | Payment | `Payment` | authorization, cancellation/refund status, idempotency identity |
-| Ledger | payment ledger target | immutable payment state history |
 | Commerce | `Member` | customer identity for MVP commerce flows |
 | Commerce | `Product` | sale product and sale status |
 | Commerce | `Inventory` | stock increase/decrease guard |
 | Commerce | `CommerceOrder` | order lines, total amount, payment status |
 | Coupon | `Coupon` | issued, voided, exchanged stamp state |
 | Coupon | `CouponHistory` | append-only coupon issuance/reversal/exchange history |
-| Settlement | settlement target | merchant/date summary |
-| Reconciliation | reconciliation target | mismatch classification |
+| Reporting | dashboard summary | operational count summary |
+| Reconciliation | coupon consistency report | mismatch classification between coupon state and histories |
 
 ## Invariants
 
@@ -25,6 +24,13 @@
 - Coupon exchange uses exactly ten `ISSUED` coupons for one 5,000 KRW exchange product.
 - Coupon exchange approval deducts one product inventory item in the same transaction.
 - Admin and shop runtimes must not fork domain rules.
+
+## Deferred Domain Targets
+
+- Dedicated payment ledger table.
+- Daily settlement aggregate.
+- Full settlement reconciliation report.
+- Exchange order aggregate for separate exchange numbers.
 
 ## Boundary Decision
 

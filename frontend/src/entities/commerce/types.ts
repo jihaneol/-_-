@@ -9,6 +9,8 @@ export type Product = {
   name: string
   price: number
   saleStatus: 'ON_SALE' | 'STOPPED'
+  couponAccrualCount: number
+  exchangeEligible: boolean
 }
 
 export type Inventory = {
@@ -67,6 +69,17 @@ export type CouponHistory = {
   orderId: number
   paymentId: number
   type: 'ISSUED' | 'VOIDED' | 'EXCHANGED'
+}
+
+export type CouponWallet = {
+  memberId: number
+  issuedCouponCount: number
+  exchangedCouponCount: number
+  voidedCouponCount: number
+  totalCouponCount: number
+  exchangeableSetCount: number
+  remainingToNextExchange: number
+  recentHistories: CouponHistory[]
 }
 
 export type CouponExchangeResult = {
