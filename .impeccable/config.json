@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "reason": "Existing app font; replace during a dedicated frontend design pass",
+        "createdAt": "2026-06-19T14:31:10.430Z"
+      }
+    ]
+  }
+}

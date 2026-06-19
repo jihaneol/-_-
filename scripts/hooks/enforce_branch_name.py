@@ -10,7 +10,10 @@ DOC_PREFIXES = ("docs/", "workflow/", "rules/")
 FRONT_PREFIXES = ("frontend/", "workflow/frontend/")
 BACK_PREFIXES = ("modules/", "sql/", "workflow/backend/")
 COMMON_ALLOWED_PREFIXES = (
+    ".agents/",
     ".githooks/",
+    ".codex/hooks.json",
+    ".impeccable/",
     "gradle/",
     "scripts/",
     "AGENT.md",
