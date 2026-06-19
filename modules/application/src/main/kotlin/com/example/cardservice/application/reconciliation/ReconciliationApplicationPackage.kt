@@ -1,0 +1,3 @@
+package com.example.cardservice.application.reconciliation
+
+internal object ReconciliationApplicationPackage

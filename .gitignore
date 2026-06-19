@@ -7,14 +7,18 @@
 .idea/usage.statistics.xml
 .idea/dictionaries/
 .idea/shelf/
+.codex/context/
+workflow/state/circuit-breaker.json
 
 # Build outputs
 build/
-out/
+/out/
 .gradle/
 node_modules/
 dist/
 coverage/
+__pycache__/
+*.py[cod]
 
 # Local env
 .env

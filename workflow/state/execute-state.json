@@ -1,0 +1,47 @@
+{
+  "current_phase": null,
+  "phases": {
+    "phase-001-idempotency-lookup.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-002-payment-ledger-domain.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-003-ledger-append-port.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-004-coupon-order-duplicate-flow.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-005-commerce-order-coupon-mvp.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    },
+    "phase-006-commerce-admin-frontend.md": {
+      "status": "missing",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
+    }
+  }
+}

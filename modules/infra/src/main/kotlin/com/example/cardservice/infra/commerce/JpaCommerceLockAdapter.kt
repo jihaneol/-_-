@@ -1,0 +1,31 @@
+package com.example.cardservice.infra.commerce
+
+import com.example.cardservice.application.commerce.provided.CommerceLockPort
+import com.example.cardservice.domain.commerce.model.CommerceOrder
+import com.example.cardservice.domain.commerce.model.Inventory
+import jakarta.persistence.EntityManager
+import jakarta.persistence.LockModeType
+import org.springframework.stereotype.Component
+
+/**
+ * CommerceLockPort를 JPA pessimistic write lock 조회로 구현하는 persistence adapter다.
+ */
+@Component
+class JpaCommerceLockAdapter(
+    private val entityManager: EntityManager,
+) : CommerceLockPort {
+    override fun loadOrderForUpdate(orderId: Long): CommerceOrder? =
+        entityManager.find(CommerceOrder::class.java, orderId, LockModeType.PESSIMISTIC_WRITE)
+            ?.takeIf { it.deletedAt == null }
+
+    override fun loadInventoryForUpdate(productId: Long): Inventory? =
+        entityManager
+            .createQuery(
+                "select i from Inventory i where i.productId = :productId",
+                Inventory::class.java,
+            )
+            .setParameter("productId", productId)
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .resultList
+            .firstOrNull()
+}
