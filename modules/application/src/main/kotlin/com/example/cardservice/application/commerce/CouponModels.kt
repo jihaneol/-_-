@@ -30,6 +30,17 @@ data class CouponConsistencyReportResult(
     val orderRows: List<OrderCouponConsistencyResult>,
 )
 
+data class CouponWalletResult(
+    val memberId: Long,
+    val issuedCouponCount: Long,
+    val exchangedCouponCount: Long,
+    val voidedCouponCount: Long,
+    val totalCouponCount: Long,
+    val exchangeableSetCount: Long,
+    val remainingToNextExchange: Long,
+    val recentHistories: List<CouponHistoryResult>,
+)
+
 data class MemberCouponConsistencyResult(
     val memberId: Long,
     val issuedCouponCount: Long,

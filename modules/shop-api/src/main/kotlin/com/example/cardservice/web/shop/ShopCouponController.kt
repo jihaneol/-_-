@@ -25,4 +25,9 @@ class ShopCouponController(
     @Operation(summary = "쇼핑몰 회원 쿠폰 히스토리 조회")
     fun listCouponHistories(@PathVariable memberId: Long): ApiResponse<Any> =
         ApiResponse.success(couponQueryUseCase.listMemberCouponHistories(memberId).map { it.toResponse() })
+
+    @GetMapping("/coupon-wallet")
+    @Operation(summary = "쇼핑몰 회원 쿠폰 지갑 요약 조회")
+    fun getCouponWallet(@PathVariable memberId: Long): ApiResponse<Any> =
+        ApiResponse.success(couponQueryUseCase.getCouponWallet(memberId).toResponse())
 }

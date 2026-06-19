@@ -38,6 +38,8 @@ class CouponQueryServiceBehaviorSpec : BehaviorSpec({
 
         every { couponRepository.findAll() } returns listOf(issuedCoupon, exchangedCoupon, voidedCoupon)
         every { couponHistoryRepository.findAll() } returns histories
+        every { couponRepository.findAllByMemberId(3L) } returns listOf(issuedCoupon, exchangedCoupon, voidedCoupon)
+        every { couponHistoryRepository.findAllByMemberId(3L) } returns histories
 
         `when`("the operator requests coupon consistency") {
             val report = service.getCouponConsistencyReport()
@@ -66,6 +68,22 @@ class CouponQueryServiceBehaviorSpec : BehaviorSpec({
                 orderRow.memberId shouldBe 3L
                 orderRow.consistent shouldBe true
                 orderRow.exchangeHistoryCount shouldBe 1L
+            }
+        }
+
+        `when`("the customer requests a coupon wallet summary") {
+            val wallet = service.getCouponWallet(3L)
+
+            then("it returns customer-safe counts and recent history") {
+                wallet.memberId shouldBe 3L
+                wallet.issuedCouponCount shouldBe 1L
+                wallet.exchangedCouponCount shouldBe 1L
+                wallet.voidedCouponCount shouldBe 1L
+                wallet.totalCouponCount shouldBe 3L
+                wallet.exchangeableSetCount shouldBe 0L
+                wallet.remainingToNextExchange shouldBe 9L
+                wallet.recentHistories.size shouldBe 5
+                wallet.recentHistories.first().id shouldBe 14L
             }
         }
     }

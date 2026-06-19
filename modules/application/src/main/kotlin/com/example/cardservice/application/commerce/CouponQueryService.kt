@@ -31,6 +31,28 @@ class CouponQueryService(
         couponHistoryRepository.findAllByOrderId(orderId).map { it.toResult() }
 
     @Transactional(readOnly = true)
+    override fun getCouponWallet(memberId: Long): CouponWalletResult {
+        val coupons = couponRepository.findAllByMemberId(memberId)
+        val histories = couponHistoryRepository.findAllByMemberId(memberId)
+            .sortedByDescending { it.id ?: 0L }
+            .take(5)
+            .map { it.toResult() }
+        val issuedCouponCount = coupons.countStatus(CouponStatus.ISSUED)
+        val exchangedCouponCount = coupons.countStatus(CouponStatus.EXCHANGED)
+        val voidedCouponCount = coupons.countStatus(CouponStatus.VOIDED)
+        return CouponWalletResult(
+            memberId = memberId,
+            issuedCouponCount = issuedCouponCount,
+            exchangedCouponCount = exchangedCouponCount,
+            voidedCouponCount = voidedCouponCount,
+            totalCouponCount = coupons.size.toLong(),
+            exchangeableSetCount = issuedCouponCount / REQUIRED_COUPON_COUNT,
+            remainingToNextExchange = (REQUIRED_COUPON_COUNT - issuedCouponCount % REQUIRED_COUPON_COUNT) % REQUIRED_COUPON_COUNT,
+            recentHistories = histories,
+        )
+    }
+
+    @Transactional(readOnly = true)
     override fun getCouponConsistencyReport(): CouponConsistencyReportResult {
         val coupons = couponRepository.findAll()
         val histories = couponHistoryRepository.findAll()

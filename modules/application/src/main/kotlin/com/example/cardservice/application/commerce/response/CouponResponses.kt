@@ -5,6 +5,7 @@ import com.example.cardservice.application.commerce.CouponConsistencyReportResul
 import com.example.cardservice.application.commerce.CouponHistoryResult
 import com.example.cardservice.application.commerce.CouponExchangeResult
 import com.example.cardservice.application.commerce.CouponResult
+import com.example.cardservice.application.commerce.CouponWalletResult
 import com.example.cardservice.application.commerce.MemberCouponConsistencyResult
 import com.example.cardservice.application.commerce.OrderCouponConsistencyResult
 import com.example.cardservice.domain.commerce.model.CouponHistoryType
@@ -49,6 +50,17 @@ data class CouponConsistencyReportResponse(
     val totalExchangeHistoryCount: Long,
     val memberRows: List<MemberCouponConsistencyResponse>,
     val orderRows: List<OrderCouponConsistencyResponse>,
+)
+
+data class CouponWalletResponse(
+    val memberId: Long,
+    val issuedCouponCount: Long,
+    val exchangedCouponCount: Long,
+    val voidedCouponCount: Long,
+    val totalCouponCount: Long,
+    val exchangeableSetCount: Long,
+    val remainingToNextExchange: Long,
+    val recentHistories: List<CouponHistoryResponse>,
 )
 
 data class MemberCouponConsistencyResponse(
@@ -99,6 +111,18 @@ fun CouponConsistencyReportResult.toResponse(): CouponConsistencyReportResponse 
         totalExchangeHistoryCount = totalExchangeHistoryCount,
         memberRows = memberRows.map { it.toResponse() },
         orderRows = orderRows.map { it.toResponse() },
+    )
+
+fun CouponWalletResult.toResponse(): CouponWalletResponse =
+    CouponWalletResponse(
+        memberId = memberId,
+        issuedCouponCount = issuedCouponCount,
+        exchangedCouponCount = exchangedCouponCount,
+        voidedCouponCount = voidedCouponCount,
+        totalCouponCount = totalCouponCount,
+        exchangeableSetCount = exchangeableSetCount,
+        remainingToNextExchange = remainingToNextExchange,
+        recentHistories = recentHistories.map { it.toResponse() },
     )
 
 private fun MemberCouponConsistencyResult.toResponse(): MemberCouponConsistencyResponse =
