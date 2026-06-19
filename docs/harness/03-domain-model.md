@@ -22,7 +22,8 @@
 - Paid order coupon count is `paidAmount / 5000`.
 - Full refund voids all coupons issued by the order.
 - Coupon history is append-only.
-- Coupon exchange uses only `ISSUED` coupons.
+- Coupon exchange uses exactly ten `ISSUED` coupons for one 5,000 KRW exchange product.
+- Coupon exchange approval deducts one product inventory item in the same transaction.
 - Admin and shop runtimes must not fork domain rules.
 
 ## Boundary Decision

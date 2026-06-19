@@ -78,3 +78,5 @@ For a backend-to-frontend feature, use this loop:
 4. Run frontend validation until it passes and the phase completes.
 5. Run `python3 scripts/execute.py feature gate <feature>`.
 6. Report completion only after the gate passes.
+
+When the user asks to continue until the feature is complete, repeat the loop after every passing gate and ask what proof is still missing against the project Done Criteria. Promote the next missing proof into an active backend or frontend phase instead of reporting completion early.

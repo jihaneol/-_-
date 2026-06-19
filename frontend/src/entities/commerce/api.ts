@@ -1,11 +1,12 @@
 import { request } from '../../shared/api/client'
-import type { Coupon, CouponHistory, DashboardSummary, Inventory, Member, Order, PayOrderResult, Product, RefundOrderResult } from './types'
+import type { ApproveCouponExchangeResult, Coupon, CouponConsistencyReport, CouponExchangeResult, CouponHistory, DashboardSummary, Inventory, Member, Order, PayOrderResult, Product, RefundOrderResult } from './types'
 
 export const adminCommerceKeys = {
   summary: ['admin', 'commerce', 'dashboard', 'summary'] as const,
   members: ['admin', 'commerce', 'members'] as const,
   products: ['admin', 'commerce', 'products'] as const,
   orders: ['admin', 'commerce', 'orders'] as const,
+  couponConsistency: ['admin', 'commerce', 'coupon-consistency'] as const,
   couponsIdle: ['admin', 'commerce', 'coupons', 'idle'] as const,
   historiesIdle: ['admin', 'commerce', 'coupon-histories', 'idle'] as const,
   coupons: (memberId: number) => ['admin', 'commerce', 'coupons', memberId] as const,
@@ -45,6 +46,11 @@ export const adminCommerceApi = {
     request<RefundOrderResult>(`/api/admin/orders/${orderId}/refund`, { method: 'POST' }),
   listCoupons: (memberId: number) => request<Coupon[]>(`/api/admin/members/${memberId}/coupons`),
   listCouponHistories: (memberId: number) => request<CouponHistory[]>(`/api/admin/members/${memberId}/coupon-histories`),
+  getCouponConsistencyReport: () => request<CouponConsistencyReport>('/api/admin/coupon-consistency'),
+  exchangeCoupon: (couponId: number) =>
+    request<CouponExchangeResult>(`/api/admin/coupons/${couponId}/exchange`, { method: 'POST' }),
+  approveCouponExchange: (memberId: number, body: { productId: number }) =>
+    request<ApproveCouponExchangeResult>(`/api/admin/members/${memberId}/coupon-exchanges`, { method: 'POST', body: JSON.stringify(body) }),
 }
 
 export const shopCommerceApi = {

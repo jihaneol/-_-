@@ -62,6 +62,7 @@ const server = setupServer(
   ),
   http.get('/api/admin/members/:memberId/coupons', () => ok(coupons)),
   http.get('/api/admin/members/:memberId/coupon-histories', () => ok(histories)),
+  http.get('/api/admin/coupon-consistency', () => ok(buildCouponConsistency())),
   http.post('/api/shop/members', async ({ request }) => {
     const body = await request.json() as any
     const member = { id: 3, name: body.name, email: body.email }
@@ -96,10 +97,15 @@ describe('split apps', () => {
   it('renders the admin app with operator navigation', async () => {
     renderPage(<AdminApp />)
 
-    await screen.findByRole('heading', { name: '메인' })
-    expect(screen.getByRole('button', { name: /^회원$/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^상품$/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /주문\/결제/ })).toBeInTheDocument()
+    await screen.findByRole('heading', { name: '운영 대시보드' })
+    expect(screen.getByRole('button', { name: /^회원 관리$/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^상품 관리$/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^주문 관리$/ })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: /^회원 관리$/ }))
+    await screen.findByRole('heading', { name: '회원 관리' })
+    await screen.findByRole('heading', { name: '쿠폰 정합성 리포트' })
+    expect(screen.getByText('발급 이력 0')).toBeInTheDocument()
   })
 
   it('renders the shop app without admin navigation and buys a product with coupon count', async () => {
@@ -154,6 +160,50 @@ function payOrder(orderId: number) {
     { id: 2, couponId: 2, memberId: orders[0].memberId, orderId, paymentId: 1, type: 'ISSUED' },
   ]
   return { orderId, paymentId: 1, orderStatus: 'PAID', paymentStatus: 'AUTHORIZED', paidAmount: 12000, issuedCouponCount: 2 }
+}
+
+function buildCouponConsistency() {
+  const memberIds = Array.from(new Set([...coupons.map((coupon) => coupon.memberId), ...histories.map((history) => history.memberId)]))
+  const orderIds = Array.from(new Set([...coupons.map((coupon) => coupon.orderId), ...histories.map((history) => history.orderId)]))
+  return {
+    consistent: true,
+    totalCouponCount: coupons.length,
+    totalIssueHistoryCount: histories.filter((history) => history.type === 'ISSUED').length,
+    totalVoidHistoryCount: histories.filter((history) => history.type === 'VOIDED').length,
+    totalExchangeHistoryCount: histories.filter((history) => history.type === 'EXCHANGED').length,
+    memberRows: memberIds.map((memberId) => {
+      const memberCoupons = coupons.filter((coupon) => coupon.memberId === memberId)
+      const memberHistories = histories.filter((history) => history.memberId === memberId)
+      const issuedCouponCount = memberCoupons.filter((coupon) => coupon.status === 'ISSUED').length
+      return {
+        memberId,
+        issuedCouponCount,
+        voidedCouponCount: memberCoupons.filter((coupon) => coupon.status === 'VOIDED').length,
+        exchangedCouponCount: memberCoupons.filter((coupon) => coupon.status === 'EXCHANGED').length,
+        issueHistoryCount: memberHistories.filter((history) => history.type === 'ISSUED').length,
+        voidHistoryCount: memberHistories.filter((history) => history.type === 'VOIDED').length,
+        exchangeHistoryCount: memberHistories.filter((history) => history.type === 'EXCHANGED').length,
+        exchangeableSetCount: Math.floor(issuedCouponCount / 10),
+        remainingToNextExchange: (10 - issuedCouponCount % 10) % 10,
+        consistent: true,
+      }
+    }),
+    orderRows: orderIds.map((orderId) => {
+      const orderCoupons = coupons.filter((coupon) => coupon.orderId === orderId)
+      const orderHistories = histories.filter((history) => history.orderId === orderId)
+      return {
+        orderId,
+        memberId: orderCoupons[0]?.memberId ?? orderHistories[0]?.memberId ?? 0,
+        issuedCouponCount: orderCoupons.filter((coupon) => coupon.status === 'ISSUED').length,
+        voidedCouponCount: orderCoupons.filter((coupon) => coupon.status === 'VOIDED').length,
+        exchangedCouponCount: orderCoupons.filter((coupon) => coupon.status === 'EXCHANGED').length,
+        issueHistoryCount: orderHistories.filter((history) => history.type === 'ISSUED').length,
+        voidHistoryCount: orderHistories.filter((history) => history.type === 'VOIDED').length,
+        exchangeHistoryCount: orderHistories.filter((history) => history.type === 'EXCHANGED').length,
+        consistent: true,
+      }
+    }),
+  }
 }
 
 function ok(data: unknown) {

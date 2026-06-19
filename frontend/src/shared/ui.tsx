@@ -31,7 +31,7 @@ export function Row(props: { colSpan: number; text: string }) {
 export function StatusBadge(props: { value: string }) {
   const kind = props.value === 'PAID' || props.value === 'ISSUED' || props.value === 'AUTHORIZED' || props.value === 'ON_SALE'
     ? 'ok'
-    : props.value === 'CREATED'
+    : props.value === 'CREATED' || props.value === 'EXCHANGED'
       ? 'warn'
       : 'bad'
   return <span className={`status ${kind}`}>{props.value}</span>
