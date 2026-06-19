@@ -14,9 +14,11 @@
 Use the same command shape for both lanes:
 
 ```bash
-python3 scripts/execute.py --lane backend status
-python3 scripts/execute.py --lane frontend status
+scripts/backend status
+scripts/frontend status
 ```
+
+These wrappers call `python3 scripts/execute.py --lane backend` and `python3 scripts/execute.py --lane frontend`.
 
 Common commands:
 

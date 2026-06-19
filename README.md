@@ -46,8 +46,8 @@ npm --prefix frontend run build
 Harness validation:
 
 ```bash
-python3 scripts/execute.py --lane backend validate
-python3 scripts/execute.py --lane frontend validate
+scripts/backend validate
+scripts/frontend validate
 ```
 
 ## Parallel Codex Workflow
@@ -62,8 +62,15 @@ workflow/frontend/phases/
 Use separate Codex threads or worktrees for true parallel work:
 
 ```bash
-python3 scripts/execute.py --lane backend status
-python3 scripts/execute.py --lane frontend status
+scripts/backend status
+scripts/frontend status
+```
+
+The wrappers are shorthand for:
+
+```bash
+python3 scripts/execute.py --lane backend ...
+python3 scripts/execute.py --lane frontend ...
 ```
 
 Shared API expectations live in:
