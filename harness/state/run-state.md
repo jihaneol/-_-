@@ -34,3 +34,14 @@ Discuss whether phase 001 should be split into smaller phases before implementat
 - Do not implement work that is not summarized in `harness/phases/phase-001-idempotency-lookup.md`.
 - Keep completed-work history in Obsidian, not in growing local work logs.
 - Use `execute.py` for phase state and `hooks/validate.sh` for automatic validation.
+
+## execute.py 2026-06-19T03:42:30+00:00
+
+- Resume context loaded
+- Current phase: -
+- Next phase: `harness/phases/phase-001-idempotency-lookup.md`
+- Git: 90d82ff docs: 하네스 문서 구조와 phase 보관 정리; M .codex/skills/harness.md
+ M AGENT.md
+ M execute.py
+ M harness/README.md
+ M hooks/README.md

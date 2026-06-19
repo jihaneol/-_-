@@ -10,13 +10,14 @@
 4. Run `python3 execute.py lint-phases`.
 5. Run `python3 execute.py status`.
 6. Inspect the next phase with `python3 execute.py show`.
-7. Sync handoff records with `python3 execute.py sync` when needed.
-8. Start the next phase with `python3 execute.py start`.
-9. Save mid-work recovery notes with `python3 execute.py checkpoint "message"`.
-10. Validate with `python3 execute.py validate`.
-11. If completion reports review required, review the phase and run `python3 execute.py review "note"`.
-12. Mark all completed `Done Criteria` checkboxes as `[x]`.
-13. Complete with `python3 execute.py complete`.
+7. Resume after context compression or handoff with `python3 execute.py resume`.
+8. Sync handoff records with `python3 execute.py sync` when needed.
+9. Start the next phase with `python3 execute.py start`.
+10. Save mid-work recovery notes with `python3 execute.py checkpoint "message"`.
+11. Validate with `python3 execute.py validate`.
+12. If completion reports review required, review the phase and run `python3 execute.py review "note"`.
+13. Mark all completed `Done Criteria` checkboxes as `[x]`.
+14. Complete with `python3 execute.py complete`.
 
 Completion automatically moves the finished phase into `harness/archive/YYYY-MM-DD/` and commits the result when all gates pass.
 
@@ -36,6 +37,7 @@ Completion automatically moves the finished phase into `harness/archive/YYYY-MM-
 | `python3 execute.py lint-phases` | Validate phase file shape, numbering, TDD plan, and scope warnings |
 | `python3 execute.py show [phase]` | Print the phase implementation contract |
 | `python3 execute.py sync` | Sync Obsidian active work and local handoff |
+| `python3 execute.py resume` | Load Obsidian/local handoff, print recovery context, and record resume |
 | `python3 execute.py start` | Mark the next pending phase in progress; requires a clean worktree |
 | `python3 execute.py start --allow-dirty` | Start with existing dirty files recorded as baseline; completion refuses to auto-commit those files |
 | `python3 execute.py checkpoint "message"` | Record a recovery point during implementation |

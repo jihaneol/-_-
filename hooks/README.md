@@ -17,3 +17,9 @@ The hook should stay deterministic and local. `execute.py validate` runs phase-s
 `hooks/validate.sh` runs `hooks/enforce_tdd.py` before tests.
 
 The guard fails when production source files change without any test file change. If a feature or fix has no test yet, stop and add or update the test first.
+
+## Resume Recovery
+
+Context-compression recovery is handled by `python3 execute.py resume`, not by a validation hook.
+
+Run it after context compression, thread resume, or handoff. It reads local and Obsidian handoff records, prints the current/next phase context, and records the resume event.

@@ -115,6 +115,24 @@ def append_run_state(message: str) -> None:
         file.write(f"\n## execute.py {timestamp}\n\n{message}\n")
 
 
+def read_optional_text(path: Path, limit: int | None = None) -> str:
+    if not path.exists():
+        return ""
+    text = path.read_text()
+    return text if limit is None else text[:limit]
+
+
+def section_text(text: str, heading: str) -> str:
+    pattern = re.compile(rf"^## {re.escape(heading)}\s*$", re.MULTILINE)
+    match = pattern.search(text)
+    if not match:
+        return ""
+    start = match.end()
+    next_match = re.search(r"^##\s+", text[start:], re.MULTILINE)
+    end = start + next_match.start() if next_match else len(text)
+    return text[start:end].strip()
+
+
 def run_text(command: list[str]) -> str:
     result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     return result.stdout.strip() if result.returncode == 0 else "-"
@@ -180,15 +198,7 @@ def phase_text(phase_name: str) -> str:
 
 
 def phase_section(phase_name: str, heading: str) -> str:
-    text = phase_text(phase_name)
-    pattern = re.compile(rf"^## {re.escape(heading)}\s*$", re.MULTILINE)
-    match = pattern.search(text)
-    if not match:
-        return ""
-    start = match.end()
-    next_match = re.search(r"^##\s+", text[start:], re.MULTILINE)
-    end = start + next_match.start() if next_match else len(text)
-    return text[start:end].strip()
+    return section_text(phase_text(phase_name), heading)
 
 
 def phase_requires_review(phase_name: str) -> bool:
@@ -531,11 +541,11 @@ tags:
 
 ## Resume Instruction
 
-1. Read `AGENT.md`.
-2. Read `.codex/skills/harness.md`.
-3. Run `python3 execute.py status`.
-4. If a phase is in progress, continue that phase.
-5. If no phase is in progress, discuss whether to split the next pending phase before starting.
+1. Run `python3 execute.py resume` first after context compression, thread resume, or handoff.
+2. Read `AGENT.md` and `.codex/skills/harness.md` only if the resume output is not enough.
+3. If a phase is in progress, continue that phase.
+4. If no phase is in progress, inspect the next pending phase with `python3 execute.py show`.
+5. Do not edit production code before following the phase `Test First` section.
 """
 
 
@@ -583,6 +593,71 @@ def cmd_sync(_: argparse.Namespace) -> int:
     save_state(state)
     sync_handoff(state, event="manual sync")
     print("Synced Obsidian active work and local handoff.")
+    return 0
+
+
+def cmd_resume(_: argparse.Namespace) -> int:
+    state = ensure_known_phases(load_state())
+    save_state(state)
+    sync_handoff(state, event="resume")
+
+    current = state.get("current_phase")
+    next_phase = current or next_pending(state)
+    current_item = state["phases"].get(current) if current else None
+    next_item = state["phases"].get(next_phase) if next_phase else None
+    local_handoff = read_optional_text(LOCAL_HANDOFF_FILE)
+    obsidian_handoff = read_optional_text(OBSIDIAN_ACTIVE_FILE)
+    git = git_summary()
+
+    append_run_state(
+        f"- Resume context loaded\n"
+        f"- Current phase: {phase_path_text(current)}\n"
+        f"- Next phase: {phase_path_text(next_phase)}\n"
+        f"- Git: {git['latest_commit']}; {git['status']}"
+    )
+    append_day_event("resume context loaded", next_phase, details=f"git: {git['latest_commit']}; status: {git['status']}")
+
+    print("# Resume Context")
+    print()
+    print(f"Repo: {ROOT}")
+    print(f"Branch: {git['branch']}")
+    print(f"Latest commit: {git['latest_commit']}")
+    print(f"Dirty files: {git['status']}")
+    print()
+    print("## Handoff Sources")
+    print(f"- Local handoff: {LOCAL_HANDOFF_FILE} ({'found' if local_handoff else 'missing'})")
+    print(f"- Obsidian active handoff: {OBSIDIAN_ACTIVE_FILE} ({'found' if obsidian_handoff else 'missing'})")
+    print(f"- Run state: {RUN_STATE_FILE} ({'found' if RUN_STATE_FILE.exists() else 'missing'})")
+    print()
+    print("## Current")
+    print(f"- Phase: {phase_path_text(current)}")
+    print(f"- Title: {phase_title(current)}")
+    print(f"- Status: {current_item.get('status', '-') if current_item else '-'}")
+    print(f"- Last validation: {validation_text(current_item)}")
+    print()
+    print("## Next")
+    print(f"- Phase: {phase_path_text(next_phase)}")
+    print(f"- Title: {phase_title(next_phase)}")
+    print(f"- Status: {next_item.get('status', '-') if next_item else '-'}")
+    if next_phase:
+        print()
+        print("## Next Phase Goal")
+        print(section_text(format_phase_summary(next_phase), "Goal") or "-")
+        print()
+        print("## Required Docs")
+        print(section_text(format_phase_summary(next_phase), "Docs Read") or "-")
+    print()
+    print("## Resume Instruction")
+    if current:
+        print("1. Continue the current phase.")
+        print("2. Run `python3 execute.py show` before editing if context is unclear.")
+        print("3. Use `python3 execute.py checkpoint \"message\"` before a risky or long edit.")
+    elif next_phase:
+        print("1. Run `python3 execute.py show` to inspect the next phase.")
+        print("2. If the phase is still correctly scoped, run `python3 execute.py start`.")
+        print("3. Follow the `Test First` section before production edits.")
+    else:
+        print("1. No pending phase. Update `docs/` and create new phase files before implementation.")
     return 0
 
 
@@ -853,6 +928,7 @@ def main() -> int:
     show_parser.add_argument("phase", nargs="?")
     show_parser.set_defaults(func=cmd_show)
     subparsers.add_parser("sync").set_defaults(func=cmd_sync)
+    subparsers.add_parser("resume").set_defaults(func=cmd_resume)
     start_parser = subparsers.add_parser("start")
     start_parser.add_argument("--allow-dirty", action="store_true")
     start_parser.set_defaults(func=cmd_start)

@@ -12,6 +12,7 @@ Use this skill when converting the project brain and user discussion into execut
 
 ## Process
 
+0. After context compression, thread resume, or handoff, run `python3 execute.py resume` before planning or editing.
 1. Read the relevant `docs/` files first. For broad planning, read all of `docs/`.
 2. Identify the actual goal, unresolved questions, and implementation risks.
 3. Discuss ambiguous product, architecture, transaction, or UI decisions with the user before creating phases.
@@ -20,6 +21,10 @@ Use this skill when converting the project brain and user discussion into execut
 6. Keep each phase small enough that one validation command can prove meaningful progress.
 7. Run `python3 execute.py lint-phases` after phase files are ready.
 8. Use `python3 execute.py show` before implementation and `python3 execute.py checkpoint "message"` during long or risky work.
+
+## Resume Rule
+
+`python3 execute.py resume` is the required recovery entrypoint. It reads local handoff, Obsidian active handoff, execute state, run state, Git state, and the next phase contract, then records that resume context was loaded.
 
 ## Phase File Shape
 
