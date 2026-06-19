@@ -19,3 +19,38 @@ data class CouponHistoryResult(
     val paymentId: Long,
     val type: CouponHistoryType,
 )
+
+data class CouponConsistencyReportResult(
+    val consistent: Boolean,
+    val totalCouponCount: Long,
+    val totalIssueHistoryCount: Long,
+    val totalVoidHistoryCount: Long,
+    val totalExchangeHistoryCount: Long,
+    val memberRows: List<MemberCouponConsistencyResult>,
+    val orderRows: List<OrderCouponConsistencyResult>,
+)
+
+data class MemberCouponConsistencyResult(
+    val memberId: Long,
+    val issuedCouponCount: Long,
+    val voidedCouponCount: Long,
+    val exchangedCouponCount: Long,
+    val issueHistoryCount: Long,
+    val voidHistoryCount: Long,
+    val exchangeHistoryCount: Long,
+    val exchangeableSetCount: Long,
+    val remainingToNextExchange: Long,
+    val consistent: Boolean,
+)
+
+data class OrderCouponConsistencyResult(
+    val orderId: Long,
+    val memberId: Long,
+    val issuedCouponCount: Long,
+    val voidedCouponCount: Long,
+    val exchangedCouponCount: Long,
+    val issueHistoryCount: Long,
+    val voidHistoryCount: Long,
+    val exchangeHistoryCount: Long,
+    val consistent: Boolean,
+)

@@ -1,6 +1,7 @@
 package com.example.cardservice.application.commerce.required
 
 import com.example.cardservice.application.commerce.CouponHistoryResult
+import com.example.cardservice.application.commerce.CouponConsistencyReportResult
 import com.example.cardservice.application.commerce.CouponResult
 
 /**
@@ -10,4 +11,5 @@ interface CouponQueryUseCase {
     fun listCoupons(memberId: Long): List<CouponResult>
     fun listMemberCouponHistories(memberId: Long): List<CouponHistoryResult>
     fun listOrderCouponHistories(orderId: Long): List<CouponHistoryResult>
+    fun getCouponConsistencyReport(): CouponConsistencyReportResult
 }
