@@ -24,3 +24,4 @@ guarded_run() {
 guarded_run python3 scripts/hooks/enforce_tdd.py --lane frontend
 guarded_run npm --prefix frontend test -- --run
 guarded_run npm --prefix frontend run build
+guarded_run bash scripts/hooks/validate_impeccable.sh

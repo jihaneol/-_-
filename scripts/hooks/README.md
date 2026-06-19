@@ -9,6 +9,7 @@ Fallback validation is lane-specific:
 ```bash
 scripts/hooks/validate_backend.sh
 scripts/hooks/validate_frontend.sh
+scripts/hooks/validate_impeccable.sh
 ```
 
 `scripts/hooks/validate.sh backend|frontend` remains as a small compatibility wrapper.
@@ -33,6 +34,18 @@ python3 scripts/execute.py --lane frontend run -- <command>
 ```
 
 for manual commands during long-running work.
+
+## Impeccable Detector
+
+`scripts/hooks/validate_impeccable.sh` runs the project-local Impeccable detector against `frontend/apps` and `frontend/src`.
+
+The frontend lane hook runs it after tests and build. Use it directly when checking UI quality without running the full frontend validation:
+
+```bash
+scripts/hooks/validate_impeccable.sh
+```
+
+Detector config and narrow ignores live in `.impeccable/config.json`. The Codex edit hook is installed at `.codex/hooks.json` and uses the project-local skill under `.agents/skills/impeccable`.
 
 ## Branch Name Guard
 
