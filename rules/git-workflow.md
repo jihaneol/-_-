@@ -1,124 +1,97 @@
 # Git Workflow
 
-이 프로젝트는 포트폴리오 증거를 남기는 것이 중요하므로, 커밋은 기능 단위보다 더 작게 쪼개되 의미 없는 저장용 커밋은 피한다.
+Git 규칙은 간단해야 지킬 수 있다. 이 프로젝트는 `main`을 통합 브랜치로 두고, 작업 브랜치는 역할별로 분리한다. 커밋은 저장용이 아니라 리뷰와 되돌리기가 가능한 의미 단위로 남긴다.
 
-## Branch Strategy
+## Branches
 
-기본 브랜치:
+작업 브랜치 prefix:
+
+| Prefix | Purpose | Allowed paths |
+|---|---|---|
+| `docs/*` | 문서, 룰, workflow 정리 | `docs/**`, `workflow/**`, `rules/**` |
+| `back/*` | 백엔드 구현, 테스트, backend workflow | `modules/**`, `sql/**`, `workflow/backend/**`, `rules/**`, `scripts/hooks/**` |
+| `front/*` | 프론트 구현, 테스트, frontend workflow | `frontend/**`, `docs/frontend-harness/**`, `workflow/frontend/**` |
+| `common/*` | 공통 도구, 루트 설정 | root config, `scripts/**`, `gradle/**`, `.githooks/**` |
+
+규칙:
+
+- `main`에 직접 커밋하지 않는다.
+- `codex/*`, `feat/*`, `backend/*`, `frontend/*` 같은 prefix는 쓰지 않는다.
+- `.githooks/pre-commit`은 브랜치 prefix와 staged path 범위를 검사한다.
+- 같은 기능이면 역할별 브랜치 topic을 맞춘다.
 
 ```text
-main
+back/paginated-query-cqrs
+front/paginated-query-ui
+docs/commit-unit-rule
 ```
 
-작업 브랜치 형식:
+## Flow
 
-```text
-docs/short-topic
-back/short-topic
-front/short-topic
-common/short-topic
+```mermaid
+flowchart LR
+    Main["main"] --> Back["back/{topic}"]
+    Main --> Front["front/{topic}"]
+    Main --> Docs["docs/{topic}"]
+    Back --> BackCommits["meaningful backend commits"]
+    Front --> FrontCommits["meaningful frontend commits"]
+    Docs --> DocsCommits["rule/docs commits"]
+    BackCommits --> MergeBack["merge --no-ff to main"]
+    FrontCommits --> MergeFront["merge --no-ff to main"]
+    DocsCommits --> MergeDocs["merge --no-ff to main"]
+    MergeBack --> Main
+    MergeFront --> Main
+    MergeDocs --> Main
 ```
+
+같은 기능의 `back/*`와 `front/*`가 모두 있으면 보통 backend를 먼저 main에 병합하고 frontend를 나중에 병합한다. API contract가 frontend의 기준이 되기 때문이다.
+
+## Commit Units
+
+브랜치 안에서는 한 커밋으로 다 뭉치지 않는다. 테스트 가능하고 리뷰 가능한 의미 단위로 나눈다.
+
+좋은 단위:
+
+- entity/package 분리
+- command/query service 분리
+- port/repository 분리
+- QueryDSL 조회 구현
+- Spring Data `Pageable` 단순 조회 적용
+- frontend API type 변경
+- admin pagination UI 추가
+- MSW/test fixture 변경
+- 룰/문서 갱신
+
+나쁜 단위:
+
+- `wip`
+- `temp`
+- `update`
+- unrelated backend + frontend + docs 한 커밋
+- formatter 변경과 기능 변경을 섞은 커밋
 
 예시:
 
 ```text
-docs/admin-shop-split-planning
-back/payment-authorization
-back/payment-cancellation
-back/settlement-batch
-back/reconciliation
-front/admin-ui
-front/payment-admin-page
-common/branch-prefix-guard
+refactor: commerce entity 패키지 분리
+refactor: command query service 분리
+feat: QueryDSL 쿠폰 조회 pagination 적용
+feat: 단순 목록 Spring Data Pageable 적용
+test: CQRS 조회 규칙 검증 추가
+docs: QueryDSL 조회 룰 정리
 ```
-
-규칙:
-
-- 문서/기획 작업 브랜치는 `docs/{issue-number-or-topic}` 형식을 사용한다.
-- 백엔드 작업 브랜치는 `back/{issue-number-or-topic}` 형식을 사용한다.
-- 프론트 작업 브랜치는 `front/{issue-number-or-topic}` 형식을 사용한다.
-- 백엔드, 프론트, 문서가 아닌 도구/설정 작업은 `common/{issue-number-or-topic}` 형식을 사용한다.
-- 이슈 번호가 있으면 topic보다 이슈 번호를 우선 사용한다.
-- `codex/*`, `feat/*`, `chore/*`, `backend/*`, `frontend/*` 같은 prefix는 사용하지 않는다.
-- `.githooks/pre-commit`은 브랜치 prefix와 staged path 범위를 검사한다.
-- 로컬 clone은 `git config core.hooksPath .githooks`로 tracked hook을 활성화한다.
-
-## Branch Path Rule
-
-| Branch prefix | Allowed work |
-|---|---|
-| `docs/*` | `docs/**`, `workflow/**`, `rules/**` |
-| `back/*` | Backend work. `frontend/**` is blocked. |
-| `front/*` | Frontend work. `modules/**`, `sql/**`, and backend workflow paths are blocked. |
-| `common/*` | Non-docs, non-backend, non-frontend tooling and root config. `docs/**`, `workflow/**`, `modules/**`, `frontend/**`, and `sql/**` are blocked. |
-
-## Frontend Branch Rule
-
-프론트 작업은 백엔드 작업과 분리한다.
-
-권장 순서:
 
 ```text
-main
-  -> common/project-scaffold
-  -> front/scaffold
+refactor: commerce API page response 타입 적용
+feat: admin 목록 pagination UI 추가
+feat: shop 상품 page 응답 연결
+test: MSW page 응답 fixture 적용
+docs: frontend API state contract 갱신
 ```
 
-백엔드 스캐폴딩이 `main`에 반영된 뒤라면:
+작은 오타 수정이나 직전 커밋 보정은 별도 커밋으로 남기지 않고 가까운 커밋에 합친다. main merge 전에는 `wip`, `temp`, 단순 보정 커밋을 정리한다.
 
-```text
-main
-  -> front/scaffold
-```
-
-규칙:
-
-- React/Vite 초기 생성은 `front/scaffold`에서 한다.
-- 프론트 기능 구현은 스캐폴딩과 분리해 `front/*` 브랜치에서 한다.
-- API 계약이 아직 없으면 실제 API 연동 대신 MSW mock과 화면 구조까지만 만든다.
-- 백엔드 기능 브랜치와 프론트 기능 브랜치를 한 브랜치에 섞지 않는다.
-
-프론트 브랜치 예시:
-
-```text
-front/scaffold
-front/admin-dashboard
-front/payment-admin-page
-front/settlement-screen
-front/reconciliation-screen
-front/payment-ui-flow
-```
-
-## Work Unit Rule
-
-하나의 작업은 현재 `scripts/execute.py --lane <backend|frontend>`가 진행 중인 lane phase 범위만 포함한다.
-
-완료된 작업의 상세 과정과 수정 이유는 Obsidian에 보관한다. 프로젝트 안의 lane별 `phases/` 파일은 실행 가능한 phase 최종본만 유지한다.
-
-장시간 구현 모드에서는 커밋을 자동으로 만든다. `python3 scripts/execute.py --lane <backend|frontend> complete`가 완료 게이트를 모두 통과하면 완료된 phase 단위로 자동 커밋한다. 커밋 전에는 다음 조건을 만족해야 한다.
-
-- 현재 phase의 validation이 통과했다.
-- 현재 phase의 `Done Criteria`가 모두 `[x]`다.
-- 해당 phase의 검증과 리뷰 요구가 끝났다.
-- Obsidian 현재작업과 day log가 `scripts/execute.py`로 갱신됐다.
-- 변경 범위가 완료된 phase와 맞는다.
-- phase 시작 전부터 있던 dirty file은 자동 커밋에 포함하지 않는다. 기본적으로 `python3 scripts/execute.py --lane <backend|frontend> start`는 clean worktree에서만 시작한다.
-
-사용자가 명시적으로 커밋을 금지한 경우에만 자동 커밋을 멈춘다.
-
-작업 단위는 다음 중 하나로 나눈다.
-
-| Unit | Meaning | Example |
-|---|---|---|
-| docs | 하네스, 기획, 의사결정 문서 | `docs: Payment API 계약 정의` |
-| chore | 프로젝트 설정, 빌드, 도구 | `chore: Spring Boot 프로젝트 생성` |
-| feat | 사용자/운영자 기능 | `feat: 결제 승인 유스케이스 추가` |
-| test | 테스트 추가/보강 | `test: 중복 결제 요청 검증` |
-| refactor | 동작 변경 없는 구조 개선 | `refactor: 결제 Port 분리` |
-| fix | 버그 수정 | `fix: 중복 원장 기록 방지` |
-| perf | 성능 개선 | `perf: 정산 조회 인덱스 추가` |
-
-## Commit Message Format
+## Commit Message
 
 형식:
 
@@ -126,162 +99,43 @@ front/payment-ui-flow
 type: 한국어 요약
 ```
 
-본문은 필요한 경우에만 짧게 쓴다:
+허용 type:
 
-```text
-type: 한국어 요약
-
-- Verified:
-```
+| Type | Use |
+|---|---|
+| `docs` | 문서, 룰, workflow |
+| `chore` | 설정, 빌드, 도구 |
+| `feat` | 사용자/운영자 기능 |
+| `test` | 테스트, fixture |
+| `refactor` | 동작 변경 없는 구조 개선 |
+| `fix` | 버그 수정 |
+| `perf` | 성능 개선 |
 
 규칙:
 
-- 영어 소문자 `type`을 사용한다.
-- 제목은 짧게 유지하고 기본은 한글로 쓴다.
-- 영어는 `Spring Boot`, `MockK`, `Payment`, `API`, `MSW`, `Testcontainers`처럼 기술명이나 검색에 필요한 용어에만 섞는다.
+- 제목은 짧게 쓴다.
+- 기본은 한국어다.
+- `Spring Data`, `QueryDSL`, `API`, `MSW`, `Testcontainers` 같은 기술명은 영어로 써도 된다.
 - 한 커밋에는 하나의 의도만 담는다.
-- 테스트나 검증을 했다면 필요할 때만 본문에 `Verified:`를 남긴다.
-- 완료 작업의 상세 설명은 Git 커밋 본문이 아니라 Obsidian에 남긴다.
-- 사용자에게 커밋 완료를 보고할 때는 `b01c645 feat: ...`처럼 해시를 제목 앞에 붙이지 않는다.
-- 해시가 필요하면 커밋 제목과 분리해 별도 값으로만 적는다.
+- 긴 설명과 검증 상세는 Git 본문보다 작업 기록에 남긴다.
 
-## Commit Examples
+## Merge To Main
 
-```text
-docs: 하네스 템플릿 추가
-docs: 카카오페이 결제 범위 정의
-chore: Kotlin Spring Boot 백엔드 생성
-chore: MySQL Docker Compose 추가
-feat: 결제 승인 Aggregate 추가
-feat: 결제 승인 API 공개
-feat: 결제 취소 유스케이스 추가
-feat: 일별 정산 배치 추가
-feat: 원장 대사 리포트 추가
-feat: 결제 관리자 대시보드 추가
-test: 결제 BehaviorSpec 추가
-test: 중복 결제 승인 검증
-test: 정산 통합 테스트 추가
-refactor: 결제 Port 분리
-fix: 취소된 결제 재취소 방지
-perf: 가맹점 결제 조회 인덱스 추가
-```
+main 병합 전:
 
-## Suggested Development Sequence
+- 워크트리가 clean인지 확인한다.
+- 해당 브랜치에 맞는 테스트나 빌드를 실행한다.
+- 커밋이 의미 단위로 나뉘었는지 확인한다.
+- `wip`, `temp`, 단순 보정 커밋을 정리한다.
+- `git merge --no-ff {branch}`로 main에 병합한다.
+- 병합 후 smoke validation을 실행한다.
 
-### 1. Planning
+## Checklist
 
-```text
-docs: 백엔드 스캐폴딩 작업 설정
-```
-
-### 2. Backend Scaffold
-
-```text
-chore: Kotlin Spring Boot 백엔드 생성
-chore: MySQL Docker Compose 추가
-chore: Kotest MockK Testcontainers 설정
-```
-
-### 3. Payment Core
-
-```text
-feat: Payment 도메인 모델 추가
-test: 결제 BehaviorSpec 추가
-feat: 결제 승인 유스케이스 추가
-feat: 결제 승인 API 공개
-test: 결제 승인 통합 테스트 추가
-```
-
-### 4. Corrective Flow
-
-```text
-feat: 결제 취소 유스케이스 추가
-test: 결제 취소 규칙 검증
-feat: 결제 취소 API 공개
-```
-
-### 5. Consistency
-
-```text
-feat: 불변 결제 원장 추가
-test: 중복 결제 승인 검증
-feat: 일별 정산 배치 추가
-feat: 대사 리포트 추가
-```
-
-### 6. Frontend
-
-```text
-chore: React 관리자 프론트 생성
-feat: 결제 관리자 페이지 추가
-feat: 정산과 대사 화면 추가
-test: MSW 기반 결제 UI 흐름 추가
-```
-
-프론트 작업은 `docs/what/`, `docs/how/`의 프론트 계획과 프론트 phase 파일이 준비된 뒤 시작한다.
-
-## Commit Before Checklist
-
-- [ ] 변경 범위가 현재 phase 파일과 맞는다.
-- [ ] 불필요한 IDE/local 파일이 포함되지 않았다.
-- [ ] 문서 변경과 코드 변경이 너무 섞이지 않았다.
-- [ ] 관련 테스트 또는 검증을 실행했다.
-- [ ] 검증하지 못했다면 Obsidian 작업기록에 이유를 남겼다.
-- [ ] Obsidian 작업기록에 작업 목적, 변경 내용, 검증, 다음 작업, Git 커밋 해시와 제목을 기록했다.
-- [ ] 수정 이유와 완료 기록을 Obsidian에 정리했다.
-
-## Do Not Commit
-
-- `.DS_Store`
-- `.idea/`
-- `.env`
-- 빌드 산출물
-- 로컬 DB 데이터
-- 개인 토큰/키
-
-## Current Repository Baseline
-
-초기 커밋:
-
-```text
-bb67b22 Initialize project planning workflow
-```
-
-이후 커밋은 이 문서의 규칙을 따른다.
-
-## Obsidian Link Rule
-
-문서나 작업 기준이 바뀌는 커밋은 Obsidian 작업기록에도 같은 이유를 남긴다.
-
-권장 커밋:
-
-```text
-docs: 현재 작업 정책 수정
-```
-
-## Git Log Rule
-
-Git 커밋은 짧고 명확하게 유지한다. 상세한 작업 설명은 Obsidian에 남긴다.
-
-권장 커밋 예시:
-
-```text
-feat: 결제 승인 유스케이스 추가
-```
-
-Obsidian 작업기록에는 이 정도만 Git 연결값으로 남긴다:
-
-```text
-Git:
-- Commit: `feat: 결제 승인 유스케이스 추가`
-- Hash: `abc1234`
-```
-
-작업이 여러 커밋으로 나뉘면 관련 커밋을 짧게 나열한다.
-
-```text
-Git:
-- `feat: Payment 도메인 모델 추가` (`abc1234`)
-- `feat: 결제 승인 유스케이스 추가` (`def5678`)
-- `test: 결제 승인 검증` (`fed9876`)
-```
+- [ ] 브랜치 prefix가 작업 역할과 맞다.
+- [ ] staged path가 branch path rule을 지킨다.
+- [ ] 커밋이 리뷰 가능한 의미 단위로 나뉘었다.
+- [ ] backend와 frontend 변경을 한 브랜치에 섞지 않았다.
+- [ ] main merge 전 잡음 커밋을 정리했다.
+- [ ] 관련 테스트/빌드/훅을 실행했다.
+- [ ] 검증하지 못한 항목은 이유를 기록했다.
