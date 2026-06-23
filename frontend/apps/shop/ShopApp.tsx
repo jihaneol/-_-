@@ -5,9 +5,9 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { shopCommerceApi, shopCommerceKeys } from '../../src/entities/commerce/api'
-import type { CouponHistory, CouponWallet, Member, Product } from '../../src/entities/commerce/types'
+import type { CouponHistory, CouponWallet, Member, Product, ProductPageResponse } from '../../src/entities/commerce/types'
 import type { ApiError } from '../../src/shared/api/client'
-import { Field, Notice, StatusBadge } from '../../src/shared/ui'
+import { Field, Notice, PaginationControls, StatusBadge } from '../../src/shared/ui'
 
 const signupSchema = z.object({
   name: z.string().min(1),
@@ -26,9 +26,13 @@ export function ShopApp() {
   const [view, setView] = useState<ShopView>('home')
   const [member, setMember] = useState<Member | null>(null)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [productPage, setProductPage] = useState(0)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const products = useQuery({ queryKey: shopCommerceKeys.products, queryFn: shopCommerceApi.listProducts })
+  const products = useQuery({
+    queryKey: shopCommerceKeys.products(productPage),
+    queryFn: () => shopCommerceApi.listProducts({ page: productPage }),
+  })
   const wallet = useQuery({
     queryKey: member ? shopCommerceKeys.wallet(member.id) : shopCommerceKeys.walletIdle,
     queryFn: () => shopCommerceApi.getCouponWallet(member!.id),
@@ -107,7 +111,8 @@ export function ShopApp() {
     setSelectedProduct(product)
     openView('checkout')
   }
-  const fallbackProduct = selectedProduct ?? products.data?.[0] ?? null
+  const productItems = products.data?.items ?? []
+  const fallbackProduct = selectedProduct ?? productItems[0] ?? null
   const cartProduct = selectedProduct
 
   return (
@@ -138,12 +143,15 @@ export function ShopApp() {
 
       {view === 'catalog07' ? (
         <ShopCatalogPage
-          products={products.data ?? []}
+          products={productItems}
+          productPage={products.data}
           isLoading={products.isLoading}
           member={member}
           onOpenDetail={openDetail}
           onCart={addToCart}
           onCheckout={openCheckout}
+          onPreviousPage={() => setProductPage((page) => Math.max(0, page - 1))}
+          onNextPage={() => setProductPage((page) => page + 1)}
         />
       ) : null}
 
@@ -162,7 +170,7 @@ export function ShopApp() {
 
       {view === 'home' ? (
         <ShopHomePage
-          products={products.data ?? []}
+          products={productItems}
           isLoading={products.isLoading}
           member={member}
           wallet={wallet.data}
@@ -178,7 +186,7 @@ export function ShopApp() {
           member={member}
           wallet={wallet.data}
           walletLoading={wallet.isLoading}
-          nextProduct={products.data?.[0] ?? null}
+          nextProduct={productItems[0] ?? null}
           onHome={() => openView('home')}
           onCheckout={openCheckout}
         />
@@ -440,11 +448,14 @@ function ShopCouponGuidePage(props: {
 
 function ShopCatalogPage(props: {
   products: Product[]
+  productPage?: ProductPageResponse
   isLoading: boolean
   member: Member | null
   onOpenDetail: (product: Product) => void
   onCart: (product: Product) => void
   onCheckout: (product: Product) => void
+  onPreviousPage: () => void
+  onNextPage: () => void
 }) {
   return (
     <section className="shop-view">
@@ -466,8 +477,15 @@ function ShopCatalogPage(props: {
             <button type="button">쿠폰 적립</button>
             <button type="button">빠른 주문</button>
             <button type="button">낮은 가격순</button>
-            <span>상품 {props.products.length}개</span>
+            <span>상품 {props.productPage?.totalElements ?? 0}개</span>
           </div>
+          <PaginationControls
+            label="상품"
+            page={props.productPage}
+            isLoading={props.isLoading}
+            onPrevious={props.onPreviousPage}
+            onNext={props.onNextPage}
+          />
           <div className="shop-catalog-list">
             {props.isLoading ? <p>상품을 불러오는 중</p> : null}
             {!props.isLoading && !props.products.length ? <p>상품 없음</p> : null}

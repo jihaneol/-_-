@@ -55,8 +55,8 @@ POST /api/admin/members/{memberId}/coupon-exchanges
 Success invalidates:
 
 - `admin.summary`
-- `admin.coupons(memberId)`
-- `admin.histories(memberId)`
+- `admin.coupons(memberId,page,size,sort)` base group
+- `admin.histories(memberId,page,size,sort)` base group
 - `admin.couponConsistency`
 
 Disabled state:
@@ -85,22 +85,39 @@ GET /api/shop/members/{memberId}/coupon-wallet
 The shop page uses this customer-safe summary for the coupon card and my-page panel. Purchase success invalidates:
 
 - `shop.wallet(memberId)`
-- `shop.coupons(memberId)`
-- `shop.histories(memberId)`
+- `shop.coupons(memberId,page,size,sort)` base group
+- `shop.histories(memberId,page,size,sort)` base group
 
 ## Product Commerce Metadata
 
 ```text
-shop.products
-GET /api/shop/products
+shop.products(page,size,sort)
+GET /api/shop/products?page=0&size=20&sort=id,desc
 ```
 
-Each product contains:
+Response uses `PageResponse<Product>` with `items`, `page`, `size`, `totalElements`, `totalPages`, and `hasNext`.
+
+Each product item contains:
 
 - `couponAccrualCount`: display value for "구매 시 쿠폰 N장 적립".
 - `exchangeEligible`: display value for exchange reward labeling.
 
 Shop components must read these fields from the API contract. They may not recalculate the coupon accrual policy in each component.
+
+## Admin Simple List Queries
+
+```text
+admin.members(page,size,sort)
+GET /api/admin/members?page=0&size=20&sort=id,desc
+
+admin.products(page,size,sort)
+GET /api/admin/products?page=0&size=20&sort=id,desc
+
+admin.orders(page,size,sort)
+GET /api/admin/orders?page=0&size=20&sort=id,desc
+```
+
+These simple aggregate lists use `PageResponse<T>` and render `items` in tables. UI must not rely on `{ members }`, `{ products }`, `{ orders }`, or top-level arrays.
 
 ## Shop Page State
 

@@ -15,10 +15,10 @@ Update admin and shop list screens to consume paginated query responses without 
 ## Scope
 
 - Add shared `PageResponse<T>` frontend type.
-- Update API client methods for coupon and coupon-history page responses first.
+- Update API client methods for member, product, order, coupon, and coupon-history page responses.
 - Include `page`, `size`, `sort`, and selected member/filter state in TanStack Query keys.
-- Add compact pager controls to admin coupon and history tables.
-- Keep current shop flow working while reading paginated product/coupon/history contracts as backend phases land.
+- Add compact pager controls to admin member, product, order, coupon, and history tables.
+- Keep current shop flow working while reading paginated product/coupon/history contracts.
 
 ## Out Of Scope
 
@@ -32,7 +32,12 @@ Update admin and shop list screens to consume paginated query responses without 
 
 - `frontend/src/entities/commerce/types.ts`
 - `frontend/src/entities/commerce/api.ts`
+- `frontend/src/shared/ui.tsx`
+- `frontend/src/app/styles/global.css`
+- `frontend/src/pages/main/MainPage.tsx`
 - `frontend/src/pages/members/MembersPage.tsx`
+- `frontend/src/pages/products/ProductsPage.tsx`
+- `frontend/src/pages/orders-payments/OrdersPaymentsPage.tsx`
 - `frontend/src/apps/shop/ShopApp.tsx`
 - `frontend/src/app/App.test.tsx`
 - `docs/frontend-harness/03-api-state-contract.md`
@@ -40,7 +45,8 @@ Update admin and shop list screens to consume paginated query responses without 
 ## Test First
 
 - Update MSW fixtures to return `{ items, page, size, totalElements, totalPages, hasNext }`.
-- Add RTL assertions for next/previous disabled states and page reset after member selection changes.
+- Update MSW fixtures for member, product, order, coupon, and coupon-history APIs.
+- Keep RTL assertions for admin/shop flows after page response conversion.
 
 ## Implementation Steps
 
@@ -48,13 +54,17 @@ Update admin and shop list screens to consume paginated query responses without 
 - [x] Update coupon/history API methods and query keys.
 - [x] Add admin pager UI for coupon and history tables.
 - [x] Update shop coupon consumers to avoid unbounded list assumptions.
+- [x] Update member, product, and order API methods to return page responses.
+- [x] Add shared pagination controls for admin member, product, order, and shop catalog lists.
+- [x] Update dashboard recent orders to read from paged order response.
 - [x] Run frontend tests/build.
 
 ## Done Criteria
 
-- [x] Frontend no longer calls coupon/history APIs as unbounded arrays.
+- [x] Frontend no longer calls member/product/order/coupon/history APIs as unbounded arrays.
 - [x] Query keys include pagination state.
-- [x] Admin list UI exposes page navigation.
+- [x] Admin list UI exposes page navigation for member, product, order, coupon, and history lists.
+- [x] Shop catalog exposes product page navigation.
 - [x] Existing purchase, coupon wallet, and exchange flows still pass.
 - [x] Frontend tests and build pass.
 
@@ -63,7 +73,14 @@ Update admin and shop list screens to consume paginated query responses without 
 `npm --prefix frontend test -- --run`
 `npm --prefix frontend run build`
 
-Result: both passed on 2026-06-23.
+Result: both passed on 2026-06-24.
+
+Additional validation:
+
+- `bash scripts/hooks/validate_impeccable.sh`
+- `python3 scripts/hooks/audit_harness.py --lane frontend --changed-only`
+
+Result: passed on 2026-06-24. Frontend audit reports pre-existing archive/state warnings for older phases.
 
 ## Review Focus
 

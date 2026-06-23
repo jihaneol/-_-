@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { Product } from '../../entities/commerce/types'
 import type { ApiError } from '../../shared/api/client'
-import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
+import { Field, Notice, PaginationControls, Row, StatusBadge } from '../../shared/ui'
 import { useState } from 'react'
 
 const productSchema = z.object({
@@ -25,9 +25,13 @@ type StockForm = z.infer<typeof stockSchema>
 
 export function ProductsPage() {
   const queryClient = useQueryClient()
+  const [productPage, setProductPage] = useState(0)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
+  const products = useQuery({
+    queryKey: adminCommerceKeys.products(productPage),
+    queryFn: () => adminCommerceApi.listProducts({ page: productPage }),
+  })
   const productForm = useForm<ProductForm>({
     resolver: zodResolver(productSchema) as never,
     defaultValues: { name: '', price: 5000, stock: 10 },
@@ -41,7 +45,7 @@ export function ProductsPage() {
     setNotice('')
   }
   const invalidateProducts = async () => {
-    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.products })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.productsBase })
     await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
   }
   const createProduct = useMutation({
@@ -68,6 +72,7 @@ export function ProductsPage() {
     },
     onError,
   })
+  const productItems = products.data?.items ?? []
 
   return (
     <div className="page">
@@ -112,7 +117,7 @@ export function ProductsPage() {
             <Field label="상품" error={stockForm.formState.errors.productId?.message}>
               <select {...stockForm.register('productId')}>
                 <option value="">선택</option>
-                {products.data?.map((product) => <option key={product.id} value={product.id}>#{product.id} {product.name}</option>)}
+                {productItems.map((product) => <option key={product.id} value={product.id}>#{product.id} {product.name}</option>)}
               </select>
             </Field>
             <Field label="수량" error={stockForm.formState.errors.quantity?.message}>
@@ -126,13 +131,20 @@ export function ProductsPage() {
       </div>
 
       <section className="product-card-grid">
-        {products.data?.slice(0, 3).map((product, index) => (
+        {productItems.slice(0, 3).map((product, index) => (
           <ProductPreviewCard key={product.id} product={product} tone={index} />
         ))}
       </section>
 
       <section className="panel">
         <h2>상품 목록</h2>
+        <PaginationControls
+          label="상품"
+          page={products.data}
+          isLoading={products.isLoading}
+          onPrevious={() => setProductPage((page) => Math.max(0, page - 1))}
+          onNext={() => setProductPage((page) => page + 1)}
+        />
         <table className="table">
           <thead>
             <tr>
@@ -145,8 +157,8 @@ export function ProductsPage() {
           </thead>
           <tbody>
             {products.isLoading ? <Row colSpan={5} text="불러오는 중" /> : null}
-            {!products.isLoading && !products.data?.length ? <Row colSpan={5} text="상품 없음" /> : null}
-            {products.data?.map((product) => <ProductRow key={product.id} product={product} />)}
+            {!products.isLoading && !productItems.length ? <Row colSpan={5} text="상품 없음" /> : null}
+            {productItems.map((product) => <ProductRow key={product.id} product={product} />)}
           </tbody>
         </table>
       </section>

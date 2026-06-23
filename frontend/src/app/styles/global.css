@@ -457,6 +457,39 @@ select:focus-visible {
   background: var(--color-danger);
 }
 
+.pagination-bar {
+  align-items: center;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-2);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin: 0 0 14px;
+  min-height: 46px;
+  padding: 8px 10px 8px 14px;
+}
+
+.pagination-bar > span {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pagination-bar > div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.pagination-bar strong {
+  color: var(--color-ink);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  min-width: 54px;
+  text-align: center;
+}
+
 .quick-stats {
   display: flex;
   flex-wrap: wrap;
