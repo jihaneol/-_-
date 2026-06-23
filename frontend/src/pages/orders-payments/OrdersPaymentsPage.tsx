@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { ApiError } from '../../shared/api/client'
-import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
+import { Field, Notice, PaginationControls, Row, StatusBadge } from '../../shared/ui'
 
 const orderSchema = z.object({
   memberId: z.coerce.number().int().positive(),
@@ -24,11 +24,21 @@ type PaymentForm = z.infer<typeof paymentSchema>
 
 export function OrdersPaymentsPage() {
   const queryClient = useQueryClient()
+  const [orderPage, setOrderPage] = useState(0)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const members = useQuery({ queryKey: adminCommerceKeys.members, queryFn: adminCommerceApi.listMembers })
-  const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
-  const orders = useQuery({ queryKey: adminCommerceKeys.orders, queryFn: adminCommerceApi.listOrders })
+  const members = useQuery({
+    queryKey: adminCommerceKeys.members(0),
+    queryFn: () => adminCommerceApi.listMembers({ page: 0 }),
+  })
+  const products = useQuery({
+    queryKey: adminCommerceKeys.products(0),
+    queryFn: () => adminCommerceApi.listProducts({ page: 0 }),
+  })
+  const orders = useQuery({
+    queryKey: adminCommerceKeys.orders(orderPage),
+    queryFn: () => adminCommerceApi.listOrders({ page: orderPage }),
+  })
   const orderForm = useForm<OrderForm>({
     resolver: zodResolver(orderSchema) as never,
     defaultValues: { quantity: 1 },
@@ -38,7 +48,7 @@ export function OrdersPaymentsPage() {
     defaultValues: { idempotencyKey: `pay-${Date.now()}` },
   })
   const invalidateOrders = async () => {
-    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.orders })
+    await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.ordersBase })
     await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
     await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.couponConsistency })
   }
@@ -88,6 +98,9 @@ export function OrdersPaymentsPage() {
     setError('입력값을 확인해주세요.')
     setNotice('')
   }
+  const memberItems = members.data?.items ?? []
+  const productItems = products.data?.items ?? []
+  const orderItems = orders.data?.items ?? []
 
   return (
     <div className="page">
@@ -115,13 +128,13 @@ export function OrdersPaymentsPage() {
               <Field label="회원" error={orderForm.formState.errors.memberId?.message}>
                 <select {...orderForm.register('memberId')}>
                   <option value="">선택</option>
-                  {members.data?.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
+                  {memberItems.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
                 </select>
               </Field>
               <Field label="상품" error={orderForm.formState.errors.productId?.message}>
                 <select {...orderForm.register('productId')}>
                   <option value="">선택</option>
-                  {products.data?.map((product) => <option key={product.id} value={product.id}>#{product.id} {product.name}</option>)}
+                  {productItems.map((product) => <option key={product.id} value={product.id}>#{product.id} {product.name}</option>)}
                 </select>
               </Field>
             </div>
@@ -140,7 +153,7 @@ export function OrdersPaymentsPage() {
             <Field label="주문" error={paymentForm.formState.errors.orderId?.message}>
               <select {...paymentForm.register('orderId')}>
                 <option value="">선택</option>
-                {orders.data?.map((order) => <option key={order.id} value={order.id}>#{order.id} {order.status}</option>)}
+                {orderItems.map((order) => <option key={order.id} value={order.id}>#{order.id} {order.status}</option>)}
               </select>
             </Field>
             <Field label="중복 요청 방지 키" error={paymentForm.formState.errors.idempotencyKey?.message}>
@@ -155,6 +168,13 @@ export function OrdersPaymentsPage() {
 
       <section className="panel">
         <h2>주문 목록</h2>
+        <PaginationControls
+          label="주문"
+          page={orders.data}
+          isLoading={orders.isLoading}
+          onPrevious={() => setOrderPage((page) => Math.max(0, page - 1))}
+          onNext={() => setOrderPage((page) => page + 1)}
+        />
         <table className="table">
           <thead>
             <tr>
@@ -168,8 +188,8 @@ export function OrdersPaymentsPage() {
           </thead>
           <tbody>
             {orders.isLoading ? <Row colSpan={6} text="불러오는 중" /> : null}
-            {!orders.isLoading && !orders.data?.length ? <Row colSpan={6} text="주문 없음" /> : null}
-            {orders.data?.map((order) => (
+            {!orders.isLoading && !orderItems.length ? <Row colSpan={6} text="주문 없음" /> : null}
+            {orderItems.map((order) => (
               <tr key={order.id}>
                 <td>#{order.id}</td>
                 <td>#{order.memberId}</td>

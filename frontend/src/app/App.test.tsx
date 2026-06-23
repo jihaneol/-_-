@@ -22,14 +22,14 @@ const server = setupServer(
     refundedOrderCount: orders.filter((order) => order.status === 'REFUNDED').length,
     issuedCouponCount: coupons.filter((coupon) => coupon.status === 'ISSUED').length,
   })),
-  http.get('/api/admin/members', () => ok({ members })),
+  http.get('/api/admin/members', ({ request }) => ok(pageResponse(members, request.url))),
   http.post('/api/admin/members', async ({ request }) => {
     const body = await request.json() as any
     const member = { id: 2, name: body.name, email: body.email }
     members = [...members, member]
     return ok(member)
   }),
-  http.get('/api/admin/products', () => ok({ products })),
+  http.get('/api/admin/products', ({ request }) => ok(pageResponse(products, request.url))),
   http.post('/api/admin/products', async ({ request }) => {
     const body = await request.json() as any
     const product = buildProduct(2, body.name, body.price)
@@ -45,7 +45,7 @@ const server = setupServer(
   http.post('/api/admin/products/:productId/inventory/increase', ({ params }) =>
     ok({ id: 1, productId: Number(params.productId), quantity: 11 }),
   ),
-  http.get('/api/admin/orders', () => ok({ orders })),
+  http.get('/api/admin/orders', ({ request }) => ok(pageResponse(orders, request.url))),
   http.post('/api/admin/orders', async ({ request }) => {
     const body = await request.json() as any
     const order = buildOrder(body.memberId, body.lines[0].productId)
@@ -69,7 +69,7 @@ const server = setupServer(
     members = [...members, member]
     return ok(member)
   }),
-  http.get('/api/shop/products', () => ok({ products })),
+  http.get('/api/shop/products', ({ request }) => ok(pageResponse(products, request.url))),
   http.post('/api/shop/orders', async ({ request }) => {
     const body = await request.json() as any
     const order = buildOrder(body.memberId, body.lines[0].productId)

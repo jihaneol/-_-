@@ -5,7 +5,11 @@ import { Metric, Row, StatusBadge } from '../../shared/ui'
 
 export function MainPage() {
   const summary = useQuery({ queryKey: adminCommerceKeys.summary, queryFn: adminCommerceApi.getDashboardSummary })
-  const orders = useQuery({ queryKey: adminCommerceKeys.orders, queryFn: adminCommerceApi.listOrders })
+  const orders = useQuery({
+    queryKey: adminCommerceKeys.orders(0, 8),
+    queryFn: () => adminCommerceApi.listOrders({ page: 0, size: 8 }),
+  })
+  const orderItems = orders.data?.items ?? []
 
   return (
     <div className="page">
@@ -48,8 +52,8 @@ export function MainPage() {
           </thead>
           <tbody>
             {orders.isLoading ? <Row colSpan={4} text="불러오는 중" /> : null}
-            {!orders.isLoading && !orders.data?.length ? <Row colSpan={4} text="주문 없음" /> : null}
-            {orders.data?.slice(0, 8).map((order) => (
+            {!orders.isLoading && !orderItems.length ? <Row colSpan={4} text="주문 없음" /> : null}
+            {orderItems.map((order) => (
               <tr key={order.id}>
                 <td>#{order.id}</td>
                 <td>#{order.memberId}</td>

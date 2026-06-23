@@ -1,5 +1,13 @@
 import type { ReactNode } from 'react'
 
+type PageMeta = {
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasNext: boolean
+}
+
 export function Field(props: { label: string; error?: string; children: ReactNode }) {
   return (
     <label className="field">
@@ -61,6 +69,36 @@ export function Notice(props: { text?: string; error?: string }) {
   return (
     <div className={`notice ${props.error ? 'error' : ''}`} role={props.error ? 'alert' : 'status'}>
       {props.error ? props.error : props.text}
+    </div>
+  )
+}
+
+export function PaginationControls(props: {
+  page?: PageMeta
+  label: string
+  isLoading?: boolean
+  onPrevious: () => void
+  onNext: () => void
+}) {
+  const currentPage = props.page?.page ?? 0
+  const totalPages = Math.max(props.page?.totalPages ?? 1, 1)
+  const start = props.page && props.page.totalElements > 0 ? props.page.page * props.page.size + 1 : 0
+  const end = props.page ? Math.min((props.page.page + 1) * props.page.size, props.page.totalElements) : 0
+
+  return (
+    <div className="pagination-bar" aria-label={`${props.label} 페이지`}>
+      <span>
+        {props.label} {props.isLoading ? '불러오는 중' : `${start}-${end} / ${props.page?.totalElements ?? 0}`}
+      </span>
+      <div>
+        <button className="button secondary" type="button" disabled={currentPage === 0 || props.isLoading} onClick={props.onPrevious}>
+          이전
+        </button>
+        <strong>{currentPage + 1} / {totalPages}</strong>
+        <button className="button secondary" type="button" disabled={!props.page?.hasNext || props.isLoading} onClick={props.onNext}>
+          다음
+        </button>
+      </div>
     </div>
   )
 }

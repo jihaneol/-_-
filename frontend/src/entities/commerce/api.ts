@@ -1,5 +1,5 @@
 import { request } from '../../shared/api/client'
-import type { ApproveCouponExchangeResult, CouponConsistencyReport, CouponExchangeResult, CouponHistoryPageResponse, CouponPageResponse, CouponWallet, DashboardSummary, Inventory, Member, MemberListResponse, Order, OrderListResponse, PayOrderResult, Product, ProductListResponse, RefundOrderResult } from './types'
+import type { ApproveCouponExchangeResult, CouponConsistencyReport, CouponExchangeResult, CouponHistoryPageResponse, CouponPageResponse, CouponWallet, DashboardSummary, Inventory, Member, MemberPageResponse, Order, OrderPageResponse, PayOrderResult, Product, ProductPageResponse, RefundOrderResult } from './types'
 
 type PageQuery = {
   page?: number
@@ -9,9 +9,12 @@ type PageQuery = {
 
 export const adminCommerceKeys = {
   summary: ['admin', 'commerce', 'dashboard', 'summary'] as const,
-  members: ['admin', 'commerce', 'members'] as const,
-  products: ['admin', 'commerce', 'products'] as const,
-  orders: ['admin', 'commerce', 'orders'] as const,
+  members: (page = 0, size = 20, sort = 'id,desc') => ['admin', 'commerce', 'members', page, size, sort] as const,
+  membersBase: ['admin', 'commerce', 'members'] as const,
+  products: (page = 0, size = 20, sort = 'id,desc') => ['admin', 'commerce', 'products', page, size, sort] as const,
+  productsBase: ['admin', 'commerce', 'products'] as const,
+  orders: (page = 0, size = 20, sort = 'id,desc') => ['admin', 'commerce', 'orders', page, size, sort] as const,
+  ordersBase: ['admin', 'commerce', 'orders'] as const,
   couponConsistency: ['admin', 'commerce', 'coupon-consistency'] as const,
   couponsIdle: ['admin', 'commerce', 'coupons', 'idle'] as const,
   historiesIdle: ['admin', 'commerce', 'coupon-histories', 'idle'] as const,
@@ -21,7 +24,8 @@ export const adminCommerceKeys = {
 }
 
 export const shopCommerceKeys = {
-  products: ['shop', 'commerce', 'products'] as const,
+  products: (page = 0, size = 20, sort = 'id,desc') => ['shop', 'commerce', 'products', page, size, sort] as const,
+  productsBase: ['shop', 'commerce', 'products'] as const,
   walletIdle: ['shop', 'commerce', 'coupon-wallet', 'idle'] as const,
   couponsIdle: ['shop', 'commerce', 'coupons', 'idle'] as const,
   historiesIdle: ['shop', 'commerce', 'coupon-histories', 'idle'] as const,
@@ -32,10 +36,10 @@ export const shopCommerceKeys = {
 
 export const adminCommerceApi = {
   getDashboardSummary: () => request<DashboardSummary>('/api/admin/dashboard/summary'),
-  listMembers: () => request<MemberListResponse>('/api/admin/members').then((response) => response.members),
+  listMembers: (query: PageQuery = {}) => request<MemberPageResponse>(`/api/admin/members${toPageSearch(query)}`),
   createMember: (body: { name: string; email: string }) =>
     request<Member>('/api/admin/members', { method: 'POST', body: JSON.stringify(body) }),
-  listProducts: () => request<ProductListResponse>('/api/admin/products').then((response) => response.products),
+  listProducts: (query: PageQuery = {}) => request<ProductPageResponse>(`/api/admin/products${toPageSearch(query)}`),
   createProduct: (body: { name: string; price: number }) =>
     request<Product>('/api/admin/products', { method: 'POST', body: JSON.stringify(body) }),
   createInventory: (productId: number, body: { quantity: number }) =>
@@ -43,7 +47,7 @@ export const adminCommerceApi = {
   increaseInventory: (productId: number, body: { quantity: number }) =>
     request<Inventory>(`/api/admin/products/${productId}/inventory/increase`, { method: 'POST', body: JSON.stringify(body) }),
   getInventory: (productId: number) => request<Inventory>(`/api/admin/products/${productId}/inventory`),
-  listOrders: () => request<OrderListResponse>('/api/admin/orders').then((response) => response.orders),
+  listOrders: (query: PageQuery = {}) => request<OrderPageResponse>(`/api/admin/orders${toPageSearch(query)}`),
   createOrder: (body: { memberId: number; lines: Array<{ productId: number; quantity: number }> }) =>
     request<Order>('/api/admin/orders', { method: 'POST', body: JSON.stringify(body) }),
   cancelOrder: (orderId: number) =>
@@ -66,7 +70,7 @@ export const adminCommerceApi = {
 export const shopCommerceApi = {
   createMember: (body: { name: string; email: string }) =>
     request<Member>('/api/shop/members', { method: 'POST', body: JSON.stringify(body) }),
-  listProducts: () => request<ProductListResponse>('/api/shop/products').then((response) => response.products),
+  listProducts: (query: PageQuery = {}) => request<ProductPageResponse>(`/api/shop/products${toPageSearch(query)}`),
   createOrder: (body: { memberId: number; lines: Array<{ productId: number; quantity: number }> }) =>
     request<Order>('/api/shop/orders', { method: 'POST', body: JSON.stringify(body) }),
   payOrder: (orderId: number, body: { idempotencyKey: string }) =>

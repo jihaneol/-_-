@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { adminCommerceApi, adminCommerceKeys } from '../../entities/commerce/api'
 import type { ApiError } from '../../shared/api/client'
-import { Field, Notice, Row, StatusBadge } from '../../shared/ui'
+import { Field, Notice, PaginationControls, Row, StatusBadge } from '../../shared/ui'
 
 const memberSchema = z.object({
   name: z.string().min(1),
@@ -19,12 +19,19 @@ export function MembersPage() {
   const queryClient = useQueryClient()
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [memberPage, setMemberPage] = useState(0)
   const [couponPage, setCouponPage] = useState(0)
   const [historyPage, setHistoryPage] = useState(0)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
-  const members = useQuery({ queryKey: adminCommerceKeys.members, queryFn: adminCommerceApi.listMembers })
-  const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
+  const members = useQuery({
+    queryKey: adminCommerceKeys.members(memberPage),
+    queryFn: () => adminCommerceApi.listMembers({ page: memberPage }),
+  })
+  const products = useQuery({
+    queryKey: adminCommerceKeys.products(0),
+    queryFn: () => adminCommerceApi.listProducts({ page: 0 }),
+  })
   const consistency = useQuery({ queryKey: adminCommerceKeys.couponConsistency, queryFn: adminCommerceApi.getCouponConsistencyReport })
   const coupons = useQuery({
     queryKey: selectedMemberId ? adminCommerceKeys.coupons(selectedMemberId, couponPage) : adminCommerceKeys.couponsIdle,
@@ -48,7 +55,7 @@ export function MembersPage() {
       setNotice(`회원 #${member.id} 생성`)
       setError('')
       form.reset({ name: '', email: '' })
-      await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.members })
+      await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.membersBase })
       await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
     },
     onError: handleApiError,
@@ -68,14 +75,16 @@ export function MembersPage() {
   })
   const couponItems = coupons.data?.items ?? []
   const historyItems = histories.data?.items ?? []
+  const memberItems = members.data?.items ?? []
+  const productItems = products.data?.items ?? []
   const selectedReportRow = consistency.data?.memberRows.find((row) => row.memberId === selectedMemberId)
   const issuedCouponCount = selectedReportRow?.issuedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'ISSUED').length
   const exchangedCouponCount = selectedReportRow?.exchangedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'EXCHANGED').length
   const voidedCouponCount = selectedReportRow?.voidedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'VOIDED').length
   const exchangeableSetCount = Math.floor(issuedCouponCount / 10)
   const remainingToNextExchange = (10 - issuedCouponCount % 10) % 10
-  const selectedMember = members.data?.find((member) => member.id === selectedMemberId)
-  const exchangeProducts = products.data?.filter((product) => product.price === 5_000 && product.saleStatus === 'ON_SALE') ?? []
+  const selectedMember = memberItems.find((member) => member.id === selectedMemberId)
+  const exchangeProducts = productItems.filter((product) => product.price === 5_000 && product.saleStatus === 'ON_SALE')
   const canApproveExchange = selectedMemberId !== null && selectedProductId !== null && issuedCouponCount >= 10 && !approveCouponExchange.isPending
   const selectMember = (memberId: number | null) => {
     setSelectedMemberId(memberId)
@@ -110,6 +119,13 @@ export function MembersPage() {
 
         <section className="panel">
           <h2>회원 목록</h2>
+          <PaginationControls
+            label="회원"
+            page={members.data}
+            isLoading={members.isLoading}
+            onPrevious={() => setMemberPage((page) => Math.max(0, page - 1))}
+            onNext={() => setMemberPage((page) => page + 1)}
+          />
           <table className="table">
             <thead>
               <tr>
@@ -121,8 +137,8 @@ export function MembersPage() {
             </thead>
             <tbody>
               {members.isLoading ? <Row colSpan={4} text="불러오는 중" /> : null}
-              {!members.isLoading && !members.data?.length ? <Row colSpan={4} text="회원 없음" /> : null}
-              {members.data?.map((member) => (
+              {!members.isLoading && !memberItems.length ? <Row colSpan={4} text="회원 없음" /> : null}
+              {memberItems.map((member) => (
                 <tr key={member.id}>
                   <td>#{member.id}</td>
                   <td>{member.name}</td>
@@ -147,7 +163,7 @@ export function MembersPage() {
               onChange={(event) => selectMember(Number(event.target.value) || null)}
             >
               <option value="">회원 선택</option>
-              {members.data?.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
+              {memberItems.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
             </select>
             <span className={`status ${exchangeableSetCount > 0 ? 'ok' : 'info'}`}>
               <Coffee size={14} /> {exchangeableSetCount > 0 ? '교환 가능' : '적립 중'}
