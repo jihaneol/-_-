@@ -5,15 +5,19 @@
 ## Placement
 
 ```text
-modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}/model
+modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}/model/{entity-group}
 ```
 
 규칙:
 
-- entity class는 `domain` 모듈의 `{domain}.model` 패키지에 둔다.
+- entity class는 `domain` 모듈의 `{domain}.model.{entity-group}` 패키지에 둔다.
+- `CommerceModels.kt`처럼 여러 aggregate/entity를 한 파일에 모으지 않는다.
+- 엔티티 파일은 aggregate root 또는 강하게 붙어 있는 entity 그룹 기준으로 분리한다. 예: `member/Member.kt`, `product/Product.kt`, `order/CommerceOrder.kt`, `order/OrderLine.kt`, `coupon/Coupon.kt`, `coupon/CouponHistory.kt`.
+- enum도 해당 entity 그룹 패키지에 둔다. 예: `OrderStatus`는 `order`, `CouponStatus`는 `coupon`, `ProductSaleStatus`는 `product`.
 - 좁은 Spring Data `Repository<T, ID>` 계약은 `application/provided`에 둘 수 있다.
 - `JpaRepository`처럼 넓은 Spring Data interface는 사용하지 않는다.
 - QueryDSL repository와 persistence adapter는 `infra` 모듈에 둔다.
+- QueryDSL Q metamodel은 build 단계에서 생성하되, entity source가 QueryDSL 타입을 직접 import하지 않는다.
 - entity는 Spring `@Service`, `@Component`, repository, QueryDSL, web DTO를 직접 알면 안 된다.
 
 ## ID Rule

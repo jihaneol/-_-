@@ -5,10 +5,8 @@ import com.example.cardservice.application.commerce.ApproveCouponExchangeResult
 import com.example.cardservice.application.commerce.CouponConsistencyReportResult
 import com.example.cardservice.application.commerce.CouponExchangeResult
 import com.example.cardservice.application.commerce.CouponHistoryPageResult
-import com.example.cardservice.application.commerce.CouponPageQuery
 import com.example.cardservice.application.commerce.CouponPageResult
-import com.example.cardservice.application.commerce.MemberCouponHistoryPageQuery
-import com.example.cardservice.application.commerce.OrderCouponHistoryPageQuery
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.request.ApproveCouponExchangeRequest
 import com.example.cardservice.application.commerce.required.CouponExchangeUseCase
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
@@ -38,7 +36,7 @@ class CouponController(
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
     ): ApiResponse<CouponPageResult> =
-        ApiResponse.success(couponQueryUseCase.listCoupons(CouponPageQuery(memberId, page, size, sort)))
+        ApiResponse.success(couponQueryUseCase.listCoupons(memberId, Pagination(page, size, sort)))
 
     @GetMapping("/members/{memberId}/coupon-histories")
     @Operation(summary = "회원 쿠폰 히스토리 조회")
@@ -49,7 +47,7 @@ class CouponController(
         @RequestParam(defaultValue = "id,desc") sort: String,
     ): ApiResponse<CouponHistoryPageResult> =
         ApiResponse.success(
-            couponQueryUseCase.listMemberCouponHistories(MemberCouponHistoryPageQuery(memberId, page, size, sort)),
+            couponQueryUseCase.listMemberCouponHistories(memberId, Pagination(page, size, sort)),
         )
 
     @GetMapping("/orders/{orderId}/coupon-histories")
@@ -61,7 +59,7 @@ class CouponController(
         @RequestParam(defaultValue = "id,desc") sort: String,
     ): ApiResponse<CouponHistoryPageResult> =
         ApiResponse.success(
-            couponQueryUseCase.listOrderCouponHistories(OrderCouponHistoryPageQuery(orderId, page, size, sort)),
+            couponQueryUseCase.listOrderCouponHistories(orderId, Pagination(page, size, sort)),
         )
 
     @GetMapping("/coupon-consistency")

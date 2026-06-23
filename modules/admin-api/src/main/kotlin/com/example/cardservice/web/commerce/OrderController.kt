@@ -1,12 +1,14 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateOrderInput
 import com.example.cardservice.application.commerce.CreateOrderLineInput
+import com.example.cardservice.application.commerce.OrderPageResult
 import com.example.cardservice.application.commerce.OrderResult
 import com.example.cardservice.application.commerce.request.OrderCreateRequest
 import com.example.cardservice.application.commerce.required.OrderQueryUseCase
 import com.example.cardservice.application.commerce.required.OrderUseCase
-import com.example.cardservice.application.commerce.response.OrderListResponse
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.created
 import io.swagger.v3.oas.annotations.Operation
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -41,8 +44,12 @@ class OrderController(
 
     @GetMapping
     @Operation(summary = "주문 목록 조회")
-    fun listOrders(): ApiResponse<OrderListResponse> =
-        ApiResponse.success(OrderListResponse(orderQueryUseCase.listOrders()))
+    fun listOrders(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
+        @RequestParam(defaultValue = "id,desc") sort: String,
+    ): ApiResponse<OrderPageResult> =
+        ApiResponse.success(orderQueryUseCase.listOrders(Pagination(page, size, sort)))
 
     @GetMapping("/{orderId}")
     @Operation(summary = "주문 상세 조회")

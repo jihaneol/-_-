@@ -4,15 +4,14 @@ import com.example.cardservice.application.commerce.provided.CommerceLockPort
 import com.example.cardservice.application.commerce.provided.CommerceOrderRepository
 import com.example.cardservice.application.commerce.provided.MemberRepository
 import com.example.cardservice.application.commerce.provided.ProductRepository
-import com.example.cardservice.application.commerce.required.OrderQueryUseCase
 import com.example.cardservice.application.commerce.required.OrderUseCase
-import com.example.cardservice.domain.commerce.model.CommerceOrder
-import com.example.cardservice.domain.commerce.model.OrderLine
+import com.example.cardservice.domain.commerce.model.order.CommerceOrder
+import com.example.cardservice.domain.commerce.model.order.OrderLine
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * 주문 생성, 취소, 삭제와 조회 흐름을 조율하는 application service다.
+ * 주문 생성, 취소, 삭제 흐름을 조율하는 application service다.
  */
 @Service
 class OrderService(
@@ -20,7 +19,7 @@ class OrderService(
     private val productRepository: ProductRepository,
     private val orderRepository: CommerceOrderRepository,
     private val commerceLockPort: CommerceLockPort,
-) : OrderUseCase, OrderQueryUseCase {
+) : OrderUseCase {
     @Transactional
     override fun createOrder(input: CreateOrderInput): OrderResult {
         memberRepository.findByIdAndDeletedAtIsNull(input.memberId) ?: throw IllegalArgumentException("회원을 찾을 수 없습니다.")
@@ -49,14 +48,6 @@ class OrderService(
         order.softDelete()
         orderRepository.save(order)
     }
-
-    @Transactional(readOnly = true)
-    override fun listOrders(): List<OrderResult> =
-        orderRepository.findAllByDeletedAtIsNull().map { it.toResult() }
-
-    @Transactional(readOnly = true)
-    override fun getOrder(orderId: Long): OrderResult =
-        loadOrder(orderId).toResult()
 
     private fun loadOrder(orderId: Long): CommerceOrder =
         orderRepository.findByIdAndDeletedAtIsNull(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다.")

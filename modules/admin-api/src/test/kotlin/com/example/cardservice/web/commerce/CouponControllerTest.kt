@@ -5,17 +5,15 @@ import com.example.cardservice.application.commerce.CouponConsistencyReportResul
 import com.example.cardservice.application.commerce.CouponExchangeResult
 import com.example.cardservice.application.commerce.CouponHistoryPageResult
 import com.example.cardservice.application.commerce.CouponHistoryResult
-import com.example.cardservice.application.commerce.CouponPageQuery
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CouponPageResult
 import com.example.cardservice.application.commerce.CouponResult
-import com.example.cardservice.application.commerce.MemberCouponHistoryPageQuery
 import com.example.cardservice.application.commerce.MemberCouponConsistencyResult
-import com.example.cardservice.application.commerce.OrderCouponHistoryPageQuery
 import com.example.cardservice.application.commerce.OrderCouponConsistencyResult
 import com.example.cardservice.application.commerce.required.CouponExchangeUseCase
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
-import com.example.cardservice.domain.commerce.model.CouponHistoryType
-import com.example.cardservice.domain.commerce.model.CouponStatus
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistoryType
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +37,7 @@ class CouponControllerTest {
 
     @Test
     fun `회원 쿠폰 조회 API는 페이지 메타데이터와 쿠폰 목록을 반환한다`() {
-        given(couponQueryUseCase.listCoupons(CouponPageQuery(3L, 0, 2, "id,desc"))).willReturn(
+        given(couponQueryUseCase.listCoupons(3L, Pagination(0, 2, "id,desc"))).willReturn(
             CouponPageResult(
                 items = listOf(
                     CouponResult(id = 10L, memberId = 3L, orderId = 7L, paymentId = 9L, status = CouponStatus.ISSUED),
@@ -68,7 +66,7 @@ class CouponControllerTest {
 
     @Test
     fun `회원 쿠폰 히스토리 조회 API는 페이지 메타데이터와 히스토리 목록을 반환한다`() {
-        given(couponQueryUseCase.listMemberCouponHistories(MemberCouponHistoryPageQuery(3L, 1, 5, "id,asc"))).willReturn(
+        given(couponQueryUseCase.listMemberCouponHistories(3L, Pagination(1, 5, "id,asc"))).willReturn(
             CouponHistoryPageResult(
                 items = listOf(
                     CouponHistoryResult(
@@ -100,7 +98,7 @@ class CouponControllerTest {
 
     @Test
     fun `주문 쿠폰 히스토리 조회 API는 페이지 쿼리로 조회한다`() {
-        given(couponQueryUseCase.listOrderCouponHistories(OrderCouponHistoryPageQuery(7L, 0, 20, "id,desc"))).willReturn(
+        given(couponQueryUseCase.listOrderCouponHistories(7L, Pagination(0, 20, "id,desc"))).willReturn(
             CouponHistoryPageResult(
                 items = emptyList(),
                 page = 0,

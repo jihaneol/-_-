@@ -7,6 +7,8 @@
 - 변경 use case service/facade가 transaction boundary를 소유한다.
 - 변경 use case에는 기본적으로 `@Transactional`을 적용한다.
 - 조회 use case에는 가능한 경우 `@Transactional(readOnly = true)`를 적용한다.
+- 같은 application service/facade 클래스 안에 `@Transactional` 변경 메서드와 `@Transactional(readOnly = true)` 조회 메서드를 같이 두지 않는다.
+- 조회 트랜잭션은 `{Feature}QueryService`/`{Feature}QueryFacade` 같은 별도 구현체에 둔다.
 - controller, request/response model, domain entity, outbound port interface에는 transaction annotation을 두지 않는다.
 - persistence adapter는 DB 저장 세부 구현을 담당하지만, 업무 transaction의 시작과 끝을 결정하지 않는다.
 - 하나의 업무 결과로 함께 남아야 하는 payment, ledger, outbox row는 같은 transaction 안에서 저장한다.

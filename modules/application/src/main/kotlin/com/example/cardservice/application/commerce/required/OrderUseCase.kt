@@ -1,6 +1,8 @@
 package com.example.cardservice.application.commerce.required
 
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateOrderInput
+import com.example.cardservice.application.commerce.OrderPageResult
 import com.example.cardservice.application.commerce.OrderResult
 
 /**
@@ -16,6 +18,6 @@ interface OrderUseCase {
  * 주문 조회 요청을 application layer로 전달하는 inbound port다.
  */
 interface OrderQueryUseCase {
-    fun listOrders(): List<OrderResult>
+    fun listOrders(pagination: Pagination): OrderPageResult
     fun getOrder(orderId: Long): OrderResult
 }

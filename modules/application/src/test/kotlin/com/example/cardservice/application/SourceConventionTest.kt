@@ -27,6 +27,31 @@ class SourceConventionTest {
         violations.shouldBeEmpty()
     }
 
+    @Test
+    fun `application service는 조회 transaction과 변경 transaction을 한 클래스에서 섞지 않는다`() {
+        val root = findProjectRoot()
+        val violations = Files.walk(root.resolve("modules/application/src/main/kotlin"))
+            .filter { it.name.endsWith("Service.kt") || it.name.endsWith("Facade.kt") }
+            .filter { !it.toString().contains("/build/") }
+            .flatMap { path ->
+                val text = path.readText()
+                val hasReadOnlyTransaction = text.contains("@Transactional(readOnly = true)")
+                val hasWriteTransaction = writeTransactionRegex.containsMatchIn(text)
+                val hasSaveCall = saveCallRegex.containsMatchIn(text)
+                buildList {
+                    if (hasReadOnlyTransaction && (hasWriteTransaction || hasSaveCall)) {
+                        add("${root.relativize(path)} mixes readOnly query transaction with write/save flow")
+                    }
+                    if (hasReadOnlyTransaction && !path.name.contains("Query")) {
+                        add("${root.relativize(path)} has readOnly transaction but is not named QueryService or QueryFacade")
+                    }
+                }.stream()
+            }
+            .toList()
+
+        violations.shouldBeEmpty()
+    }
+
     private fun findProjectRoot(): Path {
         var current = Path.of("").toAbsolutePath()
         while (!Files.exists(current.resolve("settings.gradle.kts"))) {
@@ -54,5 +79,7 @@ class SourceConventionTest {
             "CreateCouponOrderService",
             "CreateCouponOrderUseCase",
         )
+        val writeTransactionRegex = Regex("@Transactional(?!\\s*\\(\\s*readOnly\\s*=\\s*true\\s*\\))")
+        val saveCallRegex = Regex("\\.\\s*save(?:All)?\\s*\\(")
     }
 }

@@ -1,5 +1,12 @@
-package com.example.cardservice.domain.commerce.model
+package com.example.cardservice.domain.commerce
 
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
+import com.example.cardservice.domain.commerce.model.inventory.Inventory
+import com.example.cardservice.domain.commerce.model.member.Member
+import com.example.cardservice.domain.commerce.model.order.CommerceOrder
+import com.example.cardservice.domain.commerce.model.order.OrderLine
+import com.example.cardservice.domain.commerce.model.order.OrderStatus
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

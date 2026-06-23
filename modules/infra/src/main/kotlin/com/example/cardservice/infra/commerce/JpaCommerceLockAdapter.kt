@@ -1,10 +1,10 @@
 package com.example.cardservice.infra.commerce
 
 import com.example.cardservice.application.commerce.provided.CommerceLockPort
-import com.example.cardservice.domain.commerce.model.CommerceOrder
-import com.example.cardservice.domain.commerce.model.Coupon
-import com.example.cardservice.domain.commerce.model.CouponStatus
-import com.example.cardservice.domain.commerce.model.Inventory
+import com.example.cardservice.domain.commerce.model.order.CommerceOrder
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
+import com.example.cardservice.domain.commerce.model.inventory.Inventory
 import jakarta.persistence.EntityManager
 import jakarta.persistence.LockModeType
 import org.springframework.stereotype.Component

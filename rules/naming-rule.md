@@ -24,6 +24,7 @@ modules/application/src/main/kotlin/com/example/cardservice/application
 
 modules/domain/src/main/kotlin/com/example/cardservice/domain
   {domain}
+    model/{entity-group}
   domainservice/{domain}
 
 modules/infra/src/main/kotlin/com/example/cardservice/infra
@@ -70,7 +71,6 @@ SearchPaymentsQueryService
 SearchPaymentsQuery
 SearchPaymentsQueryResult
 
-SearchPaymentsPageQuery
 PaymentPageResult
 PaymentPageResponse
 ```
@@ -87,7 +87,8 @@ PaymentPageResponse
 - API request는 `request` 패키지에 둔다.
 - API 응답 모양이 use case result와 다를 때만 response DTO를 만들고 `response` 패키지에 둔다.
 - Result와 API 응답이 1:1이면 별도 response DTO와 단순 복사용 `toResponse()`를 만들지 않고 Result를 그대로 `ApiResponse<T>`에 담는다.
-- paginated 목록 조회는 `{Feature}PageQuery`, `{Feature}PageResult`, `{Feature}PageResponse` 이름을 사용한다.
+- paginated 목록 조회 입력은 공통 `Pagination`을 사용하고, 조회 대상 id는 별도 파라미터로 받는다.
+- paginated 목록 조회 결과는 `{Feature}PageResult`, API 응답 DTO가 따로 필요하면 `{Feature}PageResponse` 이름을 사용한다.
 
 ## Port Naming
 

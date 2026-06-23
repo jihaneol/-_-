@@ -29,6 +29,9 @@ modules/application/src/main/kotlin/com/example/cardservice/application/{domain}
 - service/facade는 controller response wrapper인 `ApiResponse<T>`를 알면 안 된다.
 - service/facade는 HTTP status, Swagger, validation annotation을 알면 안 된다.
 - transaction boundary는 변경 use case service/facade가 소유한다. 실제 `@Transactional` 적용 위치는 service/facade다.
+- 하나의 service/facade 클래스 안에 변경 transaction과 조회 `readOnly` transaction을 같이 두지 않는다. 변경 흐름은 `{Feature}Service`/`{Feature}Facade`, 조회 흐름은 `{Feature}QueryService`/`{Feature}QueryFacade`로 분리한다.
+- save/update/delete를 수행하는 service/facade는 query use case interface를 구현하지 않는다.
+- `@Transactional(readOnly = true)`가 붙은 query service/facade는 `save`, `saveAll`, domain state change method를 호출하지 않는다.
 - transaction 세부 기준은 `rules/transaction-rule.md`를 따른다.
 - 동시성/idempotency가 있는 흐름은 `rules/concurrency-rule.md`를 따른다.
 - event/outbox를 다루는 흐름은 `rules/event-publication-rule.md`를 따른다.
@@ -42,9 +45,14 @@ modules/application/src/main/kotlin/com/example/cardservice/application/{domain}
 - 변경 흐름 결과는 `{Action}Result`를 사용한다.
 - 조회 흐름 입력은 `{Action}Query`를 사용한다.
 - 조회 흐름 결과는 `{Action}QueryResult` 또는 `{Projection}QueryResult`를 사용한다.
-- 목록 조회 입력은 `{Feature}PageQuery`를 사용하고 `page`, `size`, `sort`를 포함한다.
+- pagination 입력은 공통 `Pagination(page, size, sort)`을 사용한다.
+- 회원 ID, 주문 ID, 상품 ID 같은 조회 대상 식별자는 `Pagination`에 넣지 않고 use case/port 메서드의 별도 파라미터로 받는다.
+- `{Feature}PageQuery`, `{MemberFeaturePageQuery}`처럼 page/size/sort와 식별자를 묶은 조회별 page query class를 계속 만들지 않는다.
 - 목록 조회 결과는 `{Feature}PageResult`를 사용하고 `items`, `page`, `size`, `totalElements`, `totalPages`, `hasNext`를 포함한다.
 - 목록 조회 use case/port는 `List<T>`를 직접 반환하지 않는다. pagination이 필요 없는 예외는 상한과 이유를 API 계약에 남긴다.
+- 단순 단일 aggregate 조회는 service/query service 내부에서 `Pagination`을 Spring Data `Pageable`로 변환해 repository를 호출할 수 있다.
+- Spring Data `Pageable`/`Page`를 controller request/response 또는 public use case API로 그대로 노출하지 않는다.
+- join, 동적 검색, projection, 운영자 리포트성 조회는 QueryDSL query port로 분리한다.
 - 컨트롤러 request/response를 내부 private workflow까지 끌고 가지 않는다.
 - input/result 모델은 required/provided port 파일에 함께 두지 않는다.
 - input/result/request/approval 모델은 도메인 루트 패키지의 `{Action}Models.kt` 파일에 둔다.

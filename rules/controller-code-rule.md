@@ -109,7 +109,7 @@ fun <T> created(data: T): ResponseEntity<ApiResponse<T>> =
 - use case는 계속 `{Action}Result`, `{Projection}QueryResult`를 반환한다.
 - API 응답이 Result와 필드/이름/중첩 구조가 1:1이면 별도 `Response` DTO와 `toResponse()` 확장 함수를 만들지 않는다.
 - 1:1 결과는 컨트롤러에서 `ApiResponse.success(result)`, `ok(result)`, `created(result)`처럼 바로 감싼다.
-- 컨트롤러 반환 타입도 `ApiResponse<MemberResult>`, `ApiResponse<OrderListResponse>`, `ResponseEntity<ApiResponse<ProductResponse>>`처럼 구체적으로 작성한다.
+- 컨트롤러 반환 타입도 `ApiResponse<MemberResult>`, `ApiResponse<OrderPageResult>`, `ResponseEntity<ApiResponse<ProductResponse>>`처럼 구체적으로 작성한다.
 - 목록 wrapper 필드명은 응답 의미를 드러내는 복수형을 쓴다. 예: `members`, `orders`, `coupons`, `histories`, `products`.
 - paginated wrapper는 도메인별 복수형 대신 공통 `items`를 사용한다. 예: `ProductPageResponse(items, page, size, totalElements, totalPages, hasNext)`.
 - 여러 Result를 조합하거나 API 전용 파생 필드를 추가할 때만 별도 Response DTO로 분리한다.

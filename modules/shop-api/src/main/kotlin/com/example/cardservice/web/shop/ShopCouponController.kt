@@ -1,10 +1,9 @@
 package com.example.cardservice.web.shop
 
 import com.example.cardservice.application.commerce.CouponHistoryPageResult
-import com.example.cardservice.application.commerce.CouponPageQuery
 import com.example.cardservice.application.commerce.CouponPageResult
 import com.example.cardservice.application.commerce.CouponWalletResult
-import com.example.cardservice.application.commerce.MemberCouponHistoryPageQuery
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
 import com.example.cardservice.web.common.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -29,7 +28,7 @@ class ShopCouponController(
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
     ): ApiResponse<CouponPageResult> =
-        ApiResponse.success(couponQueryUseCase.listCoupons(CouponPageQuery(memberId, page, size, sort)))
+        ApiResponse.success(couponQueryUseCase.listCoupons(memberId, Pagination(page, size, sort)))
 
     @GetMapping("/coupon-histories")
     @Operation(summary = "쇼핑몰 회원 쿠폰 히스토리 조회")
@@ -40,7 +39,7 @@ class ShopCouponController(
         @RequestParam(defaultValue = "id,desc") sort: String,
     ): ApiResponse<CouponHistoryPageResult> =
         ApiResponse.success(
-            couponQueryUseCase.listMemberCouponHistories(MemberCouponHistoryPageQuery(memberId, page, size, sort)),
+            couponQueryUseCase.listMemberCouponHistories(memberId, Pagination(page, size, sort)),
         )
 
     @GetMapping("/coupon-wallet")

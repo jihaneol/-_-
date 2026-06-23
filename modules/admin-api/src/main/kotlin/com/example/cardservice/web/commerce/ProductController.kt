@@ -1,8 +1,10 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateProductInput
 import com.example.cardservice.application.commerce.UpdateProductInput
-import com.example.cardservice.application.commerce.response.ProductListResponse
+import com.example.cardservice.application.commerce.response.ProductPageResponse
 import com.example.cardservice.application.commerce.response.ProductResponse
 import com.example.cardservice.application.commerce.request.ProductCreateRequest
 import com.example.cardservice.application.commerce.request.ProductUpdateRequest
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -37,8 +40,12 @@ class ProductController(
 
     @GetMapping
     @Operation(summary = "상품 목록 조회")
-    fun listProducts(): ApiResponse<ProductListResponse> =
-        ApiResponse.success(ProductListResponse(productQueryUseCase.listProducts().map { it.toResponse() }))
+    fun listProducts(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
+        @RequestParam(defaultValue = "id,desc") sort: String,
+    ): ApiResponse<ProductPageResponse> =
+        ApiResponse.success(productQueryUseCase.listProducts(Pagination(page, size, sort)).toResponse())
 
     @GetMapping("/{productId}")
     @Operation(summary = "상품 상세 조회")

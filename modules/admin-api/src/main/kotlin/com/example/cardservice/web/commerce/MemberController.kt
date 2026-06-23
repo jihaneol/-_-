@@ -1,12 +1,14 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateMemberInput
+import com.example.cardservice.application.commerce.MemberPageResult
 import com.example.cardservice.application.commerce.MemberResult
 import com.example.cardservice.application.commerce.UpdateMemberInput
 import com.example.cardservice.application.commerce.request.MemberRequest
 import com.example.cardservice.application.commerce.required.MemberQueryUseCase
 import com.example.cardservice.application.commerce.required.MemberUseCase
-import com.example.cardservice.application.commerce.response.MemberListResponse
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.created
 import io.swagger.v3.oas.annotations.Operation
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -35,8 +38,12 @@ class MemberController(
 
     @GetMapping
     @Operation(summary = "회원 목록 조회")
-    fun listMembers(): ApiResponse<MemberListResponse> =
-        ApiResponse.success(MemberListResponse(memberQueryUseCase.listMembers()))
+    fun listMembers(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
+        @RequestParam(defaultValue = "id,desc") sort: String,
+    ): ApiResponse<MemberPageResult> =
+        ApiResponse.success(memberQueryUseCase.listMembers(Pagination(page, size, sort)))
 
     @GetMapping("/{memberId}")
     @Operation(summary = "회원 상세 조회")

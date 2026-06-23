@@ -7,10 +7,10 @@ import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.application.commerce.provided.InventoryRepository
 import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
 import com.example.cardservice.application.payment.provided.PaymentRepository
-import com.example.cardservice.domain.commerce.model.CommerceOrder
-import com.example.cardservice.domain.commerce.model.Coupon
-import com.example.cardservice.domain.commerce.model.CouponHistory
-import com.example.cardservice.domain.commerce.model.OrderStatus
+import com.example.cardservice.domain.commerce.model.order.CommerceOrder
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistory
+import com.example.cardservice.domain.commerce.model.order.OrderStatus
 import com.example.cardservice.domain.payment.model.IdempotencyKey
 import com.example.cardservice.domain.payment.model.MerchantId
 import com.example.cardservice.domain.payment.model.OrderId

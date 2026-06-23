@@ -5,8 +5,8 @@ import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.application.commerce.provided.MemberRepository
 import com.example.cardservice.application.commerce.provided.ProductRepository
 import com.example.cardservice.application.commerce.required.DashboardQueryUseCase
-import com.example.cardservice.domain.commerce.model.CouponStatus
-import com.example.cardservice.domain.commerce.model.OrderStatus
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
+import com.example.cardservice.domain.commerce.model.order.OrderStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

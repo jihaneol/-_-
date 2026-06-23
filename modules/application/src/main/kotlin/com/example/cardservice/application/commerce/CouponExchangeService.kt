@@ -7,11 +7,11 @@ import com.example.cardservice.application.commerce.provided.InventoryRepository
 import com.example.cardservice.application.commerce.provided.MemberRepository
 import com.example.cardservice.application.commerce.provided.ProductRepository
 import com.example.cardservice.application.commerce.required.CouponExchangeUseCase
-import com.example.cardservice.domain.commerce.model.Coupon
-import com.example.cardservice.domain.commerce.model.CouponHistory
-import com.example.cardservice.domain.commerce.model.CouponStatus
-import com.example.cardservice.domain.commerce.model.Product
-import com.example.cardservice.domain.commerce.model.ProductSaleStatus
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistory
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
+import com.example.cardservice.domain.commerce.model.product.Product
+import com.example.cardservice.domain.commerce.model.product.ProductSaleStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
