@@ -12,6 +12,8 @@ data class ProductResponse(
     val exchangeEligible: Boolean,
 )
 
+data class ProductListResponse(val products: List<ProductResponse>)
+
 fun ProductResult.toResponse(): ProductResponse =
     ProductResponse(
         id = id,

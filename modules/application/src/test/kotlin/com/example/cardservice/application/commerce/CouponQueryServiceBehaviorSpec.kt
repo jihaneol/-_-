@@ -1,6 +1,7 @@
 package com.example.cardservice.application.commerce
 
 import com.example.cardservice.application.commerce.provided.CouponHistoryRepository
+import com.example.cardservice.application.commerce.provided.CouponQueryPort
 import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.domain.commerce.model.Coupon
 import com.example.cardservice.domain.commerce.model.CouponHistory
@@ -15,9 +16,11 @@ class CouponQueryServiceBehaviorSpec : BehaviorSpec({
     given("coupons and immutable histories") {
         val couponRepository = mockk<CouponRepository>()
         val couponHistoryRepository = mockk<CouponHistoryRepository>()
+        val couponQueryPort = mockk<CouponQueryPort>(relaxed = true)
         val service = CouponQueryService(
             couponRepository = couponRepository,
             couponHistoryRepository = couponHistoryRepository,
+            couponQueryPort = couponQueryPort,
         )
         val issuedCoupon = Coupon.issue(memberId = 3L, orderId = 7L, paymentId = 9L).also { assignQueryTestId(it, 1L) }
         val exchangedCoupon = Coupon.issue(memberId = 3L, orderId = 7L, paymentId = 9L).also {

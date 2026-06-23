@@ -1,9 +1,9 @@
 package com.example.cardservice.web.shop
 
 import com.example.cardservice.application.commerce.PayOrderInput
+import com.example.cardservice.application.commerce.PayOrderResult
 import com.example.cardservice.application.commerce.request.PayOrderRequest
 import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
-import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -24,6 +24,6 @@ class ShopOrderPaymentController(
     fun payOrder(
         @PathVariable orderId: Long,
         @RequestBody request: PayOrderRequest,
-    ): ApiResponse<Any> =
-        ApiResponse.success(orderPaymentUseCase.payOrder(orderId, PayOrderInput(request.idempotencyKey)).toResponse())
+    ): ApiResponse<PayOrderResult> =
+        ApiResponse.success(orderPaymentUseCase.payOrder(orderId, PayOrderInput(request.idempotencyKey)))
 }

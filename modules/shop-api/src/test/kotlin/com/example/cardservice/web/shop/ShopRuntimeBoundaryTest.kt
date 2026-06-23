@@ -1,7 +1,13 @@
 package com.example.cardservice.web.shop
 
 import com.example.cardservice.application.commerce.MemberResult
+import com.example.cardservice.application.commerce.CouponHistoryPageResult
+import com.example.cardservice.application.commerce.CouponHistoryResult
+import com.example.cardservice.application.commerce.CouponPageQuery
+import com.example.cardservice.application.commerce.CouponPageResult
+import com.example.cardservice.application.commerce.CouponResult
 import com.example.cardservice.application.commerce.CouponWalletResult
+import com.example.cardservice.application.commerce.MemberCouponHistoryPageQuery
 import com.example.cardservice.application.commerce.ProductResult
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
 import com.example.cardservice.application.commerce.required.MemberUseCase
@@ -9,6 +15,8 @@ import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
 import com.example.cardservice.application.commerce.required.OrderQueryUseCase
 import com.example.cardservice.application.commerce.required.OrderUseCase
 import com.example.cardservice.application.commerce.required.ProductQueryUseCase
+import com.example.cardservice.domain.commerce.model.CouponHistoryType
+import com.example.cardservice.domain.commerce.model.CouponStatus
 import com.example.cardservice.domain.commerce.model.ProductSaleStatus
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -98,6 +106,50 @@ class ShopRuntimeBoundaryTest {
     }
 
     @Test
+    fun `shop runtime exposes paginated customer coupons`() {
+        given(couponQueryUseCase.listCoupons(CouponPageQuery(1L, 0, 20, "id,desc"))).willReturn(
+            CouponPageResult(
+                items = listOf(CouponResult(10L, 1L, 7L, 9L, CouponStatus.ISSUED)),
+                page = 0,
+                size = 20,
+                totalElements = 1L,
+                totalPages = 1,
+                hasNext = false,
+            ),
+        )
+
+        mockMvc.get("/api/shop/members/1/coupons")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.data.items[0].status") { value("ISSUED") }
+                jsonPath("$.data.totalElements") { value(1) }
+                jsonPath("$.data.hasNext") { value(false) }
+            }
+    }
+
+    @Test
+    fun `shop runtime exposes paginated customer coupon histories`() {
+        given(couponQueryUseCase.listMemberCouponHistories(MemberCouponHistoryPageQuery(1L, 0, 20, "id,desc"))).willReturn(
+            CouponHistoryPageResult(
+                items = listOf(CouponHistoryResult(20L, 10L, 1L, 7L, 9L, CouponHistoryType.ISSUED)),
+                page = 0,
+                size = 20,
+                totalElements = 1L,
+                totalPages = 1,
+                hasNext = false,
+            ),
+        )
+
+        mockMvc.get("/api/shop/members/1/coupon-histories")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.data.items[0].type") { value("ISSUED") }
+                jsonPath("$.data.page") { value(0) }
+                jsonPath("$.data.totalPages") { value(1) }
+            }
+    }
+
+    @Test
     fun `shop runtime product list exposes customer-safe coupon metadata`() {
         given(productQueryUseCase.listProducts()).willReturn(
             listOf(
@@ -109,10 +161,10 @@ class ShopRuntimeBoundaryTest {
         mockMvc.get("/api/shop/products")
             .andExpect {
                 status { isOk() }
-                jsonPath("$.data[0].couponAccrualCount") { value(2) }
-                jsonPath("$.data[0].exchangeEligible") { value(false) }
-                jsonPath("$.data[1].couponAccrualCount") { value(1) }
-                jsonPath("$.data[1].exchangeEligible") { value(true) }
+                jsonPath("$.data.products[0].couponAccrualCount") { value(2) }
+                jsonPath("$.data.products[0].exchangeEligible") { value(false) }
+                jsonPath("$.data.products[1].couponAccrualCount") { value(1) }
+                jsonPath("$.data.products[1].exchangeEligible") { value(true) }
             }
     }
 }

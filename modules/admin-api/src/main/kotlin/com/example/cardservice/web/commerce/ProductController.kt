@@ -2,15 +2,17 @@ package com.example.cardservice.web.commerce
 
 import com.example.cardservice.application.commerce.CreateProductInput
 import com.example.cardservice.application.commerce.UpdateProductInput
+import com.example.cardservice.application.commerce.response.ProductListResponse
+import com.example.cardservice.application.commerce.response.ProductResponse
 import com.example.cardservice.application.commerce.request.ProductCreateRequest
 import com.example.cardservice.application.commerce.request.ProductUpdateRequest
 import com.example.cardservice.application.commerce.required.ProductQueryUseCase
 import com.example.cardservice.application.commerce.required.ProductUseCase
 import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.web.common.created
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,17 +32,17 @@ class ProductController(
 ) {
     @PostMapping
     @Operation(summary = "상품 생성")
-    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ApiResponse<Any>> =
+    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ApiResponse<ProductResponse>> =
         created(productUseCase.createProduct(CreateProductInput(request.name, request.price)).toResponse())
 
     @GetMapping
     @Operation(summary = "상품 목록 조회")
-    fun listProducts(): ApiResponse<Any> =
-        ApiResponse.success(productQueryUseCase.listProducts().map { it.toResponse() })
+    fun listProducts(): ApiResponse<ProductListResponse> =
+        ApiResponse.success(ProductListResponse(productQueryUseCase.listProducts().map { it.toResponse() }))
 
     @GetMapping("/{productId}")
     @Operation(summary = "상품 상세 조회")
-    fun getProduct(@PathVariable productId: Long): ApiResponse<Any> =
+    fun getProduct(@PathVariable productId: Long): ApiResponse<ProductResponse> =
         ApiResponse.success(productQueryUseCase.getProduct(productId).toResponse())
 
     @PatchMapping("/{productId}")
@@ -48,7 +50,7 @@ class ProductController(
     fun updateProduct(
         @PathVariable productId: Long,
         @RequestBody request: ProductUpdateRequest,
-    ): ApiResponse<Any> =
+    ): ApiResponse<ProductResponse> =
         ApiResponse.success(productUseCase.updateProduct(productId, UpdateProductInput(request.name, request.price, request.saleStatus)).toResponse())
 
     @DeleteMapping("/{productId}")
@@ -57,7 +59,4 @@ class ProductController(
         productUseCase.deleteProduct(productId)
         return ResponseEntity.noContent().build()
     }
-
-    private fun created(data: Any): ResponseEntity<ApiResponse<Any>> =
-        ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))
 }

@@ -1,5 +1,7 @@
 package com.example.cardservice.web.shop
 
+import com.example.cardservice.application.commerce.response.ProductResponse
+import com.example.cardservice.application.commerce.response.ProductListResponse
 import com.example.cardservice.application.commerce.required.ProductQueryUseCase
 import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
@@ -18,11 +20,11 @@ class ShopProductController(
 ) {
     @GetMapping
     @Operation(summary = "판매 상품 목록 조회")
-    fun listProducts(): ApiResponse<Any> =
-        ApiResponse.success(productQueryUseCase.listProducts().map { it.toResponse() })
+    fun listProducts(): ApiResponse<ProductListResponse> =
+        ApiResponse.success(ProductListResponse(productQueryUseCase.listProducts().map { it.toResponse() }))
 
     @GetMapping("/{productId}")
     @Operation(summary = "판매 상품 상세 조회")
-    fun getProduct(@PathVariable productId: Long): ApiResponse<Any> =
+    fun getProduct(@PathVariable productId: Long): ApiResponse<ProductResponse> =
         ApiResponse.success(productQueryUseCase.getProduct(productId).toResponse())
 }

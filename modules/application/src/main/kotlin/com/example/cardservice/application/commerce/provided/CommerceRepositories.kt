@@ -6,6 +6,11 @@ import com.example.cardservice.domain.commerce.model.CouponHistory
 import com.example.cardservice.domain.commerce.model.Inventory
 import com.example.cardservice.domain.commerce.model.Member
 import com.example.cardservice.domain.commerce.model.Product
+import com.example.cardservice.application.commerce.CouponHistoryPageResult
+import com.example.cardservice.application.commerce.CouponPageQuery
+import com.example.cardservice.application.commerce.CouponPageResult
+import com.example.cardservice.application.commerce.MemberCouponHistoryPageQuery
+import com.example.cardservice.application.commerce.OrderCouponHistoryPageQuery
 import org.springframework.data.repository.Repository
 
 /**
@@ -78,4 +83,13 @@ interface CommerceLockPort {
     fun loadInventoryForUpdate(productId: Long): Inventory?
     fun loadCouponForUpdate(couponId: Long): Coupon?
     fun loadIssuedCouponsForExchange(memberId: Long, limit: Int): List<Coupon>
+}
+
+/**
+ * 쿠폰과 쿠폰 히스토리 목록 조회를 QueryDSL read model로 수행하기 위해 application query service가 호출하는 outbound port다.
+ */
+interface CouponQueryPort {
+    fun searchCoupons(query: CouponPageQuery): CouponPageResult
+    fun searchMemberCouponHistories(query: MemberCouponHistoryPageQuery): CouponHistoryPageResult
+    fun searchOrderCouponHistories(query: OrderCouponHistoryPageQuery): CouponHistoryPageResult
 }

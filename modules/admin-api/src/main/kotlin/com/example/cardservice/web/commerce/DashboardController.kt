@@ -1,7 +1,7 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.commerce.CommerceDashboardSummaryResult
 import com.example.cardservice.application.commerce.required.DashboardQueryUseCase
-import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -17,6 +17,6 @@ class DashboardController(
 ) {
     @GetMapping("/summary")
     @Operation(summary = "커머스 운영 요약 조회")
-    fun getSummary(): ApiResponse<Any> =
-        ApiResponse.success(dashboardQueryUseCase.getSummary().toResponse())
+    fun getSummary(): ApiResponse<CommerceDashboardSummaryResult> =
+        ApiResponse.success(dashboardQueryUseCase.getSummary())
 }

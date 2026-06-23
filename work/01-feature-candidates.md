@@ -30,6 +30,16 @@
 - UI impact: none.
 - Tests: documentation review plus existing backend/frontend gates.
 
+## Paginated Query CQRS
+
+- Value: Operator and shop list screens remain stable as members, products, orders, coupons, and histories grow beyond demo data.
+- Scope: Convert unbounded list query endpoints to `{Feature}PageQuery`/`{Feature}PageResult`, implement QueryDSL-backed query ports/adapters, return `{Feature}PageResponse` objects with `items` and page metadata, and update frontend query state.
+- Risks: Migrating all lists at once can break UI flows and tests. Start with coupon/coupon-history lists, then members/products/orders.
+- Excluded: cursor-based infinite scroll, server-side full-text search, export/download APIs, and replacing command persistence adapters.
+- API impact: collection routes add `page`, `size`, `sort`; response `data` becomes `{ items, page, size, totalElements, totalPages, hasNext }`.
+- UI impact: admin tables and shop catalog keep page state, render pager/load-more controls, and include page/filter values in TanStack Query keys.
+- Tests: controller contract tests for page shape, QueryDSL adapter integration tests for limit/offset/count/sort, frontend MSW tests for pager behavior.
+
 ## Shop Ecommerce UX Pass
 
 - Value: The customer-facing shop should feel like a normal ecommerce storefront, not a coupon-feature demo page.

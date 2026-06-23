@@ -155,7 +155,7 @@ Application use case
 - Domain value object accessors may be computed properties because JPA field access is explicit; do not add `@get:Transient`.
 - Cross-domain pure domain logic lives under `modules/domain/src/main/kotlin/com/example/cardservice/domain/domainservice`.
 - `application` depends on `domain`; it owns required/provided ports and use case services.
-- `application` owns request/response models used by inbound adapters.
+- `application` owns request models used by inbound adapters, use case result models, and response models only when the public API shape differs from the result.
 - `admin-api` owns operator HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
 - `shop-api` owns customer HTTP routing, request validation wiring, Swagger/OpenAPI annotations, global HTTP error handling, and runtime assembly.
 - `batch` owns scheduled/batch inbound adapters and delegates work to application use cases.
@@ -163,7 +163,8 @@ Application use case
 - `external` depends inward on `application` and `domain`; it owns external-system clients, message adapters, and broker details.
 - `admin-api` and `shop-api` are the executable Spring Boot HTTP modules.
 - Web DTOs must not leak into use cases or domain objects.
-- Controller request/response models live under `application/{domain}/request` and `application/{domain}/response`.
+- Controller request models live under `application/{domain}/request`.
+- Controller response models live under `application/{domain}/response` only when the public API shape differs from the use case result; otherwise controllers wrap the result directly.
 - Controllers, services, request models, and response models are split by feature responsibility when a domain has multiple operator workflows.
 - Commerce is split into member, product, inventory, order, order payment, and coupon query responsibilities instead of one large controller/service/DTO file.
 - JPA entities are the domain model in this project. Keep QueryDSL and persistence adapter technology in `infra`.

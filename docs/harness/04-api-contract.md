@@ -96,6 +96,28 @@ The response is a customer-safe summary. It does not expose consistency report r
 
 New routes must be classified as admin or shop before implementation. Ambiguous routes stay out of scope until clarified.
 
+## Pagination Rule
+
+All collection routes that can grow over time must use QueryDSL-backed pagination. Member, product, order, coupon, and coupon-history lists must return a page object instead of an unbounded array.
+
+Standard response:
+
+```json
+{
+  "code": "SUCCESS",
+  "data": {
+    "items": [],
+    "page": 0,
+    "size": 20,
+    "totalElements": 0,
+    "totalPages": 0,
+    "hasNext": false
+  }
+}
+```
+
+Backend implementation belongs on the query side: query use case, query port, QueryDSL adapter, projection/page result.
+
 ## Core Payment Route
 
 ```http

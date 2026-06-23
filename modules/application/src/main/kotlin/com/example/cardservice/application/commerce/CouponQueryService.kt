@@ -1,6 +1,7 @@
 package com.example.cardservice.application.commerce
 
 import com.example.cardservice.application.commerce.provided.CouponHistoryRepository
+import com.example.cardservice.application.commerce.provided.CouponQueryPort
 import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
 import com.example.cardservice.domain.commerce.model.Coupon
@@ -17,18 +18,19 @@ import org.springframework.transaction.annotation.Transactional
 class CouponQueryService(
     private val couponRepository: CouponRepository,
     private val couponHistoryRepository: CouponHistoryRepository,
+    private val couponQueryPort: CouponQueryPort,
 ) : CouponQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listCoupons(memberId: Long): List<CouponResult> =
-        couponRepository.findAllByMemberId(memberId).map { it.toResult() }
+    override fun listCoupons(query: CouponPageQuery): CouponPageResult =
+        couponQueryPort.searchCoupons(query)
 
     @Transactional(readOnly = true)
-    override fun listMemberCouponHistories(memberId: Long): List<CouponHistoryResult> =
-        couponHistoryRepository.findAllByMemberId(memberId).map { it.toResult() }
+    override fun listMemberCouponHistories(query: MemberCouponHistoryPageQuery): CouponHistoryPageResult =
+        couponQueryPort.searchMemberCouponHistories(query)
 
     @Transactional(readOnly = true)
-    override fun listOrderCouponHistories(orderId: Long): List<CouponHistoryResult> =
-        couponHistoryRepository.findAllByOrderId(orderId).map { it.toResult() }
+    override fun listOrderCouponHistories(query: OrderCouponHistoryPageQuery): CouponHistoryPageResult =
+        couponQueryPort.searchOrderCouponHistories(query)
 
     @Transactional(readOnly = true)
     override fun getCouponWallet(memberId: Long): CouponWalletResult {

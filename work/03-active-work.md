@@ -93,7 +93,7 @@ Run the project through explicit loops until the harness done criteria are met. 
 - Backend: keep wallet and consistency report aligned with issue, void, and exchange histories.
 - Frontend: my page, admin member screen, exchange panel, and consistency report expose the same state vocabulary.
 - Tests: coupon wallet, exchange approval, consistency report, and admin UI exchange flow.
-- Status: pending.
+- Status: completed.
 
 ### Final Loop - Portfolio Proof
 
@@ -101,4 +101,21 @@ Run the project through explicit loops until the harness done criteria are met. 
 - Backend/frontend: run the full validation gate and record the result.
 - Browser: verify admin and shop on desktop/mobile with no overflow or admin leakage.
 - Docs: README, harness dev log, and change log include setup, hard parts, proof commands, and remaining scope.
-- Status: pending.
+- Status: completed.
+
+## Backend Phase Cleanup
+
+- Status: completed.
+- Removed stale backend phases 001-005 from active execution.
+- Archived phase 001 and 004 as superseded by the commerce order payment duplicate-protection flow.
+- Archived phase 002 and 003 as deferred payment-ledger backlog.
+- Archived phase 005 as completed commerce coupon MVP.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`.
+
+## Planned: Paginated Query CQRS
+
+- Problem: collection endpoints currently behave like "all" reads, but member/product/order/coupon/history data can grow without a stable upper bound.
+- Backend direction: convert list query use cases to `{Feature}PageQuery` and `{Feature}PageResult`, backed by QueryDSL read adapters in `infra`.
+- API direction: collection responses return `data.items` plus `page`, `size`, `totalElements`, `totalPages`, and `hasNext`.
+- Frontend direction: TanStack Query keys include page/size/sort/filter state; admin tables and shop catalog render pagination controls and never fetch unbounded lists.
+- Rollout: start with coupon and coupon-history lists because they grow fastest through payment/refund/exchange flows, then migrate members/products/orders.

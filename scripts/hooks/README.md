@@ -22,6 +22,30 @@ The lane validation hooks run `scripts/hooks/enforce_tdd.py --lane <backend|fron
 
 The guard fails when production source files change without an active phase, without a `Test First` plan or explicit `TDD Exception`, or without any test file change. If a feature or fix has no test yet, stop and add or update the test first.
 
+## Harness Audit
+
+The lane validation hooks run a broad harness audit before expensive tests:
+
+```bash
+python3 scripts/hooks/audit_harness.py --lane backend --changed-only
+python3 scripts/hooks/audit_harness.py --lane frontend --changed-only
+```
+
+This audit checks the large failure modes only: current/active phase state, completed phase archive records, accepted validation status, and obvious simple `Result.toResponse()` copy mappers in changed Kotlin files.
+
+Before final handoff, run the stricter state check:
+
+```bash
+python3 scripts/hooks/audit_harness.py --lane backend --strict-state
+python3 scripts/hooks/audit_harness.py --lane frontend --strict-state
+```
+
+To scan existing response mappers as a one-off cleanup check:
+
+```bash
+python3 scripts/hooks/audit_harness.py --lane backend --all-response-mappers
+```
+
 ## Dangerous Command Guard
 
 `scripts/hooks/guard_command.py` blocks known destructive commands before workflow execution, including hard resets, forced cleans, recursive removes, sudo, raw disk writes, filesystem formatting, broad process kills, and downloaded script execution.

@@ -40,6 +40,7 @@
 ## Current Completion Evidence
 
 - Backend application and API tests cover payment idempotency, refund, coupon exchange, coupon consistency, and shop boundary behavior.
+- Backend phase tracker has no active stale phase: phases 001-005 were archived on 2026-06-20 as superseded, deferred backlog, or completed.
 - Frontend tests cover admin navigation, shop navigation, pages 05-12, purchase, payment, and coupon wallet refresh.
 - README now includes the one-command local stack, workflows, hard parts, and validation commands.
 - Record final verification and remaining risks.

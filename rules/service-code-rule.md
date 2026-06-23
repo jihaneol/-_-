@@ -42,9 +42,14 @@ modules/application/src/main/kotlin/com/example/cardservice/application/{domain}
 - 변경 흐름 결과는 `{Action}Result`를 사용한다.
 - 조회 흐름 입력은 `{Action}Query`를 사용한다.
 - 조회 흐름 결과는 `{Action}QueryResult` 또는 `{Projection}QueryResult`를 사용한다.
+- 목록 조회 입력은 `{Feature}PageQuery`를 사용하고 `page`, `size`, `sort`를 포함한다.
+- 목록 조회 결과는 `{Feature}PageResult`를 사용하고 `items`, `page`, `size`, `totalElements`, `totalPages`, `hasNext`를 포함한다.
+- 목록 조회 use case/port는 `List<T>`를 직접 반환하지 않는다. pagination이 필요 없는 예외는 상한과 이유를 API 계약에 남긴다.
 - 컨트롤러 request/response를 내부 private workflow까지 끌고 가지 않는다.
 - input/result 모델은 required/provided port 파일에 함께 두지 않는다.
 - input/result/request/approval 모델은 도메인 루트 패키지의 `{Action}Models.kt` 파일에 둔다.
+- Result는 use case 경계 모델이다. API 응답과 1:1이면 컨트롤러에서 Result를 그대로 감싸고, 단순 복사용 response DTO와 `toResponse()`는 만들지 않는다.
+- API 응답 모양이 Result와 다를 때만 response DTO와 명시적 mapper를 둔다.
 
 ```text
 AuthorizePaymentInput

@@ -1,40 +1,81 @@
 {
-  "current_phase": null,
+  "current_phase": "phase-007-paginated-query-cqrs.md",
   "phases": {
     "phase-001-idempotency-lookup.md": {
-      "status": "pending",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
+      "completed_at": "2026-06-19T18:04:27+00:00",
+      "last_validation": {
+        "status": "superseded",
+        "at": "2026-06-19T18:04:27+00:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test"
+        ]
+      },
+      "last_checkpoint": "Archived as superseded by commerce order payment idempotency.",
+      "archive_path": "workflow/backend/archive/2026-06-20/phase-001-idempotency-lookup.md",
+      "reviewed_at": "2026-06-19T18:04:27+00:00",
+      "review_note": "Standalone authorization idempotency phase removed from active work; commerce order payment path is the current workflow."
     },
     "phase-002-payment-ledger-domain.md": {
-      "status": "pending",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
+      "completed_at": "2026-06-19T18:04:27+00:00",
+      "last_validation": {
+        "status": "deferred-backlog",
+        "at": "2026-06-19T18:04:27+00:00",
+        "commands": []
+      },
+      "last_checkpoint": "Archived as deferred backlog; coupon histories are the MVP immutable records.",
+      "archive_path": "workflow/backend/archive/2026-06-20/phase-002-payment-ledger-domain.md",
+      "reviewed_at": "2026-06-19T18:04:27+00:00",
+      "review_note": "Dedicated payment ledger is not part of the active coupon exchange/shop MVP."
     },
     "phase-003-ledger-append-port.md": {
-      "status": "pending",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
+      "completed_at": "2026-06-19T18:04:27+00:00",
+      "last_validation": {
+        "status": "deferred-backlog",
+        "at": "2026-06-19T18:04:27+00:00",
+        "commands": []
+      },
+      "last_checkpoint": "Archived as deferred backlog with the dedicated payment ledger phase.",
+      "archive_path": "workflow/backend/archive/2026-06-20/phase-003-ledger-append-port.md",
+      "reviewed_at": "2026-06-19T18:04:27+00:00",
+      "review_note": "Ledger append port depends on a later dedicated payment ledger slice."
     },
     "phase-004-coupon-order-duplicate-flow.md": {
-      "status": "pending",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
+      "completed_at": "2026-06-19T18:04:27+00:00",
+      "last_validation": {
+        "status": "superseded",
+        "at": "2026-06-19T18:04:27+00:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test"
+        ]
+      },
+      "last_checkpoint": "Archived as superseded by commerce order payment duplicate side-effect prevention.",
+      "archive_path": "workflow/backend/archive/2026-06-20/phase-004-coupon-order-duplicate-flow.md",
+      "reviewed_at": "2026-06-19T18:04:27+00:00",
+      "review_note": "Legacy coupon-order duplicate flow is no longer the active portfolio workflow."
     },
     "phase-005-commerce-order-coupon-mvp.md": {
-      "status": "pending",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null
+      "completed_at": "2026-06-19T18:04:27+00:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-19T18:04:27+00:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test"
+        ]
+      },
+      "last_checkpoint": "Archived as completed MVP.",
+      "archive_path": "workflow/backend/archive/2026-06-20/phase-005-commerce-order-coupon-mvp.md",
+      "reviewed_at": "2026-06-19T18:04:27+00:00",
+      "review_note": "Commerce coupon MVP is complete and no longer active."
     },
     "phase-006-admin-shop-api-runtime-split.md": {
       "status": "completed",
@@ -51,6 +92,73 @@
       "archive_path": "workflow/backend/archive/2026-06-19/phase-006-admin-shop-api-runtime-split.md",
       "reviewed_at": "2026-06-19T14:10:00+00:00",
       "review_note": "admin/shop runtime boundary verified on main integration; Gradle test passed"
+    },
+    "phase-007-paginated-query-cqrs.md": {
+      "status": "in_progress",
+      "started_at": "2026-06-23T14:29:52+00:00",
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null,
+      "baseline_dirty_files": [
+        "docs/frontend-harness/03-api-state-contract.md",
+        "docs/harness/04-api-contract.md",
+        "docs/harness/07-week-plan.md",
+        "docs/harness/09-dev-log.md",
+        "docs/how/00-architecture.md",
+        "docs/how/02-api-contract.md",
+        "docs/how/05-api-state-contract.md",
+        "docs/what/02-roadmap.md",
+        "frontend/src/app/App.test.tsx",
+        "frontend/src/entities/commerce/api.ts",
+        "frontend/src/entities/commerce/types.ts",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/CouponController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/DashboardController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/InventoryController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/MemberController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/OrderController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/OrderPaymentController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/commerce/ProductController.kt",
+        "modules/admin-api/src/main/kotlin/com/example/cardservice/web/common/ApiResponse.kt",
+        "modules/admin-api/src/test/kotlin/com/example/cardservice/web/commerce/CommerceFlowIntegrationTest.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/CouponResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/DashboardResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/InventoryResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/MemberResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/OrderPaymentResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/OrderResponses.kt",
+        "modules/application/src/main/kotlin/com/example/cardservice/application/commerce/response/ProductResponses.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/common/ApiResponse.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/shop/ShopCouponController.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/shop/ShopMemberController.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/shop/ShopOrderController.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/shop/ShopOrderPaymentController.kt",
+        "modules/shop-api/src/main/kotlin/com/example/cardservice/web/shop/ShopProductController.kt",
+        "modules/shop-api/src/test/kotlin/com/example/cardservice/web/shop/ShopRuntimeBoundaryTest.kt",
+        "rules/backend-architecture.md",
+        "rules/controller-code-rule.md",
+        "rules/naming-rule.md",
+        "rules/service-code-rule.md",
+        "scripts/hooks/README.md",
+        "scripts/hooks/validate_backend.sh",
+        "scripts/hooks/validate_frontend.sh",
+        "work/00-inbox.md",
+        "work/01-feature-candidates.md",
+        "work/02-prioritized-roadmap.md",
+        "work/03-active-work.md",
+        "workflow/backend/phases/phase-001-idempotency-lookup.md",
+        "workflow/backend/phases/phase-002-payment-ledger-domain.md",
+        "workflow/backend/phases/phase-003-ledger-append-port.md",
+        "workflow/backend/phases/phase-004-coupon-order-duplicate-flow.md",
+        "workflow/backend/phases/phase-005-commerce-order-coupon-mvp.md",
+        "workflow/backend/state/execute-state.json",
+        "workflow/backend/state/run-state.md",
+        "workflow/frontend/state/execute-state.json",
+        "scripts/hooks/audit_harness.py",
+        "workflow/backend/archive/2026-06-20/",
+        "workflow/backend/phases/phase-007-paginated-query-cqrs.md",
+        "workflow/features/paginated-query-cqrs.md",
+        "workflow/frontend/phases/phase-015-paginated-query-ui.md"
+      ]
     }
   }
 }

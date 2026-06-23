@@ -115,6 +115,11 @@ bootstrap web request
 
 - 조회는 QueryDSL을 기본 조회 기술로 사용한다.
 - 목록, 검색, 운영자 대시보드, 정산/대사 리포트는 projection/read model을 반환한다.
+- 개수가 커질 수 있는 목록 조회는 QueryDSL 기반 pagination을 기본값으로 한다.
+- `All`, `listAll`, top-level 전체 배열 조회는 금지한다. 참조 데이터처럼 작고 상한이 명확한 경우만 예외로 허용하고, 그 상한을 문서화한다.
+- 목록 query는 `page`, `size`, `sort` 또는 cursor 조건을 입력으로 받고, total count가 필요한 운영 화면은 `totalElements`, `totalPages`, `hasNext`를 함께 반환한다.
+- page size는 API 기본값과 최대값을 둔다. 기본 `20`, 최대 `100`을 우선 기준으로 사용한다.
+- query port는 Spring Data `Page`를 그대로 노출하지 않고 application query result/projection으로 변환한다.
 - query side는 도메인 aggregate를 변경하지 않는다.
 - query side에서 command aggregate를 억지로 조립하지 않는다.
 - 단순 ID 단건 조회라도 화면/리포트 응답이면 query port를 통해 반환한다.
@@ -180,10 +185,12 @@ PaymentEventPublisherAdapter
 핵심 기준:
 
 ```text
-bootstrap web adapter -> application request/response -> application use case
+bootstrap web adapter -> application request/result/response -> application use case
 ```
 
-`request`, `response` 모델은 `application` 모듈의 별도 패키지에 둔다.
+`request` 모델은 `application` 모듈의 별도 패키지에 둔다.
+API 응답이 use case result와 1:1이면 별도 response DTO 없이 Result를 그대로 감싼다.
+API 응답 모양이 result와 다를 때만 `response` 모델을 `application` 모듈의 별도 패키지에 둔다.
 
 ## Service Rule Link
 

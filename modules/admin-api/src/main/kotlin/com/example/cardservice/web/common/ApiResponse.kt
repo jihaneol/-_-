@@ -1,5 +1,8 @@
 package com.example.cardservice.web.common
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+
 data class ApiResponse<T>(
     val code: String,
     val message: String,
@@ -14,3 +17,9 @@ data class ApiResponse<T>(
             )
     }
 }
+
+fun <T> ok(data: T): ResponseEntity<ApiResponse<T>> =
+    ResponseEntity.ok(ApiResponse.success(data))
+
+fun <T> created(data: T): ResponseEntity<ApiResponse<T>> =
+    ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))

@@ -12,6 +12,7 @@
 
 ## Next
 
+- Paginated Query CQRS: migrate member/product/order/coupon/history collection reads to QueryDSL page results and update frontend pagination state.
 - Dedicated exchange order ledger if the operator needs a separate `EXC-*` order number beyond coupon histories.
 - Real product categories, drink option persistence, quick-order storage, and pickup scheduling APIs if the cafe ordering demo becomes a backend feature.
 - Screenshot capture set for README after final visual approval.

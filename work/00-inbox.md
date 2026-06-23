@@ -11,3 +11,8 @@
 - Request: Current shop frontend feels weak. Plan and implement improvements based on common ecommerce patterns while keeping the payment/coupon harness scope narrow.
 - Request: Research Starbucks kiosk, Mega Coffee kiosk/app, and general coffee shop ordering pages, then plan and implement frontend improvements through the harness.
 - Research notes: coffee ordering references emphasize category-first menu discovery, step-by-step options, quick order, pickup reservation, membership/coupon integration, language/accessibility support, and a persistent cart/payment summary.
+
+## 2026-06-23
+
+- Request: Replace unbounded list-style query endpoints with CQRS QueryDSL pagination. Collection responses such as member coupons and coupon histories must not assume "all" fits in memory or UI state.
+- Planning note: backend query use cases should accept page/size/sort query models, infra should use QueryDSL projections/page results, and frontend TanStack Query keys/UI controls should include pagination state.
