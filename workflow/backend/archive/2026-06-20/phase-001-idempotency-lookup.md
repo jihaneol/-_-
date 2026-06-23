@@ -1,5 +1,12 @@
 # Phase 001: Idempotency Lookup
 
+## Archive Decision
+
+- Archived at: 2026-06-20
+- Disposition: superseded by the commerce order payment idempotency flow.
+- Reason: the current presentable backend scope is order payment, coupon issuance, refund, exchange, wallet, and consistency reporting. `OrderPaymentFacade.payOrder` now checks `PaymentRepository.findByIdempotencyKeyValue` before side effects and has behavior coverage for duplicate payment requests. The older standalone `AuthorizePaymentService` slice is no longer the active workflow entrypoint.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`
+
 This phase adds the first idempotency read path before creating a new payment.
 
 ## Goal

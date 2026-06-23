@@ -1,6 +1,8 @@
 package com.example.cardservice.application.commerce.required
 
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateMemberInput
+import com.example.cardservice.application.commerce.MemberPageResult
 import com.example.cardservice.application.commerce.MemberResult
 import com.example.cardservice.application.commerce.UpdateMemberInput
 
@@ -17,6 +19,6 @@ interface MemberUseCase {
  * 회원 조회 요청을 application layer로 전달하는 inbound port다.
  */
 interface MemberQueryUseCase {
-    fun listMembers(): List<MemberResult>
+    fun listMembers(pagination: Pagination): MemberPageResult
     fun getMember(memberId: Long): MemberResult
 }

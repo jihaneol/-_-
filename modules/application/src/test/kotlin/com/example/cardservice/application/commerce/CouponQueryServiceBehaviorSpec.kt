@@ -1,11 +1,12 @@
 package com.example.cardservice.application.commerce
 
 import com.example.cardservice.application.commerce.provided.CouponHistoryRepository
+import com.example.cardservice.application.commerce.provided.CouponQueryPort
 import com.example.cardservice.application.commerce.provided.CouponRepository
-import com.example.cardservice.domain.commerce.model.Coupon
-import com.example.cardservice.domain.commerce.model.CouponHistory
-import com.example.cardservice.domain.commerce.model.CouponHistoryType
-import com.example.cardservice.domain.commerce.model.CouponStatus
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistory
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistoryType
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -15,9 +16,11 @@ class CouponQueryServiceBehaviorSpec : BehaviorSpec({
     given("coupons and immutable histories") {
         val couponRepository = mockk<CouponRepository>()
         val couponHistoryRepository = mockk<CouponHistoryRepository>()
+        val couponQueryPort = mockk<CouponQueryPort>(relaxed = true)
         val service = CouponQueryService(
             couponRepository = couponRepository,
             couponHistoryRepository = couponHistoryRepository,
+            couponQueryPort = couponQueryPort,
         )
         val issuedCoupon = Coupon.issue(memberId = 3L, orderId = 7L, paymentId = 9L).also { assignQueryTestId(it, 1L) }
         val exchangedCoupon = Coupon.issue(memberId = 3L, orderId = 7L, paymentId = 9L).also {

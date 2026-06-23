@@ -13,6 +13,11 @@
 
 ## 2026-06-20
 
+- Removed stale backend active phases 001-005 from `workflow/backend/phases`.
+- Archived phase 001 and 004 as superseded by the commerce order payment duplicate-protection flow.
+- Archived phase 002 and 003 as deferred payment-ledger backlog outside the current coupon exchange/shop MVP.
+- Archived phase 005 as completed commerce coupon MVP.
+- Updated backend execute state so no stale backend phase remains active.
 - Added admin coupon exchange approval for ten issued coupons and one 5,000 KRW product.
 - Added coupon exchange histories and coupon consistency report.
 - Added shop coupon wallet API under `/api/shop/**`.

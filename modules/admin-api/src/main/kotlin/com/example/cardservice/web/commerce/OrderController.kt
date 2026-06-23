@@ -1,15 +1,18 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateOrderInput
 import com.example.cardservice.application.commerce.CreateOrderLineInput
+import com.example.cardservice.application.commerce.OrderPageResult
+import com.example.cardservice.application.commerce.OrderResult
 import com.example.cardservice.application.commerce.request.OrderCreateRequest
 import com.example.cardservice.application.commerce.required.OrderQueryUseCase
 import com.example.cardservice.application.commerce.required.OrderUseCase
-import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.web.common.created
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -28,25 +32,29 @@ class OrderController(
 ) {
     @PostMapping
     @Operation(summary = "주문 생성")
-    fun createOrder(@RequestBody request: OrderCreateRequest): ResponseEntity<ApiResponse<Any>> =
+    fun createOrder(@RequestBody request: OrderCreateRequest): ResponseEntity<ApiResponse<OrderResult>> =
         created(
             orderUseCase.createOrder(
                 CreateOrderInput(
                     memberId = request.memberId,
                     lines = request.lines.map { CreateOrderLineInput(it.productId, it.quantity) },
                 ),
-            ).toResponse(),
+            ),
         )
 
     @GetMapping
     @Operation(summary = "주문 목록 조회")
-    fun listOrders(): ApiResponse<Any> =
-        ApiResponse.success(orderQueryUseCase.listOrders().map { it.toResponse() })
+    fun listOrders(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
+        @RequestParam(defaultValue = "id,desc") sort: String,
+    ): ApiResponse<OrderPageResult> =
+        ApiResponse.success(orderQueryUseCase.listOrders(Pagination(page, size, sort)))
 
     @GetMapping("/{orderId}")
     @Operation(summary = "주문 상세 조회")
-    fun getOrder(@PathVariable orderId: Long): ApiResponse<Any> =
-        ApiResponse.success(orderQueryUseCase.getOrder(orderId).toResponse())
+    fun getOrder(@PathVariable orderId: Long): ApiResponse<OrderResult> =
+        ApiResponse.success(orderQueryUseCase.getOrder(orderId))
 
     @DeleteMapping("/{orderId}")
     @Operation(summary = "주문 소프트 삭제")
@@ -57,9 +65,6 @@ class OrderController(
 
     @PostMapping("/{orderId}/cancel")
     @Operation(summary = "결제 전 주문 취소")
-    fun cancelOrder(@PathVariable orderId: Long): ApiResponse<Any> =
-        ApiResponse.success(orderUseCase.cancelOrder(orderId).toResponse())
-
-    private fun created(data: Any): ResponseEntity<ApiResponse<Any>> =
-        ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))
+    fun cancelOrder(@PathVariable orderId: Long): ApiResponse<OrderResult> =
+        ApiResponse.success(orderUseCase.cancelOrder(orderId))
 }

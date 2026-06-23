@@ -42,6 +42,10 @@ CouponController       -> 쿠폰과 쿠폰 히스토리 조회
 - command endpoint와 query endpoint는 use case도 분리해서 호출한다.
 - `@ResponseStatus`는 사용하지 않는다. HTTP status는 `ResponseEntity`로 명시한다.
 - 성공 응답은 `ApiResponse<T>`로 감싼다.
+- `ApiResponse<Any>`는 사용하지 않는다. 단일 값은 정확한 Result/Response 타입을 쓴다.
+- top-level 목록 응답은 `ApiResponse<List<T>>`로 직접 내보내지 않는다. 고정 소량 목록은 `{Feature}ListResponse`, 개수가 커질 수 있는 조회 목록은 `{Feature}PageResult`/`{Feature}PageResponse`처럼 객체로 감싼다.
+- 개수가 커질 수 있는 top-level 목록 응답은 `items`와 pagination metadata를 함께 반환한다.
+- 목록 query parameter는 `page`, `size`, `sort`를 기본으로 받는다. controller는 query parameter를 application query model로 변환만 하고 paging 계산을 직접 하지 않는다.
 - 에러 응답은 `GlobalApiExceptionHandler`가 `ApiErrorResponse`로 변환한다.
 - 에러 메시지는 `rules/error-message-rule.md`를 따른다.
 
@@ -76,10 +80,22 @@ ResponseEntity
 ResponseEntity.ok(ApiResponse.success(result))
 ```
 
+반복되는 HTTP body 조립은 공통 helper로 줄일 수 있다.
+
+```kotlin
+fun <T> ok(data: T): ResponseEntity<ApiResponse<T>> =
+    ResponseEntity.ok(ApiResponse.success(data))
+
+fun <T> created(data: T): ResponseEntity<ApiResponse<T>> =
+    ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))
+```
+
+공통 helper에는 HTTP status/body wrapping만 둔다. Result를 다른 API DTO로 바꾸는 비즈니스성 판단, 필드 계산, 권한별 필드 제거는 넣지 않는다.
+
 ## Request And Response Rule
 
 - request는 `application/{domain}/request` 패키지에 둔다.
-- response는 `application/{domain}/response` 패키지에 둔다.
+- response는 API 응답 모양이 use case result와 다를 때만 `application/{domain}/response` 패키지에 둔다.
 - request/response 파일도 기능 책임별로 분리한다. 예: `MemberRequests.kt`, `OrderPaymentResponses.kt`.
 - 여러 기능의 DTO를 `CommerceRequests.kt`, `CommerceResponses.kt` 같은 대형 파일에 모으지 않는다.
 - request/response에는 도메인 entity나 JPA entity를 노출하지 않는다.
@@ -87,6 +103,24 @@ ResponseEntity.ok(ApiResponse.success(result))
 - `@Valid`, `@get:NotBlank`, `@field:NotBlank`, `@get:Min`, `@field:Min`은 사용하지 않는다.
 - 입력 값 검증은 application/domain layer의 value object와 service 규칙으로 처리한다.
 - Swagger `@Schema`는 문서화를 위해 `@get:` target을 사용할 수 있다.
+
+## Result To Response Rule
+
+- use case는 계속 `{Action}Result`, `{Projection}QueryResult`를 반환한다.
+- API 응답이 Result와 필드/이름/중첩 구조가 1:1이면 별도 `Response` DTO와 `toResponse()` 확장 함수를 만들지 않는다.
+- 1:1 결과는 컨트롤러에서 `ApiResponse.success(result)`, `ok(result)`, `created(result)`처럼 바로 감싼다.
+- 컨트롤러 반환 타입도 `ApiResponse<MemberResult>`, `ApiResponse<OrderPageResult>`, `ResponseEntity<ApiResponse<ProductResponse>>`처럼 구체적으로 작성한다.
+- 목록 wrapper 필드명은 응답 의미를 드러내는 복수형을 쓴다. 예: `members`, `orders`, `coupons`, `histories`, `products`.
+- paginated wrapper는 도메인별 복수형 대신 공통 `items`를 사용한다. 예: `ProductPageResponse(items, page, size, totalElements, totalPages, hasNext)`.
+- 여러 Result를 조합하거나 API 전용 파생 필드를 추가할 때만 별도 Response DTO로 분리한다.
+- 별도 `Response` DTO와 mapper는 API 응답 모양이 Result와 실제로 다를 때만 만든다.
+- 다음 경우에는 명시적인 `Response` DTO와 mapper를 둔다.
+  - 내부 필드를 숨기거나 API 전용 필드명으로 바꿔야 한다.
+  - 여러 Result를 합치거나 nested/list 구조를 API에 맞게 재구성한다.
+  - 금액/상태 표시값처럼 API 전용 파생 값을 추가한다.
+  - admin/shop 등 inbound adapter별로 같은 Result를 다른 응답 모양으로 노출한다.
+- 단순 복사만 하는 `fun MemberResult.toResponse(): MemberResponse = MemberResponse(id, name, email)` 형태는 만들지 않는다.
+- 제네릭/리플렉션 기반 자동 DTO 변환기는 사용하지 않는다. 매핑이 필요하면 명시적으로 작성하고, 필요 없으면 Result를 그대로 반환한다.
 
 ```kotlin
 @get:Schema(description = "주문 ID", example = "order-1")

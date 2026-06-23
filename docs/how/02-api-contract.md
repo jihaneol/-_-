@@ -54,6 +54,49 @@ Implementation notes:
 
 The following endpoints are target contracts for upcoming work and are not implemented in the current runtime.
 
+## Paginated Query Contract
+
+Collection routes that can grow with users, orders, products, coupons, or histories must be paginated. They must not return a top-level array or an unbounded `List<T>`.
+
+Default query parameters:
+
+```http
+GET /api/admin/members?page=0&size=20&sort=id,desc
+GET /api/admin/products?page=0&size=20&sort=id,desc
+GET /api/admin/orders?page=0&size=20&sort=id,desc
+GET /api/admin/members/{memberId}/coupons?page=0&size=20&sort=id,desc
+GET /api/admin/members/{memberId}/coupon-histories?page=0&size=20&sort=id,desc
+GET /api/shop/products?page=0&size=20&sort=id,desc
+GET /api/shop/members/{memberId}/coupons?page=0&size=20&sort=id,desc
+GET /api/shop/members/{memberId}/coupon-histories?page=0&size=20&sort=id,desc
+```
+
+Response shape:
+
+```json
+{
+  "code": "SUCCESS",
+  "message": "요청이 성공했습니다.",
+  "data": {
+    "items": [],
+    "page": 0,
+    "size": 20,
+    "totalElements": 137,
+    "totalPages": 7,
+    "hasNext": true
+  }
+}
+```
+
+Backend implementation rules:
+
+- Query use cases accept `{Feature}PageQuery`.
+- Query use cases return `{Feature}PageResult`.
+- Query ports are implemented by QueryDSL adapters in `infra`.
+- Controller response DTOs use `{Feature}PageResponse` only when API shape differs from the query result.
+- Default page size is `20`; maximum page size is `100`.
+- Count queries are required for admin tables that render total pages. Customer infinite-scroll style lists may use cursor/hasNext later, but must still be bounded.
+
 ## Current Admin Commerce Coupon MVP API
 
 The following endpoints define the current admin MVP for member, product, inventory, order payment, stamp coupon issuance, and full refund. These routes are exposed by `admin-api`.

@@ -1,5 +1,12 @@
 # Phase 005: Commerce Order Coupon MVP
 
+## Archive Decision
+
+- Archived at: 2026-06-20
+- Disposition: completed, removed from active phase execution.
+- Reason: the MVP implementation and follow-up admin/shop API, exchange, wallet, consistency, and frontend loops are already completed and validated. Leaving this completed phase in `workflow/backend/phases` made the backend workflow appear unfinished.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`
+
 This phase expands the first coupon order flow into a minimum commerce MVP.
 
 ## Goal

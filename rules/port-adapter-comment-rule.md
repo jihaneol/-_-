@@ -39,6 +39,13 @@ interface PaymentRepository : Repository<Payment, Long> {
 }
 ```
 
+## File Split Rule
+
+- provided port/repository 파일은 하나의 top-level interface만 담는다.
+- `CommerceRepositories.kt`처럼 여러 aggregate repository와 query/lock port를 한 파일에 묶지 않는다.
+- 같은 aggregate에 강하게 붙은 메서드는 하나의 repository interface 안에 둘 수 있지만, 서로 다른 aggregate나 서로 다른 adapter 책임은 파일을 분리한다.
+- 파일명은 interface명과 맞춘다. 예: `MemberRepository.kt`, `CouponQueryPort.kt`, `CommerceLockPort.kt`.
+
 ## Adapter
 
 adapter는 특정 기술이나 외부 시스템으로 port를 구현한다.

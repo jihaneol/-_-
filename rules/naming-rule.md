@@ -24,6 +24,7 @@ modules/application/src/main/kotlin/com/example/cardservice/application
 
 modules/domain/src/main/kotlin/com/example/cardservice/domain
   {domain}
+    model/{entity-group}
   domainservice/{domain}
 
 modules/infra/src/main/kotlin/com/example/cardservice/infra
@@ -69,6 +70,9 @@ SearchPaymentsQueryUseCase
 SearchPaymentsQueryService
 SearchPaymentsQuery
 SearchPaymentsQueryResult
+
+PaymentPageResult
+PaymentPageResponse
 ```
 
 규칙:
@@ -80,7 +84,11 @@ SearchPaymentsQueryResult
 - use case 구현체는 도메인 루트 패키지에 둔다.
 - 단일 도메인 규칙 실행은 `{Action}Service`를 사용하고, 여러 use case/port를 조율하는 흐름은 `{Feature}Facade`를 사용한다.
 - use case/port input, result, request, approval 모델은 port 인터페이스 파일에 같이 두지 않고 도메인 루트의 `{Action}Models.kt` 파일로 분리한다.
-- API request/response는 `request`, `response` 패키지에 둔다.
+- API request는 `request` 패키지에 둔다.
+- API 응답 모양이 use case result와 다를 때만 response DTO를 만들고 `response` 패키지에 둔다.
+- Result와 API 응답이 1:1이면 별도 response DTO와 단순 복사용 `toResponse()`를 만들지 않고 Result를 그대로 `ApiResponse<T>`에 담는다.
+- paginated 목록 조회 입력은 공통 `Pagination`을 사용하고, 조회 대상 id는 별도 파라미터로 받는다.
+- paginated 목록 조회 결과는 `{Feature}PageResult`, API 응답 DTO가 따로 필요하면 `{Feature}PageResponse` 이름을 사용한다.
 
 ## Port Naming
 

@@ -3,7 +3,7 @@ package com.example.cardservice.web.commerce
 import com.example.cardservice.application.commerce.PayOrderInput
 import com.example.cardservice.application.commerce.PayOrderResult
 import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
-import com.example.cardservice.domain.commerce.model.OrderStatus
+import com.example.cardservice.domain.commerce.model.order.OrderStatus
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any

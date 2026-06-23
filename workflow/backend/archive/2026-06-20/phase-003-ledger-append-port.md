@@ -1,5 +1,12 @@
 # Phase 003: Ledger Append Port
 
+## Archive Decision
+
+- Archived at: 2026-06-20
+- Disposition: deferred backlog, removed from active phase execution.
+- Reason: this phase depends on the dedicated payment ledger from phase 002. The current backend proof uses payment idempotency, coupon histories, dashboard/wallet reporting, and consistency checks instead of a payment ledger append port.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`
+
 This phase connects payment authorization to ledger append through an application outbound port.
 
 ## Goal

@@ -1,5 +1,12 @@
 # Phase 004: Coupon Order Duplicate Flow
 
+## Archive Decision
+
+- Archived at: 2026-06-20
+- Disposition: superseded by the commerce order payment flow.
+- Reason: duplicate side-effect prevention is now proven in the commerce order payment path: duplicate idempotency requests return the existing payment result without repeating inventory deduction, payment save, coupon issuance, or coupon history append. The older coupon-order facade is no longer the active portfolio workflow.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`
+
 This phase tightens the coupon order facade so duplicate requests do not repeat external side effects.
 
 ## Goal

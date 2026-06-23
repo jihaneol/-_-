@@ -1,9 +1,10 @@
 package com.example.cardservice.web.commerce
 
 import com.example.cardservice.application.commerce.PayOrderInput
+import com.example.cardservice.application.commerce.PayOrderResult
+import com.example.cardservice.application.commerce.RefundOrderResult
 import com.example.cardservice.application.commerce.request.PayOrderRequest
 import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
-import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -24,11 +25,11 @@ class OrderPaymentController(
     fun payOrder(
         @PathVariable orderId: Long,
         @RequestBody request: PayOrderRequest,
-    ): ApiResponse<Any> =
-        ApiResponse.success(orderPaymentUseCase.payOrder(orderId, PayOrderInput(request.idempotencyKey)).toResponse())
+    ): ApiResponse<PayOrderResult> =
+        ApiResponse.success(orderPaymentUseCase.payOrder(orderId, PayOrderInput(request.idempotencyKey)))
 
     @PostMapping("/refund")
     @Operation(summary = "주문 전체 환불")
-    fun refundOrder(@PathVariable orderId: Long): ApiResponse<Any> =
-        ApiResponse.success(orderPaymentUseCase.refundOrder(orderId).toResponse())
+    fun refundOrder(@PathVariable orderId: Long): ApiResponse<RefundOrderResult> =
+        ApiResponse.success(orderPaymentUseCase.refundOrder(orderId))
 }

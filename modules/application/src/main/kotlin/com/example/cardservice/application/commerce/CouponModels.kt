@@ -1,7 +1,7 @@
 package com.example.cardservice.application.commerce
 
-import com.example.cardservice.domain.commerce.model.CouponHistoryType
-import com.example.cardservice.domain.commerce.model.CouponStatus
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistoryType
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
 
 data class CouponResult(
     val id: Long,
@@ -11,6 +11,15 @@ data class CouponResult(
     val status: CouponStatus,
 )
 
+data class CouponPageResult(
+    val items: List<CouponResult>,
+    val page: Int,
+    val size: Int,
+    val totalElements: Long,
+    val totalPages: Int,
+    val hasNext: Boolean,
+)
+
 data class CouponHistoryResult(
     val id: Long,
     val couponId: Long?,
@@ -18,6 +27,15 @@ data class CouponHistoryResult(
     val orderId: Long,
     val paymentId: Long,
     val type: CouponHistoryType,
+)
+
+data class CouponHistoryPageResult(
+    val items: List<CouponHistoryResult>,
+    val page: Int,
+    val size: Int,
+    val totalElements: Long,
+    val totalPages: Int,
+    val hasNext: Boolean,
 )
 
 data class CouponConsistencyReportResult(

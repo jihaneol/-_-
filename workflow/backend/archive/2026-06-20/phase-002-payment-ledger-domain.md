@@ -1,5 +1,12 @@
 # Phase 002: Payment Ledger Domain
 
+## Archive Decision
+
+- Archived at: 2026-06-20
+- Disposition: deferred backlog, removed from active phase execution.
+- Reason: the current MVP proves immutable history through `CouponHistory` issue, void, and exchange records. A dedicated payment ledger remains a useful later portfolio extension, but keeping this old phase active made the backend workflow look incomplete after the coupon exchange/customer shop scope had already moved on.
+- Obsidian record: `07.Build Logs/card-service/days/2026-06-20-3일차.md`
+
 This phase introduces the immutable payment ledger domain model and its domain tests.
 
 ## Goal

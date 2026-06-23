@@ -4,6 +4,10 @@ export type Member = {
   email: string
 }
 
+export type MemberListResponse = {
+  members: Member[]
+}
+
 export type Product = {
   id: number
   name: string
@@ -11,6 +15,10 @@ export type Product = {
   saleStatus: 'ON_SALE' | 'STOPPED'
   couponAccrualCount: number
   exchangeEligible: boolean
+}
+
+export type ProductListResponse = {
+  products: Product[]
 }
 
 export type Inventory = {
@@ -35,6 +43,10 @@ export type Order = {
   currency: string
   paymentId?: number
   lines: OrderLine[]
+}
+
+export type OrderListResponse = {
+  orders: Order[]
 }
 
 export type PayOrderResult = {
@@ -62,6 +74,15 @@ export type Coupon = {
   status: 'ISSUED' | 'VOIDED' | 'EXCHANGED'
 }
 
+export type PageResponse<T> = {
+  items: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasNext: boolean
+}
+
 export type CouponHistory = {
   id: number
   couponId?: number
@@ -70,6 +91,10 @@ export type CouponHistory = {
   paymentId: number
   type: 'ISSUED' | 'VOIDED' | 'EXCHANGED'
 }
+
+export type CouponPageResponse = PageResponse<Coupon>
+
+export type CouponHistoryPageResponse = PageResponse<CouponHistory>
 
 export type CouponWallet = {
   memberId: number

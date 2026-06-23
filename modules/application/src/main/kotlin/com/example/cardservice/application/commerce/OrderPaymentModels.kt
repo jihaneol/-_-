@@ -1,6 +1,6 @@
 package com.example.cardservice.application.commerce
 
-import com.example.cardservice.domain.commerce.model.OrderStatus
+import com.example.cardservice.domain.commerce.model.order.OrderStatus
 
 data class PayOrderInput(val idempotencyKey: String)
 data class PayOrderResult(

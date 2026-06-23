@@ -67,8 +67,8 @@ class CommerceFlowIntegrationTest {
         mockMvc.get("/api/admin/members/$memberId/coupons")
             .andExpect {
                 status { isOk() }
-                jsonPath("$.data", hasSize<Any>(2))
-                jsonPath("$.data[0].status") { value("ISSUED") }
+                jsonPath("$.data.coupons", hasSize<Any>(2))
+                jsonPath("$.data.coupons[0].status") { value("ISSUED") }
             }
 
         mockMvc.post("/api/admin/orders/$orderId/refund")
@@ -81,8 +81,8 @@ class CommerceFlowIntegrationTest {
         mockMvc.get("/api/admin/members/$memberId/coupons")
             .andExpect {
                 status { isOk() }
-                jsonPath("$.data", hasSize<Any>(2))
-                jsonPath("$.data[0].status") { value("VOIDED") }
+                jsonPath("$.data.coupons", hasSize<Any>(2))
+                jsonPath("$.data.coupons[0].status") { value("VOIDED") }
             }
     }
 

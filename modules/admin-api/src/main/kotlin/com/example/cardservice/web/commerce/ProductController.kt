@@ -1,16 +1,20 @@
 package com.example.cardservice.web.commerce
 
+import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.CreateProductInput
 import com.example.cardservice.application.commerce.UpdateProductInput
+import com.example.cardservice.application.commerce.response.ProductPageResponse
+import com.example.cardservice.application.commerce.response.ProductResponse
 import com.example.cardservice.application.commerce.request.ProductCreateRequest
 import com.example.cardservice.application.commerce.request.ProductUpdateRequest
 import com.example.cardservice.application.commerce.required.ProductQueryUseCase
 import com.example.cardservice.application.commerce.required.ProductUseCase
 import com.example.cardservice.application.commerce.response.toResponse
 import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.web.common.created
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -30,17 +35,21 @@ class ProductController(
 ) {
     @PostMapping
     @Operation(summary = "상품 생성")
-    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ApiResponse<Any>> =
+    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ApiResponse<ProductResponse>> =
         created(productUseCase.createProduct(CreateProductInput(request.name, request.price)).toResponse())
 
     @GetMapping
     @Operation(summary = "상품 목록 조회")
-    fun listProducts(): ApiResponse<Any> =
-        ApiResponse.success(productQueryUseCase.listProducts().map { it.toResponse() })
+    fun listProducts(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
+        @RequestParam(defaultValue = "id,desc") sort: String,
+    ): ApiResponse<ProductPageResponse> =
+        ApiResponse.success(productQueryUseCase.listProducts(Pagination(page, size, sort)).toResponse())
 
     @GetMapping("/{productId}")
     @Operation(summary = "상품 상세 조회")
-    fun getProduct(@PathVariable productId: Long): ApiResponse<Any> =
+    fun getProduct(@PathVariable productId: Long): ApiResponse<ProductResponse> =
         ApiResponse.success(productQueryUseCase.getProduct(productId).toResponse())
 
     @PatchMapping("/{productId}")
@@ -48,7 +57,7 @@ class ProductController(
     fun updateProduct(
         @PathVariable productId: Long,
         @RequestBody request: ProductUpdateRequest,
-    ): ApiResponse<Any> =
+    ): ApiResponse<ProductResponse> =
         ApiResponse.success(productUseCase.updateProduct(productId, UpdateProductInput(request.name, request.price, request.saleStatus)).toResponse())
 
     @DeleteMapping("/{productId}")
@@ -57,7 +66,4 @@ class ProductController(
         productUseCase.deleteProduct(productId)
         return ResponseEntity.noContent().build()
     }
-
-    private fun created(data: Any): ResponseEntity<ApiResponse<Any>> =
-        ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))
 }

@@ -26,4 +26,5 @@ guarded_run() {
 }
 
 guarded_run python3 scripts/hooks/enforce_tdd.py --lane backend
+guarded_run python3 scripts/hooks/audit_harness.py --lane backend --changed-only
 guarded_run ./gradlew test

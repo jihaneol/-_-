@@ -6,26 +6,35 @@ Detailed state contract lives in `docs/how/05-api-state-contract.md`.
 
 ```text
 admin.summary
-admin.members
-admin.products
-admin.orders
+admin.members(page,size,sort,filters)
+admin.products(page,size,sort,filters)
+admin.orders(page,size,sort,filters)
 admin.couponConsistency
 admin.inventory(productId)
-admin.coupons(memberId)
-admin.histories(memberId)
+admin.coupons(memberId,page,size,sort)
+admin.histories(memberId,page,size,sort)
 ```
 
 ## Shop Query Keys
 
 ```text
 shop.member(memberId)
-shop.products
+shop.products(page,size,sort,filters)
 shop.product(productId)
 shop.orders(memberId)
 shop.wallet(memberId)
-shop.coupons(memberId)
-shop.histories(memberId)
+shop.coupons(memberId,page,size,sort)
+shop.histories(memberId,page,size,sort)
 ```
+
+## Paginated List UI Plan
+
+- Replace list queries with `PageResponse<T>` contracts.
+- Keep local page state per table/list surface: members, products, orders, member coupons, coupon histories, and shop products.
+- Preserve current operational flow by rendering `items` while using metadata for controls.
+- Add compact pager controls to admin tables: previous, next, current page, total pages.
+- For shop product catalog, use load-more or page controls, but never request an unbounded product list.
+- Reset page to `0` when the selected member, search text, status filter, or sort changes.
 
 ## Mutation Rules
 

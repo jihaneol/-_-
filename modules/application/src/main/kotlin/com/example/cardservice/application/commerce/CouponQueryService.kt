@@ -1,12 +1,14 @@
 package com.example.cardservice.application.commerce
 
+import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.commerce.provided.CouponHistoryRepository
+import com.example.cardservice.application.commerce.provided.CouponQueryPort
 import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.application.commerce.required.CouponQueryUseCase
-import com.example.cardservice.domain.commerce.model.Coupon
-import com.example.cardservice.domain.commerce.model.CouponHistory
-import com.example.cardservice.domain.commerce.model.CouponHistoryType
-import com.example.cardservice.domain.commerce.model.CouponStatus
+import com.example.cardservice.domain.commerce.model.coupon.Coupon
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistory
+import com.example.cardservice.domain.commerce.model.coupon.CouponHistoryType
+import com.example.cardservice.domain.commerce.model.coupon.CouponStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,18 +19,19 @@ import org.springframework.transaction.annotation.Transactional
 class CouponQueryService(
     private val couponRepository: CouponRepository,
     private val couponHistoryRepository: CouponHistoryRepository,
+    private val couponQueryPort: CouponQueryPort,
 ) : CouponQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listCoupons(memberId: Long): List<CouponResult> =
-        couponRepository.findAllByMemberId(memberId).map { it.toResult() }
+    override fun listCoupons(memberId: Long, pagination: Pagination): CouponPageResult =
+        couponQueryPort.searchCoupons(memberId, pagination)
 
     @Transactional(readOnly = true)
-    override fun listMemberCouponHistories(memberId: Long): List<CouponHistoryResult> =
-        couponHistoryRepository.findAllByMemberId(memberId).map { it.toResult() }
+    override fun listMemberCouponHistories(memberId: Long, pagination: Pagination): CouponHistoryPageResult =
+        couponQueryPort.searchMemberCouponHistories(memberId, pagination)
 
     @Transactional(readOnly = true)
-    override fun listOrderCouponHistories(orderId: Long): List<CouponHistoryResult> =
-        couponHistoryRepository.findAllByOrderId(orderId).map { it.toResult() }
+    override fun listOrderCouponHistories(orderId: Long, pagination: Pagination): CouponHistoryPageResult =
+        couponQueryPort.searchOrderCouponHistories(orderId, pagination)
 
     @Transactional(readOnly = true)
     override fun getCouponWallet(memberId: Long): CouponWalletResult {

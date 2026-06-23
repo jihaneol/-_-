@@ -6,8 +6,8 @@ import com.example.cardservice.application.commerce.provided.CouponHistoryReposi
 import com.example.cardservice.application.commerce.provided.CouponRepository
 import com.example.cardservice.application.commerce.provided.InventoryRepository
 import com.example.cardservice.application.payment.provided.PaymentRepository
-import com.example.cardservice.domain.commerce.model.CommerceOrder
-import com.example.cardservice.domain.commerce.model.OrderLine
+import com.example.cardservice.domain.commerce.model.order.CommerceOrder
+import com.example.cardservice.domain.commerce.model.order.OrderLine
 import com.example.cardservice.domain.payment.model.IdempotencyKey
 import com.example.cardservice.domain.payment.model.MerchantId
 import com.example.cardservice.domain.payment.model.Money
@@ -62,8 +62,8 @@ class OrderPaymentFacadeBehaviorSpec : BehaviorSpec({
                 result.issuedCouponCount shouldBe 2
                 verify(exactly = 0) { inventoryRepository.save(any()) }
                 verify(exactly = 0) { paymentRepository.save(any()) }
-                verify(exactly = 0) { couponRepository.saveAll(any<List<com.example.cardservice.domain.commerce.model.Coupon>>()) }
-                verify(exactly = 0) { couponHistoryRepository.saveAll(any<List<com.example.cardservice.domain.commerce.model.CouponHistory>>()) }
+                verify(exactly = 0) { couponRepository.saveAll(any<List<com.example.cardservice.domain.commerce.model.coupon.Coupon>>()) }
+                verify(exactly = 0) { couponHistoryRepository.saveAll(any<List<com.example.cardservice.domain.commerce.model.coupon.CouponHistory>>()) }
             }
         }
     }

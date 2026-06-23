@@ -15,18 +15,42 @@ Responsibilities:
 
 ```text
 admin.summary
-admin.members
-admin.products
-admin.orders
+admin.members(page,size,sort,filters)
+admin.products(page,size,sort,filters)
+admin.orders(page,size,sort,filters)
 admin.couponConsistency
 admin.inventory(productId)
-admin.coupons(memberId)
-admin.histories(memberId)
+admin.coupons(memberId,page,size,sort)
+admin.histories(memberId,page,size,sort)
 
-shop.products
-shop.coupons(memberId)
-shop.histories(memberId)
+shop.products(page,size,sort,filters)
+shop.coupons(memberId,page,size,sort)
+shop.histories(memberId,page,size,sort)
 ```
+
+## Paginated Query State
+
+Collection queries use paginated API responses:
+
+```ts
+type PageResponse<T> = {
+  items: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasNext: boolean
+}
+```
+
+Frontend behavior:
+
+- Include `page`, `size`, `sort`, and filter values in TanStack Query keys.
+- Keep previous page data visible while the next page loads.
+- Render empty state only when `items.length === 0` after loading.
+- Disable previous/next controls based on `page === 0` and `hasNext`.
+- Reset `page` to `0` when filters or selected member change.
+- Do not fetch unbounded "all" lists for members, products, orders, coupons, or histories.
 
 ## Admin Mutations
 
