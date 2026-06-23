@@ -58,6 +58,13 @@
       "completed_at": null,
       "last_validation": null,
       "last_checkpoint": null
+    },
+    "phase-015-paginated-query-ui.md": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "last_validation": null,
+      "last_checkpoint": null
     }
   }
 }

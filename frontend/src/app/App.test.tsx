@@ -22,14 +22,14 @@ const server = setupServer(
     refundedOrderCount: orders.filter((order) => order.status === 'REFUNDED').length,
     issuedCouponCount: coupons.filter((coupon) => coupon.status === 'ISSUED').length,
   })),
-  http.get('/api/admin/members', () => ok(members)),
+  http.get('/api/admin/members', () => ok({ members })),
   http.post('/api/admin/members', async ({ request }) => {
     const body = await request.json() as any
     const member = { id: 2, name: body.name, email: body.email }
     members = [...members, member]
     return ok(member)
   }),
-  http.get('/api/admin/products', () => ok(products)),
+  http.get('/api/admin/products', () => ok({ products })),
   http.post('/api/admin/products', async ({ request }) => {
     const body = await request.json() as any
     const product = buildProduct(2, body.name, body.price)
@@ -45,7 +45,7 @@ const server = setupServer(
   http.post('/api/admin/products/:productId/inventory/increase', ({ params }) =>
     ok({ id: 1, productId: Number(params.productId), quantity: 11 }),
   ),
-  http.get('/api/admin/orders', () => ok(orders)),
+  http.get('/api/admin/orders', () => ok({ orders })),
   http.post('/api/admin/orders', async ({ request }) => {
     const body = await request.json() as any
     const order = buildOrder(body.memberId, body.lines[0].productId)
@@ -60,8 +60,8 @@ const server = setupServer(
   http.post('/api/admin/orders/:orderId/refund', ({ params }) =>
     ok({ orderId: Number(params.orderId), paymentId: 1, orderStatus: 'REFUNDED', paymentStatus: 'REFUNDED', voidedCouponCount: 2 }),
   ),
-  http.get('/api/admin/members/:memberId/coupons', () => ok(coupons)),
-  http.get('/api/admin/members/:memberId/coupon-histories', () => ok(histories)),
+  http.get('/api/admin/members/:memberId/coupons', ({ request }) => ok(pageResponse(coupons, request.url))),
+  http.get('/api/admin/members/:memberId/coupon-histories', ({ request }) => ok(pageResponse(histories, request.url))),
   http.get('/api/admin/coupon-consistency', () => ok(buildCouponConsistency())),
   http.post('/api/shop/members', async ({ request }) => {
     const body = await request.json() as any
@@ -69,7 +69,7 @@ const server = setupServer(
     members = [...members, member]
     return ok(member)
   }),
-  http.get('/api/shop/products', () => ok(products)),
+  http.get('/api/shop/products', () => ok({ products })),
   http.post('/api/shop/orders', async ({ request }) => {
     const body = await request.json() as any
     const order = buildOrder(body.memberId, body.lines[0].productId)
@@ -78,8 +78,8 @@ const server = setupServer(
   }),
   http.post('/api/shop/orders/:orderId/pay', ({ params }) => ok(payOrder(Number(params.orderId)))),
   http.get('/api/shop/members/:memberId/coupon-wallet', ({ params }) => ok(buildCouponWallet(Number(params.memberId)))),
-  http.get('/api/shop/members/:memberId/coupons', () => ok(coupons)),
-  http.get('/api/shop/members/:memberId/coupon-histories', () => ok(histories)),
+  http.get('/api/shop/members/:memberId/coupons', ({ request }) => ok(pageResponse(coupons, request.url))),
+  http.get('/api/shop/members/:memberId/coupon-histories', ({ request }) => ok(pageResponse(histories, request.url))),
 )
 
 describe('split apps', () => {
@@ -283,4 +283,19 @@ function buildCouponWallet(memberId: number) {
 
 function ok(data: unknown) {
   return HttpResponse.json({ code: 'SUCCESS', message: '요청이 성공했습니다.', data })
+}
+
+function pageResponse<T>(items: T[], url: string) {
+  const search = new URL(url).searchParams
+  const page = Number(search.get('page') ?? 0)
+  const size = Number(search.get('size') ?? 20)
+  const offset = page * size
+  return {
+    items: items.slice(offset, offset + size),
+    page,
+    size,
+    totalElements: items.length,
+    totalPages: items.length === 0 ? 0 : Math.ceil(items.length / size),
+    hasNext: offset + size < items.length,
+  }
 }

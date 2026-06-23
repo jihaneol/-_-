@@ -19,19 +19,21 @@ export function MembersPage() {
   const queryClient = useQueryClient()
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [couponPage, setCouponPage] = useState(0)
+  const [historyPage, setHistoryPage] = useState(0)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const members = useQuery({ queryKey: adminCommerceKeys.members, queryFn: adminCommerceApi.listMembers })
   const products = useQuery({ queryKey: adminCommerceKeys.products, queryFn: adminCommerceApi.listProducts })
   const consistency = useQuery({ queryKey: adminCommerceKeys.couponConsistency, queryFn: adminCommerceApi.getCouponConsistencyReport })
   const coupons = useQuery({
-    queryKey: selectedMemberId ? adminCommerceKeys.coupons(selectedMemberId) : adminCommerceKeys.couponsIdle,
-    queryFn: () => adminCommerceApi.listCoupons(selectedMemberId!),
+    queryKey: selectedMemberId ? adminCommerceKeys.coupons(selectedMemberId, couponPage) : adminCommerceKeys.couponsIdle,
+    queryFn: () => adminCommerceApi.listCoupons(selectedMemberId!, { page: couponPage }),
     enabled: selectedMemberId !== null,
   })
   const histories = useQuery({
-    queryKey: selectedMemberId ? adminCommerceKeys.histories(selectedMemberId) : adminCommerceKeys.historiesIdle,
-    queryFn: () => adminCommerceApi.listCouponHistories(selectedMemberId!),
+    queryKey: selectedMemberId ? adminCommerceKeys.histories(selectedMemberId, historyPage) : adminCommerceKeys.historiesIdle,
+    queryFn: () => adminCommerceApi.listCouponHistories(selectedMemberId!, { page: historyPage }),
     enabled: selectedMemberId !== null,
   })
   const form = useForm<MemberForm>({ resolver: zodResolver(memberSchema), defaultValues: { name: '', email: '' } })
@@ -64,14 +66,22 @@ export function MembersPage() {
     },
     onError: handleApiError,
   })
-  const issuedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'ISSUED').length ?? 0
-  const exchangedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'EXCHANGED').length ?? 0
-  const voidedCouponCount = coupons.data?.filter((coupon) => coupon.status === 'VOIDED').length ?? 0
+  const couponItems = coupons.data?.items ?? []
+  const historyItems = histories.data?.items ?? []
+  const selectedReportRow = consistency.data?.memberRows.find((row) => row.memberId === selectedMemberId)
+  const issuedCouponCount = selectedReportRow?.issuedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'ISSUED').length
+  const exchangedCouponCount = selectedReportRow?.exchangedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'EXCHANGED').length
+  const voidedCouponCount = selectedReportRow?.voidedCouponCount ?? couponItems.filter((coupon) => coupon.status === 'VOIDED').length
   const exchangeableSetCount = Math.floor(issuedCouponCount / 10)
   const remainingToNextExchange = (10 - issuedCouponCount % 10) % 10
   const selectedMember = members.data?.find((member) => member.id === selectedMemberId)
   const exchangeProducts = products.data?.filter((product) => product.price === 5_000 && product.saleStatus === 'ON_SALE') ?? []
   const canApproveExchange = selectedMemberId !== null && selectedProductId !== null && issuedCouponCount >= 10 && !approveCouponExchange.isPending
+  const selectMember = (memberId: number | null) => {
+    setSelectedMemberId(memberId)
+    setCouponPage(0)
+    setHistoryPage(0)
+  }
 
   return (
     <div className="page">
@@ -118,7 +128,7 @@ export function MembersPage() {
                   <td>{member.name}</td>
                   <td>{member.email}</td>
                   <td>
-                    <button className="button secondary" onClick={() => setSelectedMemberId(member.id)}>조회</button>
+                    <button className="button secondary" onClick={() => selectMember(member.id)}>조회</button>
                   </td>
                 </tr>
               ))}
@@ -134,7 +144,7 @@ export function MembersPage() {
             <select
               aria-label="쿠폰 조회 회원"
               value={selectedMemberId ?? ''}
-              onChange={(event) => setSelectedMemberId(Number(event.target.value) || null)}
+              onChange={(event) => selectMember(Number(event.target.value) || null)}
             >
               <option value="">회원 선택</option>
               {members.data?.map((member) => <option key={member.id} value={member.id}>#{member.id} {member.name}</option>)}
@@ -143,6 +153,13 @@ export function MembersPage() {
               <Coffee size={14} /> {exchangeableSetCount > 0 ? '교환 가능' : '적립 중'}
             </span>
             <span className="status warn"><Gift size={14} /> 교환 완료 {exchangedCouponCount}</span>
+            <button className="button secondary" disabled={couponPage === 0} onClick={() => setCouponPage((page) => Math.max(0, page - 1))}>
+              이전
+            </button>
+            <span className="status info">{(coupons.data?.page ?? 0) + 1} / {Math.max(coupons.data?.totalPages ?? 1, 1)}</span>
+            <button className="button secondary" disabled={!coupons.data?.hasNext} onClick={() => setCouponPage((page) => page + 1)}>
+              다음
+            </button>
           </div>
           <div className="exchange-summary">
             <strong>{selectedMember ? `${selectedMember.name} 회원` : '회원 선택 필요'}</strong>
@@ -190,8 +207,8 @@ export function MembersPage() {
             <tbody>
               {!selectedMemberId ? <Row colSpan={4} text="회원 선택 필요" /> : null}
               {selectedMemberId && coupons.isLoading ? <Row colSpan={4} text="불러오는 중" /> : null}
-              {selectedMemberId && !coupons.isLoading && !coupons.data?.length ? <Row colSpan={4} text="쿠폰 없음" /> : null}
-              {coupons.data?.map((coupon) => (
+              {selectedMemberId && !coupons.isLoading && !couponItems.length ? <Row colSpan={4} text="쿠폰 없음" /> : null}
+              {couponItems.map((coupon) => (
                 <tr key={coupon.id}>
                   <td>#{coupon.id}</td>
                   <td>#{coupon.orderId}</td>
@@ -205,6 +222,15 @@ export function MembersPage() {
 
         <section className="panel">
           <h2>쿠폰 히스토리</h2>
+          <div className="actions">
+            <button className="button secondary" disabled={historyPage === 0} onClick={() => setHistoryPage((page) => Math.max(0, page - 1))}>
+              이전
+            </button>
+            <span className="status info">{(histories.data?.page ?? 0) + 1} / {Math.max(histories.data?.totalPages ?? 1, 1)}</span>
+            <button className="button secondary" disabled={!histories.data?.hasNext} onClick={() => setHistoryPage((page) => page + 1)}>
+              다음
+            </button>
+          </div>
           <table className="table">
             <thead>
               <tr>
@@ -216,7 +242,9 @@ export function MembersPage() {
             </thead>
             <tbody>
               {!selectedMemberId ? <Row colSpan={4} text="회원 선택 필요" /> : null}
-              {histories.data?.map((history) => (
+              {selectedMemberId && histories.isLoading ? <Row colSpan={4} text="불러오는 중" /> : null}
+              {selectedMemberId && !histories.isLoading && !historyItems.length ? <Row colSpan={4} text="히스토리 없음" /> : null}
+              {historyItems.map((history) => (
                 <tr key={history.id}>
                   <td>#{history.id}</td>
                   <td>{history.couponId ? `#${history.couponId}` : '-'}</td>
