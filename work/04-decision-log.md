@@ -20,3 +20,12 @@
 - Reason: Page numbers are useful for design verification but make the storefront look like an internal demo.
 - Decision: Treat coffee kiosk research as a frontend-only UX loop.
 - Reason: The current backend already proves product listing, order creation, payment authorization, and coupon wallet refresh. Real categories, drink options, quick-order storage, pickup scheduling, multilingual content, and hardware accessibility are larger backend/product features and remain out of scope for this pass.
+
+## 2026-06-24
+
+- Decision: Plan Kafka through transactional outbox instead of publishing directly from `OrderPaymentFacade`.
+- Reason: Order/payment database state and broker delivery must not diverge when one side succeeds and the other fails.
+- Decision: Keep coupon issuance synchronous for the first Kafka slice.
+- Reason: The current portfolio proof depends on payment response, inventory deduction, coupon issuance, and coupon history being correct in one transaction. Moving coupon issuance async is a later step after idempotent consumers and operational retry visibility are proven.
+- Decision: Use Kafka first for post-payment projections/audit, not customer-facing behavior.
+- Reason: This gives a meaningful traffic/reliability challenge without changing shop/admin API contracts or weakening existing correctness tests.

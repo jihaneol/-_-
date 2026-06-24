@@ -76,3 +76,42 @@ CREATE TABLE coupon_histories (
     created_at DATETIME NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE payment_operational_projections (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    operation_type VARCHAR(40) NOT NULL,
+    order_id BIGINT NOT NULL,
+    payment_ref_id BIGINT NOT NULL,
+    member_id BIGINT NOT NULL,
+    amount BIGINT NOT NULL,
+    currency VARCHAR(3) NOT NULL,
+    issued_coupon_count INT NOT NULL,
+    voided_coupon_count INT NOT NULL,
+    occurred_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_payment_operational_projection_operation_order UNIQUE (operation_type, order_id)
+);
+
+CREATE TABLE outbox_events (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    event_key VARCHAR(120) NOT NULL,
+    event_type VARCHAR(60) NOT NULL,
+    aggregate_type VARCHAR(60) NOT NULL,
+    aggregate_id BIGINT NOT NULL,
+    payload TEXT NOT NULL,
+    status VARCHAR(30) NOT NULL,
+    attempt_count INT NOT NULL,
+    last_error TEXT NULL,
+    created_at DATETIME NOT NULL,
+    published_at DATETIME NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_outbox_events_event_key UNIQUE (event_key)
+);
+
+CREATE TABLE processed_outbox_events (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    event_key VARCHAR(120) NOT NULL,
+    processed_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_processed_outbox_events_event_key UNIQUE (event_key)
+);

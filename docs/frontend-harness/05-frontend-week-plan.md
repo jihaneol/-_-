@@ -37,7 +37,7 @@
 
 ## Current Completion Evidence
 
-- `frontend/src/app/App.test.tsx` covers admin navigation, shop navigation, pages 05-12, signup, payment, and wallet refresh.
+- `frontend/test/App.test.tsx` covers admin navigation, shop navigation, pages 05-12, signup, payment, and wallet refresh.
 - `bash scripts/hooks/validate_impeccable.sh` passes against the current frontend.
 - Browser automation checked pages 05-12 at 1440px and 390px widths with no horizontal overflow.
 - `npm --prefix frontend test -- --run` and `npm --prefix frontend run build` pass after the 05-12 implementation.

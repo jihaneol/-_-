@@ -25,11 +25,24 @@
 - outbox는 저장, publish 성공, 실패, 재시도 상태 전이를 검증한다.
 - settlement/reconciliation은 정상 집계와 mismatch 탐지를 함께 검증한다.
 
+## Smoke And Load Test Rule
+
+- smoke test는 테스트 경로가 실행 가능한지 확인하는 용도다. 성능 결론으로 사용하지 않는다.
+- smoke test는 짧고 작게 유지한다. 예: `VUS=1~2`, `DURATION=5s~10s`.
+- smoke test가 확인해야 하는 것은 API 접근, fixture 생성, 주요 check 통과, metric 수집 여부다.
+- baseline load test는 비교 가능한 성능 수치를 남기는 용도다. Before/After 비교는 같은 VUS, duration, 데이터 준비 방식, 측정 항목을 사용한다.
+- load test 결과에는 최소한 p50, p95, p99, error rate, 성공 처리 수, 실패 수, 중복 side effect 여부를 남긴다.
+- Kafka/outbox 비교에서는 request latency만 보지 말고 outbox pending count, projection lag, publish retry count, consumer duplicate replay count를 함께 기록한다.
+- 인위적인 지연(`Thread.sleep`, 의미 없는 반복문)을 넣어 병목을 만들지 않는다. 실제 비용이 있는 DB write, projection update, audit insert, 집계 upsert를 기준으로 비교한다.
+- smoke가 통과해도 baseline이 실행되지 않았으면 "성능 측정 완료"로 기록하지 않는다.
+
 ## Trade-off
 
 - 단위 테스트는 빠르고 원인 파악이 쉽지만 DB constraint와 transaction 문제를 증명하지 못한다.
 - 통합 테스트는 신뢰도가 높지만 느리고 fixture 관리 비용이 있다.
 - 동시성 테스트는 포트폴리오 증거가 강하지만 실행 시간이 늘고 비결정성을 줄이는 설계가 필요하다.
+- smoke test는 빠르게 피드백을 주지만 성능 대표성이 없다.
+- load test는 비교 증거가 강하지만 실행 환경, 데이터 상태, warm-up, Docker/로컬 리소스 영향을 함께 기록해야 한다.
 - 모든 계층에서 같은 케이스를 반복하면 안전해 보이지만 유지보수 비용이 커진다.
 
 ## Completion Rule

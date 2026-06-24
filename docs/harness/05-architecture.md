@@ -59,3 +59,65 @@ infra/external
 - Transactional outbox and broker retry UI.
 - Dedicated payment ledger table.
 - Daily settlement and full reconciliation batch.
+
+## Kafka Outbox Target
+
+Traffic problem:
+
+- During a cafe rush or promotion, many shop payment requests arrive at once.
+- The payment transaction still owns oversell prevention, idempotency, coupon issuance, and coupon history.
+- Non-critical post-payment work such as operational projection, audit/event log, notification stub, and settlement-prep events can be processed asynchronously.
+- Kafka is introduced to reduce request-path coupling and to prove retry/replay behavior, not to solve inventory locking or payment duplication.
+
+First async slice:
+
+```text
+OrderPaymentFacade.payOrder/refundOrder
+  -> save order/payment/inventory/coupon state
+  -> append OutboxEvent in the same DB transaction
+  -> scheduled publisher reads pending events
+  -> Kafka topic commerce.order-events.v1
+  -> idempotent consumer updates projection or audit table
+```
+
+Ownership:
+
+- `application` owns outbox ports and event models.
+- `domain` stays broker-free.
+- `infra` owns outbox JPA persistence.
+- `external` owns Kafka producer/consumer adapters.
+- `batch` can own the scheduled outbox publisher inbound adapter if it runs outside the HTTP runtimes.
+
+Initial event types:
+
+- `OrderPaid`: order id, payment id, member id, paid amount, issued coupon count, occurred-at.
+- `OrderRefunded`: order id, payment id, member id, voided coupon count, occurred-at.
+
+Failure handling:
+
+- Outbox rows start as `PENDING`.
+- Successful publish marks `PUBLISHED`.
+- Failed publish increments attempt count and stores the last error.
+- Consumers persist processed event ids to make replay safe.
+- Kafka delivery is treated as at-least-once; application side effects must be idempotent.
+
+Explicit non-goal for the first slice:
+
+- Do not move coupon issuance to async yet. Coupon issuance remains part of the payment transaction until the eventing path has its own retry, replay, and observability proof.
+
+Performance proof:
+
+```text
+Baseline
+  payment transaction
+  -> synchronous projection/audit update
+  -> API response
+
+Outbox
+  payment transaction
+  -> append outbox event
+  -> API response
+  -> publisher/consumer update projection/audit later
+```
+
+Compare both shapes under the same concurrent payment load. The expected tradeoff is lower payment p95/p99 latency and better downstream failure isolation in exchange for projection lag and outbox operational complexity.

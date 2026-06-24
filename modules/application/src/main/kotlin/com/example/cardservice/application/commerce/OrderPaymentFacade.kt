@@ -4,17 +4,20 @@ import com.example.cardservice.application.commerce.provided.CommerceLockPort
 import com.example.cardservice.application.commerce.provided.CommerceOrderRepository
 import com.example.cardservice.application.commerce.provided.CouponHistoryRepository
 import com.example.cardservice.application.commerce.provided.CouponRepository
-import com.example.cardservice.application.commerce.provided.InventoryRepository
+import com.example.cardservice.application.commerce.provided.InventoryMutationPort
+import com.example.cardservice.application.commerce.provided.OutboxEventRepository
 import com.example.cardservice.application.commerce.required.OrderPaymentUseCase
 import com.example.cardservice.application.payment.provided.PaymentRepository
 import com.example.cardservice.domain.commerce.model.order.CommerceOrder
 import com.example.cardservice.domain.commerce.model.coupon.Coupon
 import com.example.cardservice.domain.commerce.model.coupon.CouponHistory
 import com.example.cardservice.domain.commerce.model.order.OrderStatus
+import com.example.cardservice.domain.commerce.model.outbox.OutboxEvent
 import com.example.cardservice.domain.payment.model.IdempotencyKey
 import com.example.cardservice.domain.payment.model.MerchantId
 import com.example.cardservice.domain.payment.model.OrderId
 import com.example.cardservice.domain.payment.model.Payment
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,10 +29,12 @@ import org.springframework.transaction.annotation.Transactional
 class OrderPaymentFacade(
     private val orderRepository: CommerceOrderRepository,
     private val commerceLockPort: CommerceLockPort,
-    private val inventoryRepository: InventoryRepository,
+    private val inventoryMutationPort: InventoryMutationPort,
     private val paymentRepository: PaymentRepository,
     private val couponRepository: CouponRepository,
     private val couponHistoryRepository: CouponHistoryRepository,
+    private val outboxEventRepository: OutboxEventRepository,
+    private val objectMapper: ObjectMapper,
 ) : OrderPaymentUseCase {
     @Transactional
     override fun payOrder(orderId: Long, input: PayOrderInput): PayOrderResult {
@@ -46,9 +51,7 @@ class OrderPaymentFacade(
         }
 
         order.lines.forEach { line ->
-            val inventory = commerceLockPort.loadInventoryForUpdate(line.productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다.")
-            inventory.decrease(line.quantity)
-            inventoryRepository.save(inventory)
+            require(inventoryMutationPort.decreaseQuantityIfEnough(line.productId, line.quantity)) { "재고가 부족합니다." }
         }
 
         val payment = savePaymentOrLoadDuplicate(
@@ -67,6 +70,24 @@ class OrderPaymentFacade(
             .map { Coupon.issue(memberId = order.memberId, orderId = orderId, paymentId = paymentId) }
             .let { couponRepository.saveAll(it).toList() }
         couponHistoryRepository.saveAll(coupons.map { CouponHistory.issued(it) })
+        outboxEventRepository.save(
+            OutboxEvent.paymentAuthorized(
+                orderId = orderId,
+                payload = objectMapper.writeValueAsString(
+                    PaymentOperationalEventPayload(
+                        eventKey = "PAYMENT_AUTHORIZED:$orderId",
+                        eventType = PaymentOperationalEventType.PAYMENT_AUTHORIZED,
+                        orderId = orderId,
+                        paymentId = paymentId,
+                        memberId = order.memberId,
+                        amount = payment.money.amount,
+                        currency = payment.money.currency,
+                        issuedCouponCount = coupons.size,
+                        voidedCouponCount = 0,
+                    ),
+                ),
+            ),
+        )
 
         return order.toPayResult(payment, coupons.size)
     }
@@ -78,9 +99,7 @@ class OrderPaymentFacade(
         val payment = paymentRepository.findById(paymentId).orElseThrow { IllegalArgumentException("결제를 찾을 수 없습니다.") }
 
         order.lines.forEach { line ->
-            val inventory = commerceLockPort.loadInventoryForUpdate(line.productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다.")
-            inventory.increase(line.quantity)
-            inventoryRepository.save(inventory)
+            inventoryMutationPort.increaseQuantity(line.productId, line.quantity)
         }
         order.refund()
         payment.refund()
@@ -92,6 +111,24 @@ class OrderPaymentFacade(
 
         orderRepository.save(order)
         paymentRepository.save(payment)
+        outboxEventRepository.save(
+            OutboxEvent.paymentRefunded(
+                orderId = orderId,
+                payload = objectMapper.writeValueAsString(
+                    PaymentOperationalEventPayload(
+                        eventKey = "PAYMENT_REFUNDED:$orderId",
+                        eventType = PaymentOperationalEventType.PAYMENT_REFUNDED,
+                        orderId = orderId,
+                        paymentId = paymentId,
+                        memberId = order.memberId,
+                        amount = payment.money.amount,
+                        currency = payment.money.currency,
+                        issuedCouponCount = 0,
+                        voidedCouponCount = coupons.size,
+                    ),
+                ),
+            ),
+        )
 
         return RefundOrderResult(
             orderId = orderId,

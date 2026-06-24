@@ -16,3 +16,8 @@
 
 - Request: Replace unbounded list-style query endpoints with CQRS QueryDSL pagination. Collection responses such as member coupons and coupon histories must not assume "all" fits in memory or UI state.
 - Planning note: backend query use cases should accept page/size/sort query models, infra should use QueryDSL projections/page results, and frontend TanStack Query keys/UI controls should include pagination state.
+
+## 2026-06-24
+
+- Request: Consider whether Kafka is worth adding as a backend performance/reliability challenge, then start planning it.
+- Planning note: Kafka should not replace the current synchronous payment correctness path immediately. The first useful slice is transactional outbox plus Kafka publishing for post-payment events, with idempotent consumers and retryable delivery evidence.

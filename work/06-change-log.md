@@ -1,5 +1,15 @@
 # Change Log
 
+## 2026-06-24
+
+- Planned the Kafka/outbox traffic-spike story around payment p95/p99 improvement, not core payment correctness.
+- Added the Before baseline for the Kafka comparison: payment/refund transactions synchronously write `payment_operational_projections`.
+- Added schema, domain entity, application repository port, and `OrderPaymentFacade` wiring for the synchronous projection.
+- Added application and Testcontainers-backed integration assertions that duplicate idempotent payment retries do not duplicate projection rows.
+- Added `load-tests/payment-spike-sync-projection.js` and Docker wrapper `scripts/load-test-payment-before.sh` for the k6 baseline.
+- Ran a smoke load test with `VUS=2 DURATION=5s`; result was `payment_latency p95=568.1ms`, `http_req_failed=0.00%`, and `43` completed iterations.
+- Verified application behavior test, full Gradle test suite, Testcontainers admin integration test, local stack health, and manual shop payment projection smoke.
+
 ## 2026-06-20
 
 - Started coupon exchange admin scope from the current commerce coupon model.

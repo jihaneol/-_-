@@ -1,5 +1,5 @@
 {
-  "current_phase": "phase-007-paginated-query-cqrs.md",
+  "current_phase": null,
   "phases": {
     "phase-001-idempotency-lookup.md": {
       "status": "completed",
@@ -94,11 +94,19 @@
       "review_note": "admin/shop runtime boundary verified on main integration; Gradle test passed"
     },
     "phase-007-paginated-query-cqrs.md": {
-      "status": "in_progress",
+      "status": "completed",
       "started_at": "2026-06-23T14:29:52+00:00",
-      "completed_at": null,
-      "last_validation": null,
-      "last_checkpoint": null,
+      "completed_at": "2026-06-24T00:00:00+09:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-23T00:00:00+09:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test",
+          "python3 scripts/hooks/audit_harness.py --lane backend --changed-only",
+          "python3 scripts/hooks/audit_harness.py --lane backend --all-response-mappers"
+        ]
+      },
+      "last_checkpoint": "Archived before starting payment spike Kafka/outbox Before baseline.",
       "baseline_dirty_files": [
         "docs/frontend-harness/03-api-state-contract.md",
         "docs/harness/04-api-contract.md",
@@ -158,7 +166,61 @@
         "workflow/backend/phases/phase-007-paginated-query-cqrs.md",
         "workflow/features/paginated-query-cqrs.md",
         "workflow/frontend/phases/phase-015-paginated-query-ui.md"
-      ]
+      ],
+      "archive_path": "workflow/backend/archive/2026-06-24/phase-007-paginated-query-cqrs.md"
+    },
+    "phase-008-payment-spike-before-projection.md": {
+      "status": "completed",
+      "started_at": "2026-06-24T00:00:00+09:00",
+      "completed_at": "2026-06-24T00:00:00+09:00",
+      "last_validation": {
+        "status": "passed-with-k6-gap",
+        "at": "2026-06-24T00:00:00+09:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :application:test --tests '*OrderPaymentFacadeBehaviorSpec'",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :admin-api:test --tests '*CommerceFlowIntegrationTest' -Dtestcontainers.enabled=true",
+          "local HTTP smoke: admin_front=200 shop_front=200 admin_api=200 shop_api=200",
+          "manual shop payment projection smoke: PAYMENT_AUTHORIZED projection count remained 1 after idempotent retry"
+        ]
+      },
+      "last_checkpoint": "Completed synchronous payment projection baseline. k6 script added but not executed because k6 is not installed locally.",
+      "archive_path": "workflow/backend/archive/2026-06-24/phase-008-payment-spike-before-projection.md"
+    },
+    "phase-009-payment-spike-inventory-update-tuning.md": {
+      "status": "completed",
+      "started_at": "2026-06-24T00:00:00+09:00",
+      "completed_at": "2026-06-24T00:00:00+09:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-24T00:00:00+09:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :application:test --tests '*OrderPaymentFacadeBehaviorSpec'",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :admin-api:test --tests '*CommerceFlowIntegrationTest' -Dtestcontainers.enabled=true",
+          "LOAD_TEST_RUN_ID=payment-tuned-100vus-30s-1product VUS=100 DURATION=30s PRODUCT_COUNT=1 scripts/load-test-payment-before.sh",
+          "LOAD_TEST_RUN_ID=payment-tuned-150vus-30s-1product VUS=150 DURATION=30s PRODUCT_COUNT=1 scripts/load-test-payment-before.sh"
+        ]
+      },
+      "last_checkpoint": "Conditional inventory update moved the hot-product 100 VU scenario from FAIL to PASS; 150 VU still fails.",
+      "archive_path": "workflow/backend/archive/2026-06-24/phase-009-payment-spike-inventory-update-tuning.md"
+    },
+    "phase-010-payment-spike-outbox-kafka.md": {
+      "status": "completed",
+      "started_at": "2026-06-24T00:00:00+09:00",
+      "completed_at": "2026-06-24T00:00:00+09:00",
+      "last_validation": {
+        "status": "passed-with-negative-performance-result",
+        "at": "2026-06-24T00:00:00+09:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :application:test --tests '*OrderPaymentFacadeBehaviorSpec'",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :admin-api:test --tests '*CommerceFlowIntegrationTest' -Dtestcontainers.enabled=true",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test",
+          "VUS=2 DURATION=5s PRODUCT_COUNT=1 scripts/load-test-payment-after-kafka.sh",
+          "VUS=100 DURATION=30s PRODUCT_COUNT=1 scripts/load-test-payment-after-kafka.sh"
+        ]
+      },
+      "last_checkpoint": "Kafka/outbox works functionally, but local 100 VU measurements were slower than the tuned synchronous baseline.",
+      "archive_path": "workflow/backend/archive/2026-06-24/phase-010-payment-spike-outbox-kafka.md"
     }
   }
 }

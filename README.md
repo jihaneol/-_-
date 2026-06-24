@@ -22,8 +22,8 @@ scripts/local-stack.sh
 Open:
 
 ```text
-Admin frontend: http://127.0.0.1:5174/
-Shop frontend:  http://127.0.0.1:5174/shop.html
+Admin frontend: http://127.0.0.1:5173/
+Shop frontend:  http://127.0.0.1:5174/
 Admin API:      http://127.0.0.1:8082/actuator/health
 Shop API:       http://127.0.0.1:8081/actuator/health
 ```
@@ -34,7 +34,8 @@ Manual local startup:
 docker compose up -d mysql
 ./gradlew :admin-api:bootRun --args='--server.port=8082'
 ./gradlew :shop-api:bootRun --args='--server.port=8081'
-npm --prefix frontend run dev -- --host 127.0.0.1 --port 5174
+npm --prefix frontend run dev:admin -- --port 5173
+npm --prefix frontend run dev:shop -- --port 5174
 ```
 
 ## Validate

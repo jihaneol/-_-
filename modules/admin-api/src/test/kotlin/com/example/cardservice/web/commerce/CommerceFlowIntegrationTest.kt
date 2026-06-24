@@ -33,6 +33,9 @@ class CommerceFlowIntegrationTest {
 
     @BeforeEach
     fun cleanDatabase() {
+        jdbcTemplate.update("delete from processed_outbox_events")
+        jdbcTemplate.update("delete from outbox_events")
+        jdbcTemplate.update("delete from payment_operational_projections")
         jdbcTemplate.update("delete from coupon_histories")
         jdbcTemplate.update("delete from coupons")
         jdbcTemplate.update("delete from order_lines")
@@ -56,6 +59,8 @@ class CommerceFlowIntegrationTest {
                 jsonPath("$.data.orderStatus") { value("PAID") }
                 jsonPath("$.data.issuedCouponCount") { value(2) }
             }
+        assertOutboxCount("PAYMENT_AUTHORIZED", orderId, 1)
+        assertProjectionCount("PAYMENT_AUTHORIZED", orderId, 0)
 
         payOrder(orderId = orderId, idempotencyKey = "pay-integration-1")
             .andExpect {
@@ -63,6 +68,8 @@ class CommerceFlowIntegrationTest {
                 jsonPath("$.data.orderStatus") { value("PAID") }
                 jsonPath("$.data.issuedCouponCount") { value(2) }
             }
+        assertOutboxCount("PAYMENT_AUTHORIZED", orderId, 1)
+        assertProjectionCount("PAYMENT_AUTHORIZED", orderId, 0)
 
         mockMvc.get("/api/admin/members/$memberId/coupons")
             .andExpect {
@@ -77,6 +84,8 @@ class CommerceFlowIntegrationTest {
                 jsonPath("$.data.orderStatus") { value("REFUNDED") }
                 jsonPath("$.data.voidedCouponCount") { value(2) }
             }
+        assertOutboxCount("PAYMENT_REFUNDED", orderId, 1)
+        assertProjectionCount("PAYMENT_REFUNDED", orderId, 0)
 
         mockMvc.get("/api/admin/members/$memberId/coupons")
             .andExpect {
@@ -150,5 +159,33 @@ class CommerceFlowIntegrationTest {
             .response
             .contentAsString
         return objectMapper.readTree(content).path("data").path("id").asLong()
+    }
+
+    private fun assertProjectionCount(operationType: String, orderId: Long, expectedCount: Int) {
+        val count = jdbcTemplate.queryForObject(
+            """
+                select count(*)
+                from payment_operational_projections
+                where operation_type = ? and order_id = ?
+            """.trimIndent(),
+            Int::class.java,
+            operationType,
+            orderId,
+        )
+        org.assertj.core.api.Assertions.assertThat(count).isEqualTo(expectedCount)
+    }
+
+    private fun assertOutboxCount(eventType: String, orderId: Long, expectedCount: Int) {
+        val count = jdbcTemplate.queryForObject(
+            """
+                select count(*)
+                from outbox_events
+                where event_type = ? and aggregate_id = ?
+            """.trimIndent(),
+            Int::class.java,
+            eventType,
+            orderId,
+        )
+        org.assertj.core.api.Assertions.assertThat(count).isEqualTo(expectedCount)
     }
 }

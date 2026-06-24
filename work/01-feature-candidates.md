@@ -40,6 +40,18 @@
 - UI impact: admin tables and shop catalog keep page state, render pager/load-more controls, and include page/filter values in TanStack Query keys.
 - Tests: controller contract tests for page shape, QueryDSL adapter integration tests for limit/offset/count/sort, frontend MSW tests for pager behavior.
 
+## Kafka Transactional Outbox Eventing
+
+- Situation: A promotion or lunch-time cafe rush drives many concurrent payment requests into the shop API. Inventory/payment/coupon correctness still needs strong DB transaction guarantees, but dashboard projection, audit, notification, and settlement-prep work should not lengthen the payment request path.
+- Value: Prove backend reliability and latency control under payment traffic spikes by decoupling post-payment work from the request path without losing events or duplicating side effects.
+- Scope: Add an `outbox_event` table, write `OrderPaid` and `OrderRefunded` events in the same transaction as order/payment state changes, publish pending outbox rows to Kafka from a batch/scheduled publisher, and add idempotent consumers for read-side projections or operational audit records.
+- Performance experiment: compare a baseline that updates an operational projection/audit row synchronously during payment with an outbox version that only appends the outbox row in the payment transaction. Use the same concurrent payment load and compare p95/p99 latency, throughput, DB lock wait symptoms, outbox pending count, projection lag, and consumer replay safety.
+- Risks: Moving coupon issuance itself to async too early can weaken the current strong payment/coupon correctness proof. Start with observable side effects such as admin dashboard projection, audit/event log, or notification stub before moving core coupon issuance.
+- Excluded: exactly-once Kafka semantics, distributed transactions between DB and Kafka, real PG integration, real email/SMS, Kubernetes, Schema Registry, and customer-facing UI for broker internals.
+- API impact: no customer API change in the first slice; optionally add admin-only outbox/event delivery inspection after the backend proof exists.
+- UI impact: none initially; later admin dashboard can show projection lag, pending outbox count, failed delivery count, and last published event time.
+- Tests: application test that outbox rows are saved atomically with payment/refund, publisher integration test with Kafka/Testcontainers, consumer idempotency test, duplicate-event replay test, and load test comparing synchronous vs outbox request latency.
+
 ## Shop Ecommerce UX Pass
 
 - Value: The customer-facing shop should feel like a normal ecommerce storefront, not a coupon-feature demo page.
