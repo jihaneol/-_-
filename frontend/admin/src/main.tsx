@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { AdminApp } from './AdminApp'
-import '../../src/app/styles/global.css'
+import '../../shared/src/styles/global.css'
 
 const queryClient = new QueryClient()
 

@@ -1,9 +1,9 @@
 import { CreditCard, Home, Package, Settings, Stamp, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { MainPage } from '../../src/pages/main/MainPage'
-import { MembersPage } from '../../src/pages/members/MembersPage'
-import { OrdersPaymentsPage } from '../../src/pages/orders-payments/OrdersPaymentsPage'
-import { ProductsPage } from '../../src/pages/products/ProductsPage'
+import { MainPage } from '../../shared/src/pages/main/MainPage'
+import { MembersPage } from '../../shared/src/pages/members/MembersPage'
+import { OrdersPaymentsPage } from '../../shared/src/pages/orders-payments/OrdersPaymentsPage'
+import { ProductsPage } from '../../shared/src/pages/products/ProductsPage'
 
 const routes = [
   { path: '/', label: '대시보드', icon: Home, title: '운영 대시보드', description: '매출, 주문, 쿠폰 적립과 교환 상태를 한 화면에서 확인합니다.' },

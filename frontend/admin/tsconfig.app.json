@@ -15,7 +15,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vite/client"],
+    "tsBuildInfoFile": "../node_modules/.tsbuildinfo/admin-app.tsbuildinfo"
   },
-  "include": ["src", "apps"]
+  "include": ["src", "../shared/src"]
 }

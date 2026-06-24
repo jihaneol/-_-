@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Accessibility, Check, Coffee, CreditCard, Flame, Gift, Languages, PackageCheck, RefreshCcw, Search, ShieldCheck, ShoppingBag, ShoppingCart, Snowflake, Star, Timer, Truck, User, UserPlus } from 'lucide-react'
+import { Check, Coffee, CreditCard, Gift, RefreshCcw, Search, ShoppingBag, User, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { shopCommerceApi, shopCommerceKeys } from '../../src/entities/commerce/api'
-import type { CouponHistory, CouponWallet, Member, Product, ProductPageResponse } from '../../src/entities/commerce/types'
-import type { ApiError } from '../../src/shared/api/client'
-import { Field, Notice, PaginationControls, StatusBadge } from '../../src/shared/ui'
+import { shopCommerceApi, shopCommerceKeys } from '../../shared/src/entities/commerce/api'
+import type { CouponHistory, CouponWallet, Member, Product, ProductPageResponse } from '../../shared/src/entities/commerce/types'
+import type { ApiError } from '../../shared/src/shared/api/client'
+import { Field, Notice, PaginationControls, StatusBadge } from '../../shared/src/shared/ui'
 
 const signupSchema = z.object({
   name: z.string().min(1),
@@ -15,7 +15,7 @@ const signupSchema = z.object({
 })
 
 type SignupForm = z.infer<typeof signupSchema>
-type ShopView = 'program05' | 'guide06' | 'catalog07' | 'order08' | 'home' | 'mypage' | 'detail' | 'checkout' | 'login' | 'signup'
+type ShopView = 'home' | 'products' | 'benefits' | 'mypage' | 'detail' | 'checkout' | 'login' | 'signup'
 
 function productCouponCount(product: Product) {
   return product.couponAccrualCount
@@ -95,17 +95,11 @@ export function ShopApp() {
     setSelectedProduct(product)
     openView('detail')
   }
-  const addToCart = (product: Product) => {
-    setSelectedProduct(product)
-    setNotice(`${product.name} 장바구니 담기`)
-    setError('')
-    openView('order08')
-  }
   const openCheckout = (product: Product) => {
     if (!member) {
-      setError('먼저 가입해주세요.')
+      setError('회원 가입 후 구매할 수 있습니다.')
       setNotice('')
-      openView('home')
+      openView('signup')
       return
     }
     setSelectedProduct(product)
@@ -113,59 +107,33 @@ export function ShopApp() {
   }
   const productItems = products.data?.items ?? []
   const fallbackProduct = selectedProduct ?? productItems[0] ?? null
-  const cartProduct = selectedProduct
 
   return (
     <main className="shop-shell">
-      <ShopHeader currentView={view} member={member} wallet={wallet.data} hasCart={cartProduct !== null} onOpen={openView} />
+      <ShopHeader currentView={view} member={member} wallet={wallet.data} onOpen={openView} />
       <Notice text={notice} error={error} />
-      <KioskUtilityBar member={member} wallet={wallet.data} />
-      <KioskStepRail currentView={view} hasCart={cartProduct !== null} member={member} onOpen={openView} />
 
-      {view === 'program05' ? (
-        <ShopProgramPage
-          member={member}
-          wallet={wallet.data}
-          onGuide={() => openView('guide06')}
-          onCatalog={() => openView('catalog07')}
-        />
-      ) : null}
-
-      {view === 'guide06' ? (
+      {view === 'benefits' ? (
         <ShopCouponGuidePage
           member={member}
           wallet={wallet.data}
-          onCatalog={() => openView('catalog07')}
+          onCatalog={() => openView('products')}
           onLogin={() => openView('login')}
           onSignup={() => openView('signup')}
         />
       ) : null}
 
-      {view === 'catalog07' ? (
+      {view === 'products' ? (
         <ShopCatalogPage
           products={productItems}
           productPage={products.data}
           isLoading={products.isLoading}
           member={member}
           onOpenDetail={openDetail}
-          onCart={addToCart}
           onCheckout={openCheckout}
           onPreviousPage={() => setProductPage((page) => Math.max(0, page - 1))}
           onNextPage={() => setProductPage((page) => page + 1)}
         />
-      ) : null}
-
-      {view === 'order08' && cartProduct ? (
-        <ShopOrderPreviewPage
-          product={cartProduct}
-          member={member}
-          onDetail={() => openDetail(cartProduct)}
-          onCheckout={() => openCheckout(cartProduct)}
-        />
-      ) : null}
-
-      {view === 'order08' && !cartProduct ? (
-        <ShopEmptyCartPage onCatalog={() => openView('catalog07')} />
       ) : null}
 
       {view === 'home' ? (
@@ -174,9 +142,9 @@ export function ShopApp() {
           isLoading={products.isLoading}
           member={member}
           wallet={wallet.data}
-          onLogin={() => openView('login')}
+          onSignup={() => openView('signup')}
+          onBenefits={() => openView('benefits')}
           onOpenDetail={openDetail}
-          onCart={addToCart}
           onCheckout={openCheckout}
         />
       ) : null}
@@ -197,7 +165,7 @@ export function ShopApp() {
           product={fallbackProduct}
           member={member}
           onHome={() => openView('home')}
-          onCart={addToCart}
+          onSignup={() => openView('signup')}
           onCheckout={openCheckout}
           onNotice={(message) => {
             setNotice(message)
@@ -222,7 +190,7 @@ export function ShopApp() {
           wallet={wallet.data}
           onSignup={() => openView('signup')}
           onMyPage={() => openView('mypage')}
-          onCatalog={() => openView('catalog07')}
+          onCatalog={() => openView('products')}
         />
       ) : null}
 
@@ -238,161 +206,38 @@ export function ShopApp() {
   )
 }
 
-function KioskUtilityBar(props: { member: Member | null; wallet?: CouponWallet }) {
-  return (
-    <section className="shop-kiosk-utilities" aria-label="키오스크 빠른 설정">
-      <div className="shop-kiosk-mode">
-        <strong>매장 주문 모드</strong>
-        <span>픽업 · 쿠폰 적립 · 결제</span>
-      </div>
-      <div className="shop-kiosk-tools">
-        <span><Languages size={16} /> KR</span>
-        <span>EN</span>
-        <span>JP</span>
-        <span>CN</span>
-        <button type="button"><Accessibility size={16} /> 큰글씨</button>
-        <button type="button">도움</button>
-      </div>
-      <div className="shop-kiosk-member">
-        <span>{props.member ? `${props.member.name} 회원` : '비회원 주문 가능'}</span>
-        <strong>쿠폰 {props.wallet?.issuedCouponCount ?? 0}장</strong>
-      </div>
-    </section>
-  )
-}
-
-function KioskStepRail(props: {
-  currentView: ShopView
-  hasCart: boolean
-  member: Member | null
-  onOpen: (view: ShopView) => void
-}) {
-  const steps: Array<{ label: string; view: ShopView; active: boolean; done: boolean }> = [
-    { label: '메뉴 선택', view: 'catalog07', active: props.currentView === 'home' || props.currentView === 'catalog07' || props.currentView === 'detail', done: props.hasCart },
-    { label: '옵션·장바구니', view: 'order08', active: props.currentView === 'order08', done: props.hasCart },
-    { label: '픽업 결제', view: 'checkout', active: props.currentView === 'checkout', done: false },
-    { label: '쿠폰 확인', view: 'mypage', active: props.currentView === 'mypage', done: props.member !== null },
-  ]
-  return (
-    <section className="shop-kiosk-step-rail" aria-label="주문 단계">
-      {steps.map((step, index) => (
-        <button
-          key={step.label}
-          className={`${step.active ? 'active' : ''} ${step.done ? 'done' : ''}`}
-          type="button"
-          onClick={() => props.onOpen(step.view)}
-        >
-          <span>{index + 1}</span>
-          <strong>{step.label}</strong>
-        </button>
-      ))}
-    </section>
-  )
-}
-
 function ShopHeader(props: {
   currentView: ShopView
   member: Member | null
   wallet?: CouponWallet
-  hasCart: boolean
   onOpen: (view: ShopView) => void
 }) {
   return (
     <header className="shop-header">
-      <button className="shop-logo-button" type="button" onClick={() => props.onOpen('home')}>Stamp Mall</button>
+      <button className="shop-logo-button" type="button" onClick={() => props.onOpen('home')}>
+        <Coffee size={22} /> Bean Stamp
+      </button>
       <nav className="shop-nav" aria-label="쇼핑몰 메뉴">
         <button className={props.currentView === 'home' ? 'active' : ''} type="button" onClick={() => props.onOpen('home')}>홈</button>
-        <button className={props.currentView === 'catalog07' || props.currentView === 'detail' ? 'active' : ''} type="button" onClick={() => props.onOpen('catalog07')}>상품</button>
-        <button className={props.currentView === 'guide06' || props.currentView === 'program05' ? 'active' : ''} type="button" onClick={() => props.onOpen('guide06')}>혜택</button>
-        <button className={props.currentView === 'mypage' ? 'active' : ''} type="button" onClick={() => props.onOpen('mypage')}>마이페이지</button>
+        <button className={props.currentView === 'products' || props.currentView === 'detail' ? 'active' : ''} type="button" onClick={() => props.onOpen('products')}>상품</button>
+        <button className={props.currentView === 'benefits' ? 'active' : ''} type="button" onClick={() => props.onOpen('benefits')}>쿠폰 안내</button>
+        {props.member ? (
+          <button className={props.currentView === 'mypage' ? 'active' : ''} type="button" onClick={() => props.onOpen('mypage')}>내 쿠폰</button>
+        ) : null}
       </nav>
       <label className="shop-search">
         <Search size={16} />
-        <span className="sr-only">상품 검색</span>
-        <input placeholder="상품명, 쿠폰 적립 상품 검색" />
+        <span className="sr-only">커피 메뉴 검색</span>
+        <input placeholder="커피 메뉴 검색" />
       </label>
       <div className="shop-header-actions">
-        <button className="shop-icon-button" type="button" onClick={() => props.onOpen('guide06')}>
-          <Gift size={17} />
-          <span>{props.wallet?.issuedCouponCount ?? 0}</span>
-        </button>
-        <button className="shop-icon-button" type="button" onClick={() => props.onOpen('order08')}>
-          <ShoppingCart size={17} />
-          <span>{props.hasCart ? 1 : 0}</span>
-        </button>
+        <span className="shop-session-badge">{props.member ? `쿠폰 ${props.wallet?.issuedCouponCount ?? 0}장` : '게스트 탐색 중'}</span>
         <button className={`button secondary ${props.currentView === 'login' ? 'active' : ''}`} type="button" onClick={() => props.onOpen('login')}>
           <User size={16} /> {props.member ? props.member.name : '로그인'}
         </button>
-        <button className="button" type="button" onClick={() => props.onOpen('signup')}>가입하기</button>
+        {!props.member ? <button className="button" type="button" onClick={() => props.onOpen('signup')}>가입하기</button> : null}
       </div>
     </header>
-  )
-}
-
-function ShopPageTabs(props: { currentView: ShopView; onOpen: (view: ShopView) => void }) {
-  const tabs: Array<{ view: ShopView; label: string }> = [
-    { view: 'program05', label: '05 프로그램' },
-    { view: 'guide06', label: '06 쿠폰 안내' },
-    { view: 'catalog07', label: '07 상품 목록' },
-    { view: 'order08', label: '08 주문 확인' },
-    { view: 'home', label: '09 메인' },
-    { view: 'mypage', label: '10 마이페이지' },
-    { view: 'detail', label: '11 상세' },
-    { view: 'checkout', label: '12 결제' },
-  ]
-  return (
-    <div className="shop-page-tabs" aria-label="Figma 화면">
-      {tabs.map((tab) => (
-        <button
-          key={tab.view}
-          className={props.currentView === tab.view ? 'active' : ''}
-          type="button"
-          onClick={() => props.onOpen(tab.view)}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function ShopProgramPage(props: {
-  member: Member | null
-  wallet?: CouponWallet
-  onGuide: () => void
-  onCatalog: () => void
-}) {
-  return (
-    <section className="shop-view shop-flow-view">
-      <div className="shop-flow-hero">
-        <div>
-          <span className="shop-page-mark">05</span>
-          <h1>쿠폰 교환 프로그램</h1>
-          <p>구매 금액이 쿠폰으로 쌓이고, 쿠폰 10장이 모이면 교환 상품으로 이어지는 쇼핑몰 흐름입니다.</p>
-          <div className="shop-hero-actions">
-            <button className="button" type="button" onClick={props.onCatalog}><ShoppingBag size={16} /> 상품 둘러보기</button>
-            <button className="button secondary" type="button" onClick={props.onGuide}><Gift size={16} /> 쿠폰 안내</button>
-          </div>
-        </div>
-        <div className="shop-program-card">
-          <strong>{props.member ? `${props.member.name}님의 쿠폰` : '게스트 쿠폰'}</strong>
-          <span>{props.wallet?.issuedCouponCount ?? 0}장 적립 중</span>
-          <StampBoard count={props.wallet?.issuedCouponCount ?? 0} size="small" />
-        </div>
-      </div>
-      <div className="shop-program-steps">
-        {[
-          ['구매', '5,000원 단위 결제마다 쿠폰이 자동 적립됩니다.'],
-          ['확인', '마이페이지에서 적립 현황과 최근 내역을 확인합니다.'],
-          ['교환', '10장을 모으면 5,000원 상품 교환 대상이 됩니다.'],
-        ].map(([title, body]) => (
-          <article key={title}>
-            <strong>{title}</strong>
-            <p>{body}</p>
-          </article>
-        ))}
-      </div>
-    </section>
   )
 }
 
@@ -406,7 +251,6 @@ function ShopCouponGuidePage(props: {
   return (
     <section className="shop-view">
       <div className="shop-page-title">
-        <span className="shop-page-mark">06</span>
         <h1>쿠폰 적립 안내</h1>
         <p>적립 기준, 교환 조건, 현재 상태를 한 화면에서 확인합니다.</p>
       </div>
@@ -416,13 +260,13 @@ function ShopCouponGuidePage(props: {
           <strong>{props.wallet?.issuedCouponCount ?? 0} / 10장</strong>
           <p>다음 교환까지 {props.wallet?.remainingToNextExchange ?? 10}장 남았습니다.</p>
           <StampBoard count={props.wallet?.issuedCouponCount ?? 0} />
-          <button className="button" type="button" onClick={props.onCatalog}>상품 보러가기</button>
+          <button className="button" type="button" onClick={props.onCatalog}>메뉴 보러가기</button>
         </section>
         <section className="shop-guide-rules">
           <h2>적립 규칙</h2>
           <div className="shop-rule-list">
             <div><strong>5,000원</strong><span>결제 금액 기준 쿠폰 1장</span></div>
-            <div><strong>10장</strong><span>교환 상품 1개 신청 가능</span></div>
+            <div><strong>10장</strong><span>교환 메뉴 1개 신청 가능</span></div>
             <div><strong>즉시 반영</strong><span>결제 완료 후 지갑에 자동 반영</span></div>
           </div>
         </section>
@@ -431,7 +275,7 @@ function ShopCouponGuidePage(props: {
           {props.member ? (
             <>
               <p>{props.member.email}</p>
-              <button className="button secondary" type="button" onClick={props.onCatalog}>상품 보러가기</button>
+              <button className="button secondary" type="button" onClick={props.onCatalog}>메뉴 보러가기</button>
             </>
           ) : (
             <div className="shop-guide-actions">
@@ -452,7 +296,6 @@ function ShopCatalogPage(props: {
   isLoading: boolean
   member: Member | null
   onOpenDetail: (product: Product) => void
-  onCart: (product: Product) => void
   onCheckout: (product: Product) => void
   onPreviousPage: () => void
   onNextPage: () => void
@@ -460,123 +303,48 @@ function ShopCatalogPage(props: {
   return (
     <section className="shop-view">
       <div className="shop-page-title">
-        <h1>상품 목록</h1>
-        <p>커피 키오스크처럼 카테고리에서 메뉴를 고르고 장바구니에 담아 결제합니다.</p>
+        <h1>커피 메뉴</h1>
+        <p>게스트는 메뉴와 적립 기준을 둘러보고, 회원은 바로 구매해 쿠폰을 적립합니다.</p>
       </div>
-      <div className="shop-kiosk-menu-layout">
-        <aside className="shop-kiosk-categories" aria-label="커피 카테고리">
-          {['전체 메뉴', '커피', '라떼', '티·에이드', '디저트', '교환 상품'].map((category, index) => (
-            <button className={index === 0 ? 'active' : ''} key={category} type="button">
-              {category}
-            </button>
-          ))}
-        </aside>
-        <div>
-          <div className="shop-catalog-toolbar">
-            <button className="active" type="button">추천순</button>
-            <button type="button">쿠폰 적립</button>
-            <button type="button">빠른 주문</button>
-            <button type="button">낮은 가격순</button>
-            <span>상품 {props.productPage?.totalElements ?? 0}개</span>
-          </div>
-          <PaginationControls
-            label="상품"
-            page={props.productPage}
-            isLoading={props.isLoading}
-            onPrevious={props.onPreviousPage}
-            onNext={props.onNextPage}
-          />
-          <div className="shop-catalog-list">
-            {props.isLoading ? <p>상품을 불러오는 중</p> : null}
-            {!props.isLoading && !props.products.length ? <p>상품 없음</p> : null}
-            {props.products.map((product) => (
-              <article className="shop-catalog-row" key={product.id}>
-                <button className="shop-catalog-photo" type="button" onClick={() => props.onOpenDetail(product)}>
-                  <Coffee size={24} />
-                  <span>{product.exchangeEligible ? '교환' : '커피'}</span>
-                </button>
-                <div>
-                  <strong>{product.name}</strong>
-                  <span>구매 시 쿠폰 {productCouponCount(product)}장 적립</span>
-                </div>
-                <StatusBadge value={product.saleStatus} />
-                <strong>{product.price.toLocaleString()} KRW</strong>
-                <div className="shop-catalog-actions">
-                  <button className="button secondary" disabled={product.saleStatus !== 'ON_SALE'} type="button" onClick={() => props.onCart(product)}>담기</button>
-                  <button className="button" disabled={!props.member || product.saleStatus !== 'ON_SALE'} type="button" onClick={() => props.onCheckout(product)}>구매</button>
-                </div>
-              </article>
-            ))}
-          </div>
+      <div className="shop-catalog-surface">
+        <div className="shop-catalog-toolbar">
+          <button className="active" type="button">전체</button>
+          <button type="button">오늘의 추천</button>
+          <button type="button">쿠폰 적립</button>
+          <button type="button">교환 메뉴</button>
+          <span>메뉴 {props.productPage?.totalElements ?? 0}개</span>
         </div>
-        <aside className="shop-kiosk-ticket">
-          <span>주문 요약</span>
-          <strong>{props.products[0]?.name ?? '메뉴 선택 전'}</strong>
-          <p>메뉴를 담으면 옵션 확인 후 바로 픽업 결제로 이동합니다.</p>
-          <button className="button secondary" type="button" disabled={!props.products.length} onClick={() => props.products[0] ? props.onCart(props.products[0]) : undefined}>
-            빠른 담기
-          </button>
-        </aside>
-      </div>
-    </section>
-  )
-}
-
-function ShopOrderPreviewPage(props: {
-  product: Product
-  member: Member | null
-  onDetail: () => void
-  onCheckout: () => void
-}) {
-  const couponCount = productCouponCount(props.product)
-  return (
-    <section className="shop-view">
-      <div className="shop-page-title">
-        <h1>장바구니</h1>
-        <p>결제 전 상품, 회원, 적립 예정 쿠폰을 확인합니다.</p>
-      </div>
-      <div className="shop-order-preview">
-        <section className="shop-order-card">
-          <h2>주문 상품</h2>
-          <div className="shop-checkout-item">
-            <div className="shop-thumb">상품</div>
-            <div>
-              <strong>{props.product.name}</strong>
-              <span>수량 1</span>
-            </div>
-            <strong>{props.product.price.toLocaleString()} KRW</strong>
-          </div>
-          <CoffeeOptionPanel />
-        </section>
-        <section className="shop-order-card">
-          <h2>구매자</h2>
-          <div className="shop-buyer-box">
-            <strong>{props.member?.name ?? '게스트'}</strong>
-            <span>{props.member?.email ?? '가입 후 결제할 수 있습니다.'}</span>
-          </div>
-        </section>
-        <aside className="shop-order-card shop-order-total">
-          <h2>적립 예정</h2>
-          <strong>쿠폰 {couponCount}장</strong>
-          <p>결제 완료 시 쿠폰 지갑에 반영됩니다.</p>
-          <button className="button" type="button" disabled={!props.member} onClick={props.onCheckout}>
-            <CreditCard size={16} /> 결제로 이동
-          </button>
-          <button className="button secondary" type="button" onClick={props.onDetail}>상품 상세</button>
-        </aside>
-      </div>
-    </section>
-  )
-}
-
-function ShopEmptyCartPage(props: { onCatalog: () => void }) {
-  return (
-    <section className="shop-view">
-      <div className="shop-empty-cart">
-        <ShoppingCart size={32} />
-        <h1>장바구니</h1>
-        <p>아직 담긴 상품이 없습니다. 상품을 먼저 고른 뒤 결제로 이동할 수 있습니다.</p>
-        <button className="button" type="button" onClick={props.onCatalog}>상품 보러가기</button>
+        <PaginationControls
+          label="메뉴"
+          page={props.productPage}
+          isLoading={props.isLoading}
+          onPrevious={props.onPreviousPage}
+          onNext={props.onNextPage}
+        />
+        <div className="shop-catalog-list">
+          {props.isLoading ? <p>메뉴를 불러오는 중</p> : null}
+          {!props.isLoading && !props.products.length ? <p>메뉴 없음</p> : null}
+          {props.products.map((product) => (
+            <article className="shop-catalog-row" key={product.id}>
+              <button className="shop-catalog-photo" type="button" onClick={() => props.onOpenDetail(product)}>
+                <Coffee size={24} />
+                <span>{product.exchangeEligible ? '교환 메뉴' : '커피'}</span>
+              </button>
+              <div>
+                <strong>{product.name}</strong>
+                <span>구매 시 쿠폰 {productCouponCount(product)}장 적립</span>
+              </div>
+              <StatusBadge value={product.saleStatus} />
+              <strong>{product.price.toLocaleString()} KRW</strong>
+              <div className="shop-catalog-actions">
+                <button className="button secondary" type="button" onClick={() => props.onOpenDetail(product)}>상세보기</button>
+                {props.member ? (
+                  <button className="button" disabled={product.saleStatus !== 'ON_SALE'} type="button" onClick={() => props.onCheckout(product)}>구매</button>
+                ) : null}
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -587,85 +355,85 @@ function ShopHomePage(props: {
   isLoading: boolean
   member: Member | null
   wallet?: CouponWallet
-  onLogin: () => void
+  onSignup: () => void
+  onBenefits: () => void
   onOpenDetail: (product: Product) => void
-  onCart: (product: Product) => void
   onCheckout: (product: Product) => void
 }) {
-  const issuedCouponCount = props.wallet?.issuedCouponCount ?? 0
   const primaryProduct = props.products[0]
   return (
     <>
       <section className="shop-hero-band">
         <div>
-          <span className="shop-hero-kicker">Coffee Kiosk Order</span>
-          <h1>커피 주문을 키오스크처럼 빠르게 끝내세요</h1>
-          <p>메뉴 선택, 옵션 확인, 픽업 결제, 쿠폰 적립까지 한 흐름으로 이어집니다. 결제 후 마이페이지에서 적립 현황과 교환 가능 상태를 바로 확인합니다.</p>
+          <span className="shop-hero-kicker">{props.member ? `${props.member.name} 회원` : '오늘의 커피'}</span>
+          <h1>따뜻한 커피 한 잔마다 쿠폰이 쌓입니다</h1>
+          <p>메뉴를 둘러보고 마음에 드는 커피를 선택하세요. 회원은 구매 후 쿠폰 적립 현황을 내 쿠폰에서 바로 확인할 수 있습니다.</p>
           <div className="shop-hero-actions">
-            <button className="button" type="button" onClick={() => primaryProduct ? props.onCart(primaryProduct) : undefined}><ShoppingBag size={16} /> 빠른 주문</button>
-            <a className="button secondary" href="#products"><Search size={16} /> 메뉴 보기</a>
+            <a className="button" href="#products"><ShoppingBag size={16} /> 메뉴 보기</a>
+            {props.member ? (
+              <button className="button secondary" type="button" onClick={props.onBenefits}><Gift size={16} /> 쿠폰 안내</button>
+            ) : (
+              <button className="button secondary" type="button" onClick={props.onSignup}><UserPlus size={16} /> 회원 가입</button>
+            )}
           </div>
         </div>
-        <div className="shop-hero-visual" aria-hidden="true">
-          <div className="shop-hero-product large">{primaryProduct?.name ?? '추천 상품'}<br />{(primaryProduct?.price ?? 0).toLocaleString()} KRW</div>
-          <div className="shop-hero-product wide">ICE/HOT 선택<br />픽업 결제</div>
-          <div className="shop-coupon-float">
-            <strong>쿠폰 현황</strong>
-            <StampBoard count={issuedCouponCount} size="small" />
+        <div className="shop-hero-visual">
+          <div className="shop-featured-product">
+            <Coffee size={32} />
+            <span>오늘의 추천</span>
+            <strong>{primaryProduct?.name ?? '메뉴 준비 중'}</strong>
+            <em>{(primaryProduct?.price ?? 0).toLocaleString()} KRW</em>
+            {primaryProduct ? (
+              <button className="button secondary" type="button" onClick={() => props.onOpenDetail(primaryProduct)}>상세보기</button>
+            ) : null}
           </div>
         </div>
       </section>
 
-      <section className="shop-benefit-strip" aria-label="쇼핑 혜택">
-        <span><Coffee size={17} /> 메뉴 선택</span>
-        <span><PackageCheck size={17} /> 옵션 확인</span>
-        <span><ShieldCheck size={17} /> 픽업 결제</span>
-        <span><Star size={17} /> 쿠폰 자동 적립</span>
-      </section>
-
-      <section className="shop-kiosk-shortcuts" aria-label="커피 주문 바로가기">
-        <button type="button" onClick={() => primaryProduct ? props.onCart(primaryProduct) : undefined}><Timer size={17} /> 최근 주문처럼 담기</button>
-        <button type="button" onClick={() => primaryProduct ? props.onOpenDetail(primaryProduct) : undefined}><Coffee size={17} /> 메뉴 상세 보기</button>
-        <button type="button" onClick={() => props.onCheckout(primaryProduct!)} disabled={!primaryProduct || !props.member}><CreditCard size={17} /> 바로 결제</button>
-      </section>
-
-      <section className="shop-task-grid">
-        <div className="shop-panel shop-login-cta">
-          <h2>로그인 후 쿠폰 지갑 확인</h2>
-          <p>회원 시작과 쿠폰 지갑 확인은 로그인 화면에서 이어집니다. 새 회원은 상단 가입하기에서 별도 가입 화면으로 이동합니다.</p>
-          <button className="button secondary" type="button" onClick={props.onLogin}>
-            <User size={16} /> 로그인으로 이동
+      {props.member ? (
+        <section className="shop-task-grid">
+          <CouponSummaryPanel member={props.member} wallet={props.wallet} />
+          <div className="shop-panel shop-login-cta">
+            <h2>회원 구매 흐름</h2>
+            <p>메뉴 상세에서 구매하면 결제 완료 후 쿠폰 지갑에 적립 수량이 반영됩니다.</p>
+            {primaryProduct ? (
+              <button className="button secondary" type="button" onClick={() => props.onCheckout(primaryProduct)}>
+                <CreditCard size={16} /> 추천 메뉴 구매
+              </button>
+            ) : null}
+          </div>
+        </section>
+      ) : (
+        <section className="shop-guest-strip">
+          <div>
+            <strong>게스트로 둘러보는 중</strong>
+            <span>메뉴 상세와 쿠폰 적립 기준만 표시합니다. 결제와 쿠폰 지갑은 회원 가입 후 열립니다.</span>
+          </div>
+          <button className="button secondary" type="button" onClick={props.onSignup}>
+            <UserPlus size={16} /> 회원 가입
           </button>
-        </div>
-
-        <CouponSummaryPanel member={props.member} wallet={props.wallet} />
-      </section>
+        </section>
+      )}
 
       <section className="shop-section" id="products">
         <div className="shop-section-head">
           <div>
-            <h2>추천 상품</h2>
-            <p>키오스크 메뉴판처럼 빠르게 고르고, 쿠폰은 결제 혜택으로 확인합니다.</p>
+            <h2>추천 커피</h2>
+            <p>메뉴 정보와 쿠폰 적립 기준을 먼저 확인하세요.</p>
           </div>
-          <span className="status info">상품 {props.products.length}개</span>
-        </div>
-        <div className="shop-category-row" aria-label="상품 카테고리">
-          <button className="active" type="button">전체</button>
-          <button type="button">커피</button>
-          <button type="button">빠른 주문</button>
-          <button type="button">교환 추천</button>
+          <span className="status info">메뉴 {props.products.length}개</span>
         </div>
         <div className="product-list shop-product-list">
           {props.isLoading ? <p>불러오는 중</p> : null}
-          {!props.isLoading && !props.products.length ? <p>상품 없음</p> : null}
+          {!props.isLoading && !props.products.length ? <p>메뉴 없음</p> : null}
           {props.products.map((product, index) => (
             <ShopProductCard
               key={product.id}
               product={product}
               featured={index === 0}
+              member={props.member}
               disabled={!props.member || product.saleStatus !== 'ON_SALE'}
               onDetail={() => props.onOpenDetail(product)}
-              onCart={() => props.onCart(product)}
               onCheckout={() => props.onCheckout(product)}
             />
           ))}
@@ -709,8 +477,8 @@ function ShopLoginPage(props: {
         </section>
         <section className="shop-auth-panel shop-auth-side">
           <h2>비회원 둘러보기</h2>
-          <p>상품 목록은 로그인 없이 확인할 수 있고, 결제는 회원 가입 후 진행됩니다.</p>
-          <button className="button secondary" type="button" onClick={props.onCatalog}>상품 먼저 보기</button>
+          <p>커피 메뉴는 로그인 없이 확인할 수 있고, 결제는 회원 가입 후 진행됩니다.</p>
+          <button className="button secondary" type="button" onClick={props.onCatalog}>메뉴 먼저 보기</button>
         </section>
       </div>
     </section>
@@ -727,7 +495,7 @@ function ShopSignupPage(props: {
     <section className="shop-view">
       <div className="shop-page-title">
         <h1>회원 가입</h1>
-        <p>데모 회원을 만들고 상품 구매, 결제, 쿠폰 적립 흐름을 이어갑니다.</p>
+        <p>데모 회원을 만들고 커피 구매, 결제, 쿠폰 적립 흐름을 이어갑니다.</p>
       </div>
       <div className="shop-auth-layout">
         <section className="shop-auth-panel">
@@ -780,7 +548,7 @@ function ShopMyPage(props: {
           <strong>{props.member ? `${props.member.name} 회원` : '게스트'}</strong>
           <span>{props.member?.email ?? '가입 후 쿠폰 지갑을 확인하세요.'}</span>
         </div>
-        <button className="button secondary" type="button" onClick={props.onHome}>상품 보러가기</button>
+        <button className="button secondary" type="button" onClick={props.onHome}>메뉴 보러가기</button>
       </div>
       <div className="shop-coupon-page-grid">
         <section className="shop-coupon-main">
@@ -799,7 +567,7 @@ function ShopMyPage(props: {
           </div>
         </section>
         <section className="shop-next-purchase">
-          <h2>다음 구매 추천</h2>
+          <h2>다음 커피 추천</h2>
           <p>5,000원 단위 결제마다 쿠폰이 자동 적립됩니다.</p>
           {props.nextProduct ? (
             <div className="shop-mini-item">
@@ -827,7 +595,7 @@ function ShopProductDetailPage(props: {
   product: Product
   member: Member | null
   onHome: () => void
-  onCart: (product: Product) => void
+  onSignup: () => void
   onCheckout: (product: Product) => void
   onNotice: (message: string) => void
 }) {
@@ -835,31 +603,36 @@ function ShopProductDetailPage(props: {
   return (
     <section className="shop-view shop-detail-view">
       <div className="shop-photo-area">
-        <span>{props.product.exchangeEligible ? '교환 상품' : '상품 이미지'}</span>
+        <Coffee size={52} />
+        <span>{props.product.exchangeEligible ? '교환 커피' : '커피 메뉴'}</span>
         <span className="status ok">쿠폰 적립 대상</span>
       </div>
       <div className="shop-detail-info">
         <span className="shop-crumb">홈 / 커피 메뉴 / {props.product.name}</span>
         <h1>{props.product.name}</h1>
-        <p>결제 후 쿠폰이 자동 적립되는 커피 메뉴입니다. 옵션을 확인한 뒤 픽업 결제로 이동할 수 있습니다.</p>
+        <p>결제 후 쿠폰이 자동 적립되는 커피 메뉴입니다. 게스트는 메뉴 정보만 확인하고, 회원은 바로 구매할 수 있습니다.</p>
         <strong className="shop-detail-price">{props.product.price.toLocaleString()} KRW</strong>
         <div className="shop-coupon-notice">
           <strong>쿠폰 {couponCount}장 적립</strong>
           <span>5,000원 단위로 계산되어 결제 완료 즉시 지갑에 반영됩니다.</span>
         </div>
-        <CoffeeOptionPanel />
         <div className="shop-detail-actions">
-          <button className="button secondary" type="button" onClick={() => props.onCart(props.product)}>장바구니</button>
-          <button className="button" type="button" disabled={!props.member || props.product.saleStatus !== 'ON_SALE'} onClick={() => props.onCheckout(props.product)}>
-            바로 구매
-          </button>
+          {props.member ? (
+            <button className="button" type="button" disabled={props.product.saleStatus !== 'ON_SALE'} onClick={() => props.onCheckout(props.product)}>
+              바로 구매
+            </button>
+          ) : (
+            <button className="button" type="button" onClick={props.onSignup}>
+              회원 가입 후 구매
+            </button>
+          )}
+          <button className="button secondary" type="button" onClick={props.onHome}>메뉴 더보기</button>
         </div>
         <div className="shop-exchange-box">
           <div>
-            <strong>교환 상품 안내</strong>
-            <span>쿠폰 10장을 모으면 5,000원 상품으로 교환할 수 있습니다.</span>
+            <strong>교환 메뉴 안내</strong>
+            <span>쿠폰 10장을 모으면 5,000원 커피 메뉴로 교환할 수 있습니다.</span>
           </div>
-          <button className="button secondary" type="button" onClick={props.onHome}>상품 더보기</button>
         </div>
       </div>
     </section>
@@ -877,15 +650,15 @@ function ShopCheckoutPage(props: {
   return (
     <section className="shop-view">
       <div className="shop-page-title">
-        <h1>픽업 결제</h1>
-        <p>주문 상품, 픽업 정보, 적립 쿠폰을 확인한 뒤 결제합니다.</p>
+        <h1>결제</h1>
+        <p>구매 메뉴, 회원 정보, 적립 쿠폰을 확인한 뒤 결제합니다.</p>
       </div>
       <div className="shop-checkout-layout">
         <div className="shop-checkout-main">
           <section className="shop-order-items">
-            <h2>주문 상품</h2>
+            <h2>주문 메뉴</h2>
             <div className="shop-checkout-item">
-              <div className="shop-thumb">상품</div>
+              <div className="shop-thumb"><Coffee size={17} /> 커피</div>
               <div>
                 <strong>{props.product.name}</strong>
                 <span>수량 1</span>
@@ -894,27 +667,23 @@ function ShopCheckoutPage(props: {
             </div>
           </section>
           <section className="shop-delivery">
-            <h2>픽업 정보</h2>
+            <h2>회원 정보</h2>
             <div className="shop-field-grid">
               <label>
-                <span>주문자</span>
+                <span>구매자</span>
                 <input value={props.member?.name ?? ''} readOnly placeholder="회원 가입 필요" />
               </label>
               <label>
-                <span>픽업 방식</span>
-                <input value="매장 픽업" readOnly />
-              </label>
-              <label className="wide">
-                <span>제조 요청</span>
-                <input value="결제 후 즉시 제조" readOnly />
+                <span>이메일</span>
+                <input value={props.member?.email ?? ''} readOnly placeholder="회원 가입 필요" />
               </label>
             </div>
           </section>
         </div>
         <aside className="shop-summary">
           <h2>결제 요약</h2>
-          <div className="shop-sum-row"><span>상품 금액</span><strong>{props.product.price.toLocaleString()} KRW</strong></div>
-          <div className="shop-sum-row"><span>픽업비</span><strong>0 KRW</strong></div>
+          <div className="shop-sum-row"><span>메뉴 금액</span><strong>{props.product.price.toLocaleString()} KRW</strong></div>
+          <div className="shop-sum-row"><span>추가 비용</span><strong>0 KRW</strong></div>
           <div className="shop-sum-total"><span>총 결제</span><strong>{props.product.price.toLocaleString()} KRW</strong></div>
           <div className="shop-earn-coupon">
             <strong>쿠폰 {couponCount}장 적립 예정</strong>
@@ -923,38 +692,11 @@ function ShopCheckoutPage(props: {
           <button className="button" type="button" disabled={!props.member || props.pending} onClick={props.onPay}>
             <CreditCard size={16} /> 결제하기
           </button>
-          <button className="button secondary" type="button" onClick={props.onBack}>상품으로 돌아가기</button>
-          <p>결제하면 주문 생성, 결제 승인, 쿠폰 발급이 한 번에 검증됩니다.</p>
+          <button className="button secondary" type="button" onClick={props.onBack}>메뉴로 돌아가기</button>
+          <p>결제하면 주문 생성, 결제 승인, 쿠폰 발급이 한 번에 처리됩니다.</p>
         </aside>
       </div>
     </section>
-  )
-}
-
-function CoffeeOptionPanel() {
-  return (
-    <div className="shop-coffee-options" aria-label="옵션 선택">
-      <div>
-        <span>온도</span>
-        <div className="shop-option-buttons">
-          <button className="active" type="button"><Snowflake size={15} /> ICE</button>
-          <button type="button"><Flame size={15} /> HOT</button>
-        </div>
-      </div>
-      <div>
-        <span>컵</span>
-        <div className="shop-option-buttons">
-          <button className="active" type="button">매장컵</button>
-          <button type="button">개인컵</button>
-        </div>
-      </div>
-      <div>
-        <span>픽업</span>
-        <div className="shop-option-buttons">
-          <button className="active" type="button"><Timer size={15} /> 즉시 제조</button>
-        </div>
-      </div>
-    </div>
   )
 }
 
@@ -1002,16 +744,17 @@ function StampBoard(props: { count: number; size?: 'small' | 'default' }) {
 function ShopProductCard(props: {
   product: Product
   featured: boolean
+  member: Member | null
   disabled: boolean
   onDetail: () => void
-  onCart: () => void
   onCheckout: () => void
 }) {
   const couponCount = productCouponCount(props.product)
   return (
     <article className={`product-card shop-product-card ${props.featured ? 'featured' : ''}`}>
       <button className="shop-product-photo" type="button" onClick={props.onDetail}>
-        <span>{props.product.exchangeEligible ? '교환 상품' : '추천 상품'}</span>
+        <Coffee size={30} />
+        <span>{props.product.exchangeEligible ? '교환 메뉴' : props.featured ? '오늘의 추천' : '커피 메뉴'}</span>
       </button>
       <div className="shop-product-body">
         <div>
@@ -1022,12 +765,14 @@ function ShopProductCard(props: {
       </div>
       <div className="shop-product-action">
         <strong>{props.product.price.toLocaleString()} KRW</strong>
-        <button className="button secondary" disabled={props.product.saleStatus !== 'ON_SALE'} onClick={props.onCart}>
-          <ShoppingCart size={16} /> {props.product.name} 담기
+        <button className="button secondary" onClick={props.onDetail}>
+          상세보기
         </button>
-        <button className="button" disabled={props.disabled} onClick={props.onCheckout}>
-          <ShoppingBag size={16} /> {props.product.name} 구매
-        </button>
+        {props.member ? (
+          <button className="button" disabled={props.disabled} onClick={props.onCheckout}>
+            <ShoppingBag size={16} /> 구매
+          </button>
+        ) : null}
       </div>
     </article>
   )

@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { AdminApp } from '../../apps/admin/AdminApp'
-import { ShopApp } from '../../apps/shop/ShopApp'
+import { AdminApp } from '../admin/src/AdminApp'
+import { ShopApp } from '../shop/src/ShopApp'
 
 let members = [{ id: 1, name: 'Kim', email: 'kim@example.com' }]
 let products = [buildProduct(1, 'Americano', 12000)]
@@ -130,19 +130,23 @@ describe('split apps', () => {
   it('renders the shop app without admin navigation and buys a product with coupon count', async () => {
     renderPage(<ShopApp />)
 
-    await screen.findByRole('heading', { name: '커피 주문을 키오스크처럼 빠르게 끝내세요' })
-    expect(screen.getByText('매장 주문 모드')).toBeInTheDocument()
-    expect(screen.getAllByText('메뉴 선택').length).toBeGreaterThan(0)
+    await screen.findByRole('heading', { name: '따뜻한 커피 한 잔마다 쿠폰이 쌓입니다' })
+    expect(screen.getByText('게스트 탐색 중')).toBeInTheDocument()
+    expect(screen.getByText('게스트로 둘러보는 중')).toBeInTheDocument()
+    expect(screen.queryByText('매장 주문 모드')).not.toBeInTheDocument()
+    expect(screen.queryByText('장바구니')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /주문\/결제/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '05 프로그램' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^구매$/ })).not.toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: '혜택' }))
+    await userEvent.click(screen.getByRole('button', { name: '쿠폰 안내' }))
     await screen.findByRole('heading', { name: '쿠폰 적립 안내' })
     await userEvent.click(screen.getByRole('button', { name: '상품' }))
-    await screen.findByRole('heading', { name: '상품 목록' })
-    expect(screen.getByRole('button', { name: '전체 메뉴' })).toBeInTheDocument()
+    await screen.findByRole('heading', { name: '커피 메뉴' })
+    expect(screen.getByRole('button', { name: '전체' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^구매$/ })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '홈' }))
-    await screen.findByRole('heading', { name: '커피 주문을 키오스크처럼 빠르게 끝내세요' })
+    await screen.findByRole('heading', { name: '따뜻한 커피 한 잔마다 쿠폰이 쌓입니다' })
     expect(screen.queryByRole('heading', { name: '회원 시작' })).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: /^로그인$/ }))
@@ -155,14 +159,11 @@ describe('split apps', () => {
     await userEvent.click(screen.getByRole('button', { name: /^가입$/ }))
     await screen.findByText('회원 #3 가입')
 
-    await screen.findByText('Americano')
-    await userEvent.click(screen.getByRole('button', { name: /Americano 담기/ }))
-    await screen.findByRole('heading', { name: '장바구니' })
-    expect(screen.getByText('온도')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /ICE/ })).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: /결제로 이동/ }))
-    await screen.findByRole('heading', { name: '픽업 결제' })
-    expect(screen.getByDisplayValue('매장 픽업')).toBeInTheDocument()
+    expect((await screen.findAllByText('Americano')).length).toBeGreaterThan(0)
+    await userEvent.click(screen.getAllByRole('button', { name: /^구매$/ })[0])
+    await screen.findByRole('heading', { name: '결제' })
+    expect(screen.getByDisplayValue('Lee')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('lee@example.com')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /결제하기/ }))
     await screen.findByText('결제 완료: 쿠폰 2장 적립')
 

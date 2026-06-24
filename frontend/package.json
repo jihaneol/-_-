@@ -3,23 +3,19 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "admin",
+    "shop",
+    "shared"
+  ],
   "scripts": {
-    "dev": "vite --config vite.config.ts --host 127.0.0.1",
-    "dev:admin": "vite --config vite.config.ts --host 127.0.0.1 --mode admin",
-    "dev:shop": "vite --config vite.config.ts --host 127.0.0.1 --mode shop",
-    "build": "tsc -b && vite build --config vite.config.ts",
-    "build:admin": "tsc -b && vite build --config vite.config.ts --mode admin",
-    "build:shop": "tsc -b && vite build --config vite.config.ts --mode shop",
-    "test": "vitest --config vite.config.ts"
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@tanstack/react-query": "^5.90.11",
-    "lucide-react": "^0.468.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-hook-form": "^7.67.0",
-    "zod": "^4.1.12"
+    "dev": "npm run dev:admin",
+    "dev:admin": "npm --workspace @card-service/admin-frontend run dev",
+    "dev:shop": "npm --workspace @card-service/shop-frontend run dev",
+    "build": "rm -rf dist && npm run build:admin && npm run build:shop",
+    "build:admin": "npm --workspace @card-service/admin-frontend run build",
+    "build:shop": "npm --workspace @card-service/shop-frontend run build",
+    "test": "vitest --config vitest.config.ts"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
