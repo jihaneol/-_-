@@ -1,5 +1,16 @@
 # Decision Log
 
+## 2026-06-25
+
+- Decision: Remove generic `commerce` package grouping from backend source.
+- Reason: `domain` already identifies the domain layer, and `commerce` became a broad umbrella that hid the actual business owner of each file.
+- Decision: Group backend code directly by business domain.
+- Reason: `order`, `product`, `inventory`, `member`, `coupon`, `outbox`, and `payment` are the concepts developers search for and modify.
+- Decision: Rename `CommerceOrder` to `Order` and `OrderLine` to `OrderItem`.
+- Reason: Package names now provide context; redundant prefixes and line/item ambiguity made the order model harder to read.
+- Decision: Remove empty settlement/reconciliation packages.
+- Reason: Placeholder packages imply implemented domains that do not exist yet.
+
 ## 2026-06-20
 
 - Decision: Treat coupon exchange as an admin corrective workflow, not a customer shop action.

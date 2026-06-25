@@ -54,7 +54,7 @@ Observed access patterns:
 - `order_lines.order_id`: secondary index, `type=ref`
 - `inventories.product_id`: unique index, `type=const`
 - `coupons.order_id`: secondary index, `type=ref`
-- `payment_operational_projections(operation_type, order_id)`: unique index, `type=const`
+- `payment_operation_records(operation_type, order_id)`: unique index, `type=const`
 
 Conclusion:
 

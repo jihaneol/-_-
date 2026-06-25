@@ -111,7 +111,7 @@ Observed index usage:
 - `order_lines.order_id`: secondary index, `EXPLAIN type=ref`.
 - `inventories.product_id`: unique index, `EXPLAIN type=const`.
 - `coupons.order_id`: secondary index, `EXPLAIN type=ref`.
-- `payment_operational_projections(operation_type, order_id)`: unique index, `EXPLAIN type=const`.
+- `payment_operation_records(operation_type, order_id)`: unique index, `EXPLAIN type=const`.
 
 The first clear bottleneck is not an obvious missing index. The baseline load test sends every payment to one product, so every payment locks the same inventory row with `PESSIMISTIC_WRITE`.
 

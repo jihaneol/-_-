@@ -1,5 +1,17 @@
 # Active Work
 
+## Backend Package Cleanup
+
+Remove broad umbrella package folders and keep backend code grouped directly by business domain.
+
+- Domain package target: `domain/{order,product,inventory,member,coupon,outbox,payment}`.
+- Application package target: `application/{order,product,inventory,member,coupon,dashboard,outbox,payment}`.
+- Infra package target: `infra/{order,inventory,coupon,outbox,payment}`.
+- Web package target: API runtime modules use `web/{order,product,inventory,member,coupon,dashboard,payment}` without an extra `commerce` or `shop` folder.
+- Naming target: `CommerceOrder -> Order`, `OrderLine -> OrderItem`, `CommerceOrderRepository -> OrderRepository`.
+- Cleanup rule: do not keep empty placeholder domains such as settlement or reconciliation until real implementation exists.
+- Response rule: controllers use `toApplicationResponse(type = ApplicationResponseType.OK)` and change status by passing `ApplicationResponseType`.
+
 ## Coupon Exchange Admin
 
 Build a narrow operational exchange workflow from the Figma admin design:
@@ -138,7 +150,7 @@ Run the project through explicit loops until the harness done criteria are met. 
 ### Before Baseline Status
 
 - Status: implemented.
-- Synchronous baseline: payment/refund transactions now write `payment_operational_projections` rows directly.
+- Synchronous baseline: payment/refund transactions now write `payment_operation_records` rows directly.
 - Load-test script: `scripts/load-test-payment-before.sh` runs `load-tests/payment-spike-sync-projection.js` through Dockerized k6.
 - Validation: application behavior test, full Gradle test suite, Testcontainers admin flow, local stack health, and manual shop payment projection smoke passed on 2026-06-24.
 - Smoke measurement: `VUS=2 DURATION=5s scripts/load-test-payment-before.sh` passed with `payment_latency p95=568.1ms`, `http_req_failed=0.00%`, and `43` completed iterations.

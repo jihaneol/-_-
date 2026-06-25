@@ -6,7 +6,7 @@
 
 - behavior change는 테스트를 먼저 작성하거나 수정한다.
 - production code 변경이 있으면 관련 테스트 또는 검증 근거가 있어야 한다.
-- domain/application/bootstrap/infra/external/batch 테스트 책임을 분리한다.
+- domain/application/admin-api/shop-api/infra/external/batch 테스트 책임을 분리한다.
 - 같은 시나리오를 여러 계층에서 반복 검증하지 않는다.
 - 테스트 이름은 조건, 행동, 기대 결과가 드러나게 작성한다.
 
@@ -14,7 +14,7 @@
 
 - domain 규칙은 `domain` 모듈에서 BehaviorSpec으로 검증한다.
 - application orchestration은 `application` 모듈에서 port를 MockK로 대체해 검증한다.
-- controller HTTP mapping과 error response는 `bootstrap` 모듈에서 검증한다.
+- controller HTTP mapping과 error response는 `admin-api` 또는 `shop-api` 모듈에서 검증한다.
 - JPA, QueryDSL, SQL schema, constraint는 `infra` integration test로 검증한다.
 - batch, external/message adapter는 각 모듈에서 adapter 책임만 검증한다.
 
@@ -23,7 +23,7 @@
 - transaction atomicity는 integration test로 검증한다.
 - idempotency와 lock 충돌은 실제 DB 기반 동시성 테스트를 둔다.
 - outbox는 저장, publish 성공, 실패, 재시도 상태 전이를 검증한다.
-- settlement/reconciliation은 정상 집계와 mismatch 탐지를 함께 검증한다.
+- settlement/reconciliation은 실제 구현을 시작한 뒤 정상 집계와 mismatch 탐지를 함께 검증한다. 빈 placeholder 테스트나 패키지는 만들지 않는다.
 
 ## Smoke And Load Test Rule
 

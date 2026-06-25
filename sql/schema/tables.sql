@@ -77,7 +77,7 @@ CREATE TABLE coupon_histories (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE payment_operational_projections (
+CREATE TABLE payment_operation_records (
     id BIGINT NOT NULL AUTO_INCREMENT,
     operation_type VARCHAR(40) NOT NULL,
     order_id BIGINT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE payment_operational_projections (
     voided_coupon_count INT NOT NULL,
     occurred_at DATETIME NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT uk_payment_operational_projection_operation_order UNIQUE (operation_type, order_id)
+    CONSTRAINT uk_payment_operation_records_operation_order UNIQUE (operation_type, order_id)
 );
 
 CREATE TABLE outbox_events (

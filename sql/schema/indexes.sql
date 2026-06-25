@@ -28,11 +28,11 @@ CREATE INDEX idx_coupon_histories_member_id_id
 CREATE INDEX idx_coupon_histories_order_id_id
     ON coupon_histories (order_id, id);
 
-CREATE INDEX idx_payment_operational_projections_occurred_at_id
-    ON payment_operational_projections (occurred_at, id);
+CREATE INDEX idx_payment_operation_records_occurred_at_id
+    ON payment_operation_records (occurred_at, id);
 
-CREATE INDEX idx_payment_operational_projections_member_id_id
-    ON payment_operational_projections (member_id, id);
+CREATE INDEX idx_payment_operation_records_member_id_id
+    ON payment_operation_records (member_id, id);
 
 CREATE INDEX idx_outbox_events_status_id
     ON outbox_events (status, id);

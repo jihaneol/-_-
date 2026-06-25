@@ -3,7 +3,7 @@
 ## 2026-06-24
 
 - Planned the Kafka/outbox traffic-spike story around payment p95/p99 improvement, not core payment correctness.
-- Added the Before baseline for the Kafka comparison: payment/refund transactions synchronously write `payment_operational_projections`.
+- Added the Before baseline for the Kafka comparison: payment/refund transactions synchronously write `payment_operation_records`.
 - Added schema, domain entity, application repository port, and `OrderPaymentFacade` wiring for the synchronous projection.
 - Added application and Testcontainers-backed integration assertions that duplicate idempotent payment retries do not duplicate projection rows.
 - Added `load-tests/payment-spike-sync-projection.js` and Docker wrapper `scripts/load-test-payment-before.sh` for the k6 baseline.

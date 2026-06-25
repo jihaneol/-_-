@@ -35,6 +35,8 @@ Spring Data `Pageable`은 금지가 아니다. 단순 단일 aggregate 조회는
 - projection DTO는 `infra` 모듈의 QueryDSL adapter 근처에 별도 파일로 둔다. `QueryDsl{Feature}QueryAdapter.kt` 안에 `@QueryProjection` row DTO를 같이 선언하지 않는다.
 - projection DTO는 application/domain 타입으로 노출하지 않는다.
 - projection DTO는 query row를 표현하고, application `Result`/`PageResult`로 변환해서 port 밖으로 내보낸다.
+- projection DTO는 JPA entity가 아니며 `@Entity`, `@Table`, repository 계약 대상이 되면 안 된다.
+- 저장되는 read model/table이 필요하면 `Projection`이 아니라 도메인 의미가 있는 entity 이름을 쓴다. 예: `PaymentOperationRecord`.
 - entity 전체가 필요한 경우가 아니면 `selectFrom(entity)`보다 `select(QProjection(...))`를 우선한다.
 - `Predicate`, `where`, `condition` 같은 불투명 조건 파라미터로 조회 의도를 숨기지 않는다. 회원별 조회, 주문별 조회처럼 의미가 다른 조건은 각각 명시적인 메서드/query block으로 작성한다.
 - `select(...)` 안의 projection 필드는 쿼리 블록에서 바로 보이게 작성한다. `couponHistoryRow()`처럼 select 필드를 숨기는 helper를 만들지 않는다.

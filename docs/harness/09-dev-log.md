@@ -4,7 +4,7 @@
 
 - Planned Kafka as a traffic-spike reliability/performance slice rather than a replacement for payment correctness.
 - Chose the Before/After experiment shape: synchronous payment projection/audit in the request path first, then Kafka/outbox projection/audit later.
-- Implemented the Before baseline with `payment_operational_projections`, a domain/JPA projection entity, an application repository port, and synchronous `OrderPaymentFacade` writes on payment/refund.
+- Implemented the Before baseline with `payment_operation_records`, a domain/JPA record entity, an application repository port, and synchronous `OrderPaymentFacade` writes on payment/refund.
 - Added tests proving payment projection is written once for a new payment and not duplicated by an idempotent retry.
 - Added `load-tests/payment-spike-sync-projection.js` for the baseline k6 payment spike scenario.
 - Validation passed: `:application:test --tests '*OrderPaymentFacadeBehaviorSpec'`, full `./gradlew test`, Testcontainers `CommerceFlowIntegrationTest`, local stack health, and manual shop payment projection smoke. k6 execution is pending because k6 is not installed locally.

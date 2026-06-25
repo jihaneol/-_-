@@ -99,7 +99,7 @@ request/query parameters
 
 ```kotlin
 // 금지: HTTP 응답 wrapper 사용
-ApiResponse.success(result)
+result.toApplicationResponse()
 
 // 금지: controller annotation 사용
 @RequestBody

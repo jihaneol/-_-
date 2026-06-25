@@ -33,12 +33,12 @@ flowchart LR
     subgraph AdminApi["admin-api"]
         WebCommon["web.common\nApiResponse\nApiErrorResponse\nGlobalApiExceptionHandler"]
         WebPayment["web.payment\nCouponOrderController"]
-        WebAdminCommerce["web.commerce\nAdmin commerce controllers"]
+        WebAdminDomains["web.order/product/member/inventory/coupon/dashboard\nAdmin controllers"]
     end
 
     subgraph ShopApi["shop-api"]
         ShopCommon["web.common\nApiResponse\nApiErrorResponse\nGlobalApiExceptionHandler"]
-        WebShop["web.shop\nShop controllers"]
+        WebShopDomains["web.order/product/member/coupon/payment\nShop controllers"]
     end
 
     subgraph Application["application"]

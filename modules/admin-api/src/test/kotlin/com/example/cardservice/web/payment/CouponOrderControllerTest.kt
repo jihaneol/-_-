@@ -3,6 +3,7 @@ package com.example.cardservice.web.payment
 import com.example.cardservice.application.payment.CreateCouponOrderInput
 import com.example.cardservice.application.payment.CreateCouponOrderResult
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
+import com.example.cardservice.web.payment.couponorder.CouponOrderController
 import com.example.cardservice.domain.payment.model.OrderId
 import com.example.cardservice.domain.payment.model.PaymentId
 import com.example.cardservice.domain.payment.model.PaymentStatus
@@ -51,15 +52,15 @@ class CouponOrderControllerTest {
         }
             .andExpect {
                 status { isCreated() }
-                jsonPath("$.code") { value("SUCCESS") }
-                jsonPath("$.message") { value("요청이 성공했습니다.") }
-                jsonPath("$.data.orderId") { value("order-1") }
-                jsonPath("$.data.paymentId") { value("1") }
-                jsonPath("$.data.paymentStatus") { value("AUTHORIZED") }
-                jsonPath("$.data.paymentStatusLabel") { value("승인 완료") }
-                jsonPath("$.data.amount") { value(10000) }
-                jsonPath("$.data.currency") { value("KRW") }
-                jsonPath("$.data.couponIds", hasSize<String>(2))
+                jsonPath("$.result.code") { value("OK") }
+                jsonPath("$.result.message") { value("요청이 성공했습니다.") }
+                jsonPath("$.payload.orderId") { value("order-1") }
+                jsonPath("$.payload.paymentId") { value("1") }
+                jsonPath("$.payload.paymentStatus") { value("AUTHORIZED") }
+                jsonPath("$.payload.paymentStatusLabel") { value("승인 완료") }
+                jsonPath("$.payload.amount") { value(10000) }
+                jsonPath("$.payload.currency") { value("KRW") }
+                jsonPath("$.payload.couponIds", hasSize<String>(2))
             }
     }
 
@@ -81,8 +82,8 @@ class CouponOrderControllerTest {
         }
             .andExpect {
                 status { isBadRequest() }
-                jsonPath("$.code") { value("BAD_REQUEST") }
-                jsonPath("$.message") { value("쿠폰 수량은 1개 이상이어야 합니다.") }
+                jsonPath("$.result.code") { value("BAD_REQUEST") }
+                jsonPath("$.result.message") { value("쿠폰 수량은 1개 이상이어야 합니다.") }
             }
     }
 }

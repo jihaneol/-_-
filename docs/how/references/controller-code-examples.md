@@ -44,9 +44,10 @@ class CouponOrderController(
     fun create(
         @RequestBody request: CreateCouponOrderRequest,
     ): ResponseEntity<ApiResponse<CreateCouponOrderResponse>> =
-        ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(ApiResponse.success(couponOrderUseCase.create(request.toInput()).toResponse()))
+        couponOrderUseCase
+            .create(request.toInput())
+            .toResponse()
+            .toApplicationResponse(ApplicationResponseType.CREATED)
 
     private fun CreateCouponOrderRequest.toInput(): CreateCouponOrderInput =
         CreateCouponOrderInput(
@@ -137,16 +138,16 @@ class PaymentController(
     fun authorize(
         @RequestBody request: AuthorizePaymentRequest,
     ): ResponseEntity<ApiResponse<AuthorizePaymentResponse>> =
-        ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(ApiResponse.success(authorizePaymentUseCase.authorize(request)))
+        authorizePaymentUseCase
+            .authorize(request)
+            .toApplicationResponse(ApplicationResponseType.CREATED)
 
     @PostMapping("/{paymentId}/cancel")
     fun cancel(
         @PathVariable paymentId: String,
         @RequestBody request: CancelPaymentRequest,
     ): ResponseEntity<ApiResponse<CancelPaymentResponse>> =
-        ResponseEntity.ok(ApiResponse.success(cancelPaymentUseCase.cancel(paymentId, request)))
+        cancelPaymentUseCase.cancel(paymentId, request).toApplicationResponse()
 }
 ```
 
@@ -165,14 +166,14 @@ class PaymentQueryController(
     fun get(
         @PathVariable paymentId: String,
     ): ResponseEntity<ApiResponse<PaymentDetailResponse>> =
-        ResponseEntity.ok(ApiResponse.success(getPaymentUseCase.get(paymentId)))
+        getPaymentUseCase.get(paymentId).toApplicationResponse()
 
     @GetMapping
     @Operation(summary = "결제 목록 조회")
     fun search(
         request: SearchPaymentsRequest,
     ): ResponseEntity<ApiResponse<SearchPaymentsResponse>> =
-        ResponseEntity.ok(ApiResponse.success(searchPaymentsUseCase.search(request)))
+        searchPaymentsUseCase.search(request).toApplicationResponse()
 }
 ```
 
@@ -296,10 +297,10 @@ class CouponOrderControllerTest {
         }
             .andExpect {
                 status { isCreated() }
-                jsonPath("$.code") { value("SUCCESS") }
-                jsonPath("$.data.paymentStatus") { value("AUTHORIZED") }
-                jsonPath("$.data.paymentStatusLabel") { value("승인 완료") }
-                jsonPath("$.data.couponIds", hasSize<String>(2))
+                jsonPath("$.result.code") { value("OK") }
+                jsonPath("$.payload.paymentStatus") { value("AUTHORIZED") }
+                jsonPath("$.payload.paymentStatusLabel") { value("승인 완료") }
+                jsonPath("$.payload.couponIds", hasSize<String>(2))
             }
     }
 }

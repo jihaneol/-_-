@@ -15,9 +15,9 @@ Do not present Kafka as the fix for hot inventory row contention. Phase 009 alre
 - Add `outbox_events` table and persistence model.
 - Add `processed_outbox_events` table for consumer idempotency.
 - Append `PAYMENT_AUTHORIZED` and `PAYMENT_REFUNDED` outbox rows inside existing payment/refund transactions.
-- Remove synchronous `payment_operational_projections` writes from the payment/refund request path.
+- Remove synchronous `payment_operation_records` writes from the payment/refund request path.
 - Add a scheduled Kafka publisher for pending outbox events.
-- Add a Kafka consumer that writes `payment_operational_projections` idempotently.
+- Add a Kafka consumer that writes `payment_operation_records` idempotently.
 - Add local Docker Compose Kafka service.
 - Add an After load-test wrapper and document the measurement plan.
 
@@ -62,14 +62,14 @@ Metrics:
 - Changed `OrderPaymentFacade`:
   - payment success now appends `PAYMENT_AUTHORIZED` outbox event.
   - refund success now appends `PAYMENT_REFUNDED` outbox event.
-  - synchronous `payment_operational_projections` save was removed from the request path.
+  - synchronous `payment_operation_records` save was removed from the request path.
 - Added Kafka publisher:
   - polls `PENDING` and `FAILED` outbox rows.
   - sends payload to `commerce.order-events.v1`.
   - marks rows `PUBLISHED` or `FAILED`.
 - Added Kafka consumer:
   - consumes payment operational events.
-  - writes `payment_operational_projections`.
+  - writes `payment_operation_records`.
   - records `processed_outbox_events` for idempotency.
 - Added local Kafka Compose service using `apache/kafka:3.8.0`.
 - Added `scripts/local-stack-kafka.sh`.

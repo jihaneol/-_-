@@ -16,7 +16,7 @@ Create the "Before" baseline for the Kafka/outbox performance story: payment tra
 ## Scope
 
 - Add a payment operational projection/audit table.
-- Add a domain/JPA projection entity and application repository port.
+- Add a domain/JPA record entity and application repository port.
 - Save a payment projection row synchronously when a new payment succeeds.
 - Save a refund projection row synchronously when a refund succeeds.
 - Keep idempotent duplicate payment requests from writing duplicate projection rows.

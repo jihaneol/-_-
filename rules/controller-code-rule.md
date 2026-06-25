@@ -9,9 +9,11 @@
 ```text
 modules/application/src/main/kotlin/com/example/cardservice/application/{domain}/request
 modules/application/src/main/kotlin/com/example/cardservice/application/{domain}/response
-modules/bootstrap/src/main/kotlin/com/example/cardservice/web/{domain}
-modules/bootstrap/src/main/kotlin/com/example/cardservice/web/common
+modules/{admin-api|shop-api}/src/main/kotlin/com/example/cardservice/web/{domain}
+modules/{admin-api|shop-api}/src/main/kotlin/com/example/cardservice/web/common
 ```
+
+`web/commerce/{domain}` 또는 `web/shop/{domain}`처럼 runtime이나 umbrella 이름을 한 번 더 끼우지 않는다. `admin-api`, `shop-api` 모듈명이 이미 runtime boundary를 표현한다.
 
 ## Feature Split Rule
 
@@ -41,7 +43,7 @@ CouponController       -> 쿠폰과 쿠폰 히스토리 조회
 - 비즈니스 판단, 금액 계산, 도메인 상태 전이, repository 호출, QueryDSL 호출, external adapter 직접 호출은 금지한다.
 - command endpoint와 query endpoint는 use case도 분리해서 호출한다.
 - `@ResponseStatus`는 사용하지 않는다. HTTP status는 `ResponseEntity`로 명시한다.
-- 성공 응답은 `ApiResponse<T>`로 감싼다.
+- 성공 응답은 `toApplicationResponse()`로 감싼다.
 - `ApiResponse<Any>`는 사용하지 않는다. 단일 값은 정확한 Result/Response 타입을 쓴다.
 - top-level 목록 응답은 `ApiResponse<List<T>>`로 직접 내보내지 않는다. 고정 소량 목록은 `{Feature}ListResponse`, 개수가 커질 수 있는 조회 목록은 `{Feature}PageResult`/`{Feature}PageResponse`처럼 객체로 감싼다.
 - 개수가 커질 수 있는 top-level 목록 응답은 `items`와 pagination metadata를 함께 반환한다.
@@ -55,39 +57,36 @@ CouponController       -> 쿠폰과 쿠폰 히스토리 조회
 package com.example.cardservice.web.common
 
 data class ApiResponse<T>(
+    val result: ApplicationResult,
+    val payload: T,
+)
+
+data class ApplicationResult(
     val code: String,
     val message: String,
-    val data: T,
-) {
-    companion object {
-        fun <T> success(data: T): ApiResponse<T> =
-            ApiResponse(
-                code = "SUCCESS",
-                message = "요청이 성공했습니다.",
-                data = data,
-            )
-    }
-}
+)
 ```
 
 사용 기준:
 
 ```kotlin
-ResponseEntity
-    .status(HttpStatus.CREATED)
-    .body(ApiResponse.success(result))
-
-ResponseEntity.ok(ApiResponse.success(result))
+result.toApplicationResponse()
+result.toApplicationResponse(ApplicationResponseType.CREATED)
+Unit.toApplicationResponse(ApplicationResponseType.NO_CONTENT)
 ```
 
-반복되는 HTTP body 조립은 공통 helper로 줄일 수 있다.
+반복되는 HTTP body 조립은 확장 함수 하나로 관리한다.
 
 ```kotlin
-fun <T> ok(data: T): ResponseEntity<ApiResponse<T>> =
-    ResponseEntity.ok(ApiResponse.success(data))
-
-fun <T> created(data: T): ResponseEntity<ApiResponse<T>> =
-    ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(data))
+fun <T> T.toApplicationResponse(
+    type: ApplicationResponseType = ApplicationResponseType.OK,
+): ResponseEntity<ApiResponse<T>> =
+    when (type) {
+        ApplicationResponseType.NO_CONTENT ->
+            ResponseEntity.status(type.httpStatus).build()
+        else ->
+            ResponseEntity.status(type.httpStatus).body(ApiResponse(type.toResult(), this))
+    }
 ```
 
 공통 helper에는 HTTP status/body wrapping만 둔다. Result를 다른 API DTO로 바꾸는 비즈니스성 판단, 필드 계산, 권한별 필드 제거는 넣지 않는다.
@@ -108,7 +107,7 @@ fun <T> created(data: T): ResponseEntity<ApiResponse<T>> =
 
 - use case는 계속 `{Action}Result`, `{Projection}QueryResult`를 반환한다.
 - API 응답이 Result와 필드/이름/중첩 구조가 1:1이면 별도 `Response` DTO와 `toResponse()` 확장 함수를 만들지 않는다.
-- 1:1 결과는 컨트롤러에서 `ApiResponse.success(result)`, `ok(result)`, `created(result)`처럼 바로 감싼다.
+- 1:1 결과는 컨트롤러에서 `result.toApplicationResponse()`처럼 바로 감싼다.
 - 컨트롤러 반환 타입도 `ApiResponse<MemberResult>`, `ApiResponse<OrderPageResult>`, `ResponseEntity<ApiResponse<ProductResponse>>`처럼 구체적으로 작성한다.
 - 목록 wrapper 필드명은 응답 의미를 드러내는 복수형을 쓴다. 예: `members`, `orders`, `coupons`, `histories`, `products`.
 - paginated wrapper는 도메인별 복수형 대신 공통 `items`를 사용한다. 예: `ProductPageResponse(items, page, size, totalElements, totalPages, hasNext)`.
@@ -151,8 +150,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 
 ## Test Rule
 
-- web slice test는 `bootstrap` 모듈에 둔다.
-- 성공 응답은 `$.code`, `$.message`, `$.data.*`를 검증한다.
+- web slice test는 `admin-api` 또는 `shop-api` 모듈에 둔다.
+- 성공 응답은 `$.result.code`, `$.result.message`, `$.payload.*`를 검증한다.
 - use case 예외가 HTTP error response로 변환되는지 검증한다.
 - request DTO에 bean validation annotation이 다시 들어오지 않도록 source convention test로 검증한다.
 - 공통 테스트 기준은 `rules/test-rule.md`를 따른다.
@@ -163,5 +162,5 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 - 에러 메시지 규칙: `rules/error-message-rule.md`
 - 테스트 규칙: `rules/test-rule.md`
 - 실제 컨트롤러 예시: `docs/how/references/controller-code-examples.md`
-- 현재 적용 코드: `modules/bootstrap/src/main/kotlin/com/example/cardservice/web/payment/CouponOrderController.kt`
-- 현재 테스트 코드: `modules/bootstrap/src/test/kotlin/com/example/cardservice/web/payment/CouponOrderControllerTest.kt`
+- 현재 적용 코드: `modules/admin-api/src/main/kotlin/com/example/cardservice/web/payment/couponorder/CouponOrderController.kt`
+- 현재 테스트 코드: `modules/admin-api/src/test/kotlin/com/example/cardservice/web/payment/CouponOrderControllerTest.kt`
