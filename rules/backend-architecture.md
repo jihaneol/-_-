@@ -7,7 +7,8 @@
 ```text
 domain      -> domain model and JPA entity combined, invariants, domain events, domain services
 application -> command/query use cases and ports
-bootstrap   -> Spring Boot runtime assembly and REST inbound adapters
+admin-api   -> operator/admin Spring Boot runtime assembly and REST inbound adapters
+shop-api    -> customer/shop Spring Boot runtime assembly and REST inbound adapters
 batch       -> scheduled/batch inbound adapters
 infra       -> JPA/QueryDSL database adapters
 external    -> external-system/message adapters
@@ -16,13 +17,14 @@ external    -> external-system/message adapters
 Dependency direction:
 
 ```text
-bootstrap -> application + domain + batch + infra + external
+admin-api -> application + domain + batch + infra + external
+shop-api  -> application + domain + infra + external
 batch     -> application -> domain
 infra     -> application -> domain
 external  -> application -> domain
 ```
 
-`domain` may contain JPA entity annotations because this project uses domain model and JPA entity as one model. Narrow Spring Data `Repository<T, ID>` contracts may live in `application/provided`. QueryDSL adapters and persistence adapters live in `infra`. `external` must not contain JPA, QueryDSL, or database repositories.
+`domain` may contain JPA entity annotations because this project uses domain model and JPA entity as one model. Narrow Spring Data `Repository<T, ID>` contracts may live in `application/{domain}/provided`. QueryDSL adapters and persistence adapters live in `infra/{domain}`. `external` must not contain JPA, QueryDSL, or database repositories.
 
 ## Domain And Entity Rule
 
@@ -37,7 +39,7 @@ external  -> application -> domain
 - PK는 `id`로 통일하고, 별도 public id 요구가 생기기 전에는 중복 식별자 컬럼을 만들지 않는다.
 - JPA는 field access를 사용하고, domain value object 접근은 계산 property getter로 제공할 수 있다.
 - `@get:Transient`는 사용하지 않는다.
-- 좁은 Spring Data `Repository<T, ID>` 계약은 `application/provided`에 둘 수 있다.
+- 좁은 Spring Data `Repository<T, ID>` 계약은 `application/{domain}/provided`에 둘 수 있다.
 - `JpaRepository`처럼 넓은 Spring Data interface는 사용하지 않는다.
 - QueryDSL repository/adapter와 persistence adapter는 `infra` 모듈에 둔다.
 - QueryDSL 세부 작성 규칙은 `rules/querydsl-rule.md`를 따른다.
@@ -49,10 +51,18 @@ Package:
 
 ```text
 modules/domain/src/main/kotlin/com/example/cardservice/domain
-  payment.model        -> aggregate/entity, value object, enum
-  payment.event        -> domain event
+  order                -> order aggregate/entity, value object, enum
+  product              -> product aggregate/entity, enum
+  inventory            -> inventory aggregate/entity
+  member               -> member aggregate/entity
+  coupon               -> coupon aggregate/entity and history
+  outbox               -> outbox entity
+  payment              -> payment aggregate/value object
+  payment.event        -> payment domain event
   domainservice.payment -> multiple-domain domain service
 ```
+
+`commerce` 같은 umbrella folder나 `{domain}/model` 폴더는 만들지 않는다. 패키지 경로가 이미 도메인 맥락을 제공하므로 class 이름에 `Commerce` 같은 중복 접두어를 붙이지 않는다.
 
 ## Domain Service Rule
 
@@ -79,7 +89,7 @@ modules/domain/src/main/kotlin/com/example/cardservice/domain
 Command use case는 다음 흐름을 따른다.
 
 ```text
-bootstrap web request
+web request
   -> command inbound port
   -> application command use case
   -> domain aggregate / domain service
@@ -104,7 +114,7 @@ bootstrap web request
 Query use case는 다음 흐름을 따른다.
 
 ```text
-bootstrap web request
+web request
   -> query inbound port
   -> application query use case
   -> query outbound port
@@ -126,6 +136,7 @@ bootstrap web request
 - query side는 도메인 aggregate를 변경하지 않는다.
 - query side에서 command aggregate를 억지로 조립하지 않는다.
 - 단순 ID 단건 조회라도 화면/리포트 응답이면 query port를 통해 반환한다.
+- `Projection` 이름은 조회 DTO/read row에만 사용한다. JPA entity는 도메인 객체 이름으로 작성하고 Q metamodel 생성 대상이 되어도 `Projection` 접미사를 붙이지 않는다.
 
 ## Naming Rule Link
 
@@ -188,7 +199,7 @@ PaymentEventPublisherAdapter
 핵심 기준:
 
 ```text
-bootstrap web adapter -> application request/result/response -> application use case
+web adapter -> application request/result/response -> application use case
 ```
 
 `request` 모델은 `application` 모듈의 별도 패키지에 둔다.

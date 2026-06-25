@@ -61,7 +61,7 @@ for manual commands during long-running work.
 
 ## Impeccable Detector
 
-`scripts/hooks/validate_impeccable.sh` runs the project-local Impeccable detector against `frontend/apps` and `frontend/src`.
+`scripts/hooks/validate_impeccable.sh` runs the project-local Impeccable detector against `frontend/admin`, `frontend/shop`, and `frontend/shared`.
 
 The frontend lane hook runs it after tests and build. Use it directly when checking UI quality without running the full frontend validation:
 

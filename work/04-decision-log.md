@@ -1,5 +1,16 @@
 # Decision Log
 
+## 2026-06-25
+
+- Decision: Remove generic `commerce` package grouping from backend source.
+- Reason: `domain` already identifies the domain layer, and `commerce` became a broad umbrella that hid the actual business owner of each file.
+- Decision: Group backend code directly by business domain.
+- Reason: `order`, `product`, `inventory`, `member`, `coupon`, `outbox`, and `payment` are the concepts developers search for and modify.
+- Decision: Rename `CommerceOrder` to `Order` and `OrderLine` to `OrderItem`.
+- Reason: Package names now provide context; redundant prefixes and line/item ambiguity made the order model harder to read.
+- Decision: Remove empty settlement/reconciliation packages.
+- Reason: Placeholder packages imply implemented domains that do not exist yet.
+
 ## 2026-06-20
 
 - Decision: Treat coupon exchange as an admin corrective workflow, not a customer shop action.
@@ -20,3 +31,12 @@
 - Reason: Page numbers are useful for design verification but make the storefront look like an internal demo.
 - Decision: Treat coffee kiosk research as a frontend-only UX loop.
 - Reason: The current backend already proves product listing, order creation, payment authorization, and coupon wallet refresh. Real categories, drink options, quick-order storage, pickup scheduling, multilingual content, and hardware accessibility are larger backend/product features and remain out of scope for this pass.
+
+## 2026-06-24
+
+- Decision: Plan Kafka through transactional outbox instead of publishing directly from `OrderPaymentFacade`.
+- Reason: Order/payment database state and broker delivery must not diverge when one side succeeds and the other fails.
+- Decision: Keep coupon issuance synchronous for the first Kafka slice.
+- Reason: The current portfolio proof depends on payment response, inventory deduction, coupon issuance, and coupon history being correct in one transaction. Moving coupon issuance async is a later step after idempotent consumers and operational retry visibility are proven.
+- Decision: Use Kafka first for post-payment projections/audit, not customer-facing behavior.
+- Reason: This gives a meaningful traffic/reliability challenge without changing shop/admin API contracts or weakening existing correctness tests.

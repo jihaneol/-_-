@@ -1,3 +1,0 @@
-package com.example.cardservice.application.settlement
-
-internal object SettlementApplicationPackage

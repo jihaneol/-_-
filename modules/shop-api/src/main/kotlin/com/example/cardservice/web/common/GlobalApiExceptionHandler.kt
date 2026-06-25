@@ -25,8 +25,7 @@ class GlobalApiExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(
                 ApiErrorResponse(
-                    code = "VALIDATION_ERROR",
-                    message = "요청 값이 올바르지 않습니다.",
+                    result = ApplicationResponseType.VALIDATION_ERROR.toResult(),
                     fields = fields,
                 ),
             )
@@ -42,8 +41,9 @@ class GlobalApiExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(
                 ApiErrorResponse(
-                    code = "BAD_REQUEST",
-                    message = exception.message ?: "잘못된 요청입니다.",
+                    result = ApplicationResponseType.BAD_REQUEST.toResult(
+                        exception.message ?: ApplicationResponseType.BAD_REQUEST.message,
+                    ),
                 ),
             )
 
@@ -53,8 +53,7 @@ class GlobalApiExceptionHandler {
             .status(HttpStatus.NOT_FOUND)
             .body(
                 ApiErrorResponse(
-                    code = "NOT_FOUND",
-                    message = "요청한 리소스를 찾을 수 없습니다.",
+                    result = ApplicationResponseType.NOT_FOUND.toResult(),
                 ),
             )
 
@@ -64,8 +63,7 @@ class GlobalApiExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
                 ApiErrorResponse(
-                    code = "INTERNAL_SERVER_ERROR",
-                    message = "처리 중 오류가 발생했습니다.",
+                    result = ApplicationResponseType.INTERNAL_SERVER_ERROR.toResult(),
                 ),
             )
 

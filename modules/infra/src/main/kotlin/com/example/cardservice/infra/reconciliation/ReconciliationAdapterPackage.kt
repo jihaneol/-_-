@@ -1,3 +1,0 @@
-package com.example.cardservice.infra.reconciliation
-
-internal object ReconciliationAdapterPackage

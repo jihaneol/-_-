@@ -4,17 +4,12 @@
 
 ```text
 frontend/
-  apps/
-    admin/
-    shop/
-  src/
-    app/
-    entities/
-    pages/
-    shared/
+  admin/
+  shop/
+  shared/
 ```
 
-If the existing Vite setup cannot support this in one step, migrate incrementally while preserving admin tests.
+The root `frontend` package is a workspace runner. Admin and shop are separate Vite projects, while `shared` contains reusable API, type, UI, style, and page modules.
 
 ## Boundaries
 

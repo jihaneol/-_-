@@ -5,14 +5,18 @@
 ## Placement
 
 ```text
-modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}/model/{entity-group}
+modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}
 ```
 
 규칙:
 
-- entity class는 `domain` 모듈의 `{domain}.model.{entity-group}` 패키지에 둔다.
+- entity class는 `domain` 모듈의 `{domain}` 패키지에 둔다.
+- `domain/commerce`, `domain/{domain}/model` 같은 범용 묶음 폴더를 만들지 않는다.
 - `CommerceModels.kt`처럼 여러 aggregate/entity를 한 파일에 모으지 않는다.
-- 엔티티 파일은 aggregate root 또는 강하게 붙어 있는 entity 그룹 기준으로 분리한다. 예: `member/Member.kt`, `product/Product.kt`, `order/CommerceOrder.kt`, `order/OrderLine.kt`, `coupon/Coupon.kt`, `coupon/CouponHistory.kt`.
+- 엔티티 파일은 aggregate root 또는 강하게 붙어 있는 entity 그룹 기준으로 분리한다. 예: `member/Member.kt`, `product/Product.kt`, `order/Order.kt`, `order/OrderItem.kt`, `coupon/Coupon.kt`, `coupon/CouponHistory.kt`.
+- 저장되는 JPA entity 이름은 도메인 객체 이름으로 작성한다. 예: `Order`, `OrderItem`, `PaymentOperationRecord`.
+- JPA entity 이름에 `Projection`, `Response`, `Row`, `Dto` 접미사를 붙이지 않는다.
+- `Projection`은 조회에서 필요한 필드만 반환하기 위한 QueryDSL/read DTO 이름에만 사용한다.
 - enum도 해당 entity 그룹 패키지에 둔다. 예: `OrderStatus`는 `order`, `CouponStatus`는 `coupon`, `ProductSaleStatus`는 `product`.
 - 좁은 Spring Data `Repository<T, ID>` 계약은 `application/provided`에 둘 수 있다.
 - `JpaRepository`처럼 넓은 Spring Data interface는 사용하지 않는다.

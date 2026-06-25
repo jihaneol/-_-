@@ -9,6 +9,24 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+
+commerce:
+  outbox:
+    kafka:
+      enabled: ${COMMERCE_OUTBOX_KAFKA_ENABLED:false}
+      topic: ${COMMERCE_OUTBOX_KAFKA_TOPIC:commerce.order-events.v1}
+      consumer-group: ${COMMERCE_OUTBOX_KAFKA_CONSUMER_GROUP:card-service-payment-projection}
+      publisher-delay-ms: ${COMMERCE_OUTBOX_KAFKA_PUBLISHER_DELAY_MS:500}
+      publisher-batch-size: ${COMMERCE_OUTBOX_KAFKA_PUBLISHER_BATCH_SIZE:100}
 
 management:
   endpoints:

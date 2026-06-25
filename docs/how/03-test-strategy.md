@@ -49,6 +49,10 @@ Use MockK for outbound ports in the `application` module.
 
 ## Optional Load Test
 
-- Run a short k6/Gatling test against authorization API.
-- Capture p95 latency and error rate.
-- Document bottlenecks and indexes added.
+- Run a short k6/Gatling smoke test first to verify that the script, API setup, checks, and metrics work.
+- Do not treat smoke numbers as the performance conclusion.
+- Run a baseline load test with fixed VUS, duration, data setup, and metrics before any performance-oriented refactor.
+- Capture p50, p95, p99, error rate, throughput, duplicate side effects, and relevant operational lag.
+- Document bottlenecks, indexes added, and environment constraints.
+- Persist load test console logs and k6 summary JSON under `build/load-tests/` so Before/After comparisons are reproducible.
+- Current payment spike Before baseline results are documented in `workflow/features/kafka-transactional-outbox-eventing.md`.

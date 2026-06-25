@@ -1,5 +1,17 @@
 # Active Work
 
+## Backend Package Cleanup
+
+Remove broad umbrella package folders and keep backend code grouped directly by business domain.
+
+- Domain package target: `domain/{order,product,inventory,member,coupon,outbox,payment}`.
+- Application package target: `application/{order,product,inventory,member,coupon,dashboard,outbox,payment}`.
+- Infra package target: `infra/{order,inventory,coupon,outbox,payment}`.
+- Web package target: API runtime modules use `web/{order,product,inventory,member,coupon,dashboard,payment}` without an extra `commerce` or `shop` folder.
+- Naming target: `CommerceOrder -> Order`, `OrderLine -> OrderItem`, `CommerceOrderRepository -> OrderRepository`.
+- Cleanup rule: do not keep empty placeholder domains such as settlement or reconciliation until real implementation exists.
+- Response rule: controllers use `toApplicationResponse(type = ApplicationResponseType.OK)` and change status by passing `ApplicationResponseType`.
+
 ## Coupon Exchange Admin
 
 Build a narrow operational exchange workflow from the Figma admin design:
@@ -119,3 +131,27 @@ Run the project through explicit loops until the harness done criteria are met. 
 - API direction: collection responses return `data.items` plus `page`, `size`, `totalElements`, `totalPages`, and `hasNext`.
 - Frontend direction: TanStack Query keys include page/size/sort/filter state; admin tables and shop catalog render pagination controls and never fetch unbounded lists.
 - Rollout: start with coupon and coupon-history lists because they grow fastest through payment/refund/exchange flows, then migrate members/products/orders.
+
+## Planned: Kafka Transactional Outbox Eventing
+
+- Problem: payment traffic should not wait on every downstream concern, but payment, coupon, inventory, and audit correctness cannot rely on best-effort broker publishing.
+- Traffic scenario: a cafe promotion sends 100-500 concurrent payment attempts through the shop API. Oversell prevention, payment idempotency, coupon issuance, and coupon history remain synchronous and strongly consistent, while projection/audit/notification-like work is moved behind Kafka.
+- Backend direction: keep the current order/payment/coupon transaction authoritative, then append `OutboxEvent` rows for `OrderPaid` and `OrderRefunded` inside the same transaction.
+- Publisher direction: a scheduled publisher or batch adapter reads pending outbox rows, publishes to Kafka, marks success, and leaves failed rows visible for retry.
+- Consumer direction: consumers record processed event ids before applying side effects, so replay or duplicate Kafka delivery does not duplicate projections.
+- First consumer scope: admin operational projection or event audit table. Do not move coupon issuance async until the outbox and idempotent consumer proof is stable.
+- Topics: `commerce.order-events.v1` for order/payment lifecycle events; later topics can split by bounded context if volume or ownership requires it.
+- Baseline experiment: first add a deliberately synchronous projection/audit update on the payment path and load test it so the performance problem is observable.
+- Outbox experiment: replace that synchronous projection/audit update with outbox append plus Kafka consumer and rerun the same load profile.
+- Metrics: p50/p95/p99 payment latency, successful payments per second, duplicate payment/coupon count, failed payment count, outbox pending count, publish retry count, projection lag, and consumer duplicate replay count.
+- Rollout: local Docker Compose Kafka, outbox table and ports, publisher, one idempotent consumer, retry/failure tests, then k6/Gatling latency comparison.
+- Non-goal: Kafka is not used for inventory locking, payment idempotency, or coupon issuance in the first slice.
+
+### Before Baseline Status
+
+- Status: implemented.
+- Synchronous baseline: payment/refund transactions now write `payment_operation_records` rows directly.
+- Load-test script: `scripts/load-test-payment-before.sh` runs `load-tests/payment-spike-sync-projection.js` through Dockerized k6.
+- Validation: application behavior test, full Gradle test suite, Testcontainers admin flow, local stack health, and manual shop payment projection smoke passed on 2026-06-24.
+- Smoke measurement: `VUS=2 DURATION=5s scripts/load-test-payment-before.sh` passed with `payment_latency p95=568.1ms`, `http_req_failed=0.00%`, and `43` completed iterations.
+- Full baseline still needed: run the same script with a realistic VUS/duration such as `VUS=50 DURATION=30s`.

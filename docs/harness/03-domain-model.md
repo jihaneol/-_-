@@ -5,10 +5,10 @@
 | Area | Model | Responsibility |
 |---|---|---|
 | Payment | `Payment` | authorization, cancellation/refund status, idempotency identity |
-| Commerce | `Member` | customer identity for MVP commerce flows |
-| Commerce | `Product` | sale product and sale status |
-| Commerce | `Inventory` | stock increase/decrease guard |
-| Commerce | `CommerceOrder` | order lines, total amount, payment status |
+| Member | `Member` | customer identity for MVP order flows |
+| Product | `Product` | sale product and sale status |
+| Inventory | `Inventory` | stock increase/decrease guard |
+| Order | `Order` | order items, total amount, payment status |
 | Coupon | `Coupon` | issued, voided, exchanged stamp state |
 | Coupon | `CouponHistory` | append-only coupon issuance/reversal/exchange history |
 | Reporting | dashboard summary | operational count summary |
@@ -35,3 +35,5 @@
 ## Boundary Decision
 
 `admin-api` and `shop-api` split only the inbound runtime boundary. Domain and application rules remain shared until there is a proven reason to split them.
+
+Package rule: do not group these models under `commerce`; use direct domain packages such as `domain/order`, `domain/product`, `domain/coupon`, and `domain/payment`.
