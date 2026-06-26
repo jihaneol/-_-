@@ -26,7 +26,7 @@ class OrderService(
         val lines = input.lines.map { line ->
             val product = productRepository.findByIdAndDeletedAtIsNull(line.productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다.")
             OrderItem.create(
-                productId = requireNotNull(product.id) { "상품 ID가 필요합니다." },
+                productId = product.id,
                 productName = product.name,
                 unitPrice = product.price,
                 quantity = line.quantity,
@@ -55,7 +55,7 @@ class OrderService(
 
 internal fun Order.toResult(): OrderResult =
     OrderResult(
-        id = requireNotNull(id),
+        id = id,
         memberId = memberId,
         status = status,
         totalAmount = totalAmount,

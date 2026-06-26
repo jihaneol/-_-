@@ -36,4 +36,4 @@ class MemberService(
 }
 
 internal fun Member.toResult(): MemberResult =
-    MemberResult(id = requireNotNull(id), name = name, email = email)
+    MemberResult(id = id, name = name, email = email)

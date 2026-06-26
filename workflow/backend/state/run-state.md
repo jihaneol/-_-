@@ -5,8 +5,8 @@ This file is the handoff point for long-running Codex work. Update it whenever a
 ## Current Focus
 
 - Active work: none
-- Current task: backend phase cleanup
-- Current status: stale backend phases 001-005 were removed from active execution and archived under `workflow/backend/archive/2026-06-20/`.
+- Current task: order payment conditional update completed.
+- Current status: `phase-011-order-payment-conditional-update.md` archived under `workflow/backend/archive/2026-06-25/`.
 
 ## Last Known Verification
 
@@ -25,7 +25,7 @@ This file is the handoff point for long-running Codex work. Update it whenever a
 
 ## Next Suggested Step
 
-Start a new backend phase only after a fresh feature is approved in `work/03-active-work.md`.
+Next backend work should start a fresh phase after it is added to `work/03-active-work.md`.
 
 ## Guardrails
 

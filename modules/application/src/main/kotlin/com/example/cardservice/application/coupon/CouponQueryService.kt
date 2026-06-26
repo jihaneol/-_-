@@ -136,11 +136,11 @@ class CouponQueryService(
 }
 
 internal fun Coupon.toResult(): CouponResult =
-    CouponResult(id = requireNotNull(id), memberId = memberId, orderId = orderId, paymentId = paymentId, status = status)
+    CouponResult(id = id, memberId = memberId, orderId = orderId, paymentId = paymentId, status = status)
 
 internal fun CouponHistory.toResult(): CouponHistoryResult =
     CouponHistoryResult(
-        id = requireNotNull(id),
+        id = id,
         couponId = couponId,
         memberId = memberId,
         orderId = orderId,

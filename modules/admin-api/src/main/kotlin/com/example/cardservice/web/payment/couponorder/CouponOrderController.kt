@@ -54,7 +54,7 @@ class CouponOrderController(
     private fun CreateCouponOrderResult.toResponse(): CreateCouponOrderResponse =
         CreateCouponOrderResponse(
             orderId = orderId.value,
-            paymentId = paymentId.value.toString(),
+            paymentId = paymentId.value,
             paymentStatus = paymentStatus.name,
             paymentStatusLabel = paymentStatus.label,
             amount = amount,

@@ -25,8 +25,8 @@ class CouponOrderFacadeBehaviorSpec : BehaviorSpec({
             accrueCouponPort = accrueCouponPort,
         )
         val input = CreateCouponOrderInput(
-            customerId = CustomerId("customer-1"),
-            orderId = OrderId("order-1"),
+            customerId = CustomerId(1L),
+            orderId = OrderId(10L),
             idempotencyKey = IdempotencyKey("idem-1"),
             quantity = 2,
         )
@@ -59,7 +59,7 @@ class CouponOrderFacadeBehaviorSpec : BehaviorSpec({
                     externalPaymentPort.approve(match { it.money.amount == 10_000L })
                 }
                 verify(exactly = 1) {
-                    authorizePaymentUseCase.authorize(match { it.merchantId.value == "coupon-merchant" })
+                    authorizePaymentUseCase.authorize(match { it.merchantId.value == 2L })
                 }
                 verify(exactly = 1) {
                     accrueCouponPort.accrue(match { it.brand == "COUPON" && it.quantity == 2 })

@@ -2,6 +2,7 @@ package com.example.cardservice.application.order
 
 import com.example.cardservice.application.order.provided.OrderWorkflowLockPort
 import com.example.cardservice.application.order.provided.OrderRepository
+import com.example.cardservice.application.order.provided.OrderStatusMutationPort
 import com.example.cardservice.application.coupon.provided.CouponHistoryRepository
 import com.example.cardservice.application.coupon.provided.CouponRepository
 import com.example.cardservice.application.inventory.provided.InventoryMutationPort
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional
 class OrderPaymentFacade(
     private val orderRepository: OrderRepository,
     private val commerceLockPort: OrderWorkflowLockPort,
+    private val orderStatusMutationPort: OrderStatusMutationPort,
     private val inventoryMutationPort: InventoryMutationPort,
     private val paymentRepository: PaymentRepository,
     private val couponRepository: CouponRepository,
@@ -40,38 +42,40 @@ class OrderPaymentFacade(
 ) : OrderPaymentUseCase {
     @Transactional
     override fun payOrder(orderId: Long, input: PayOrderInput): PayOrderResult {
-        val order = loadOrderForUpdate(orderId)
+        val order = loadOrder(orderId)
         val existingPayment = paymentRepository.findByIdempotencyKeyValue(input.idempotencyKey)
         if (existingPayment != null) {
-            require(existingPayment.orderId.value == orderId.toString()) { "같은 중복 요청 방지 키로 다른 요청 본문이 들어오면 거절한다." }
-            val paymentId = requireNotNull(existingPayment.id)
-            if (order.status == OrderStatus.CREATED) {
-                order.pay(paymentId)
-                orderRepository.save(order)
-            }
-            return order.toPayResult(existingPayment, couponRepository.countByOrderId(orderId).toInt())
-        }
-
-        order.lines.forEach { line ->
-            require(inventoryMutationPort.decreaseQuantityIfEnough(line.productId, line.quantity)) { "재고가 부족합니다." }
+            require(existingPayment.orderId.value == orderId) { "같은 중복 요청 방지 키로 다른 요청 본문이 들어오면 거절한다." }
+            val paymentId = existingPayment.id
+            val resultStatus =
+                if (order.status == OrderStatus.CREATED) {
+                    require(orderStatusMutationPort.markPaidIfCreated(orderId, paymentId)) { "이미 처리된 주문입니다." }
+                    OrderStatus.PAID
+                } else {
+                    order.status
+                }
+            return order.toPayResult(existingPayment, couponRepository.countByOrderId(orderId).toInt(), resultStatus)
         }
 
         val payment = savePaymentOrLoadDuplicate(
             Payment.authorize(
                 merchantId = COMMERCE_MERCHANT_ID,
-                orderId = OrderId(orderId.toString()),
+                orderId = OrderId(orderId),
                 idempotencyKey = IdempotencyKey(input.idempotencyKey),
                 money = order.money(),
             ),
         )
-        val paymentId = requireNotNull(payment.id)
-        order.pay(paymentId)
-        orderRepository.save(order)
+        val paymentId = payment.id
+
+        order.lines.forEach { line ->
+            require(inventoryMutationPort.decreaseQuantityIfEnough(line.productId, line.quantity)) { "재고가 부족합니다." }
+        }
 
         val coupons = (1..Coupon.issueCount(order.totalAmount))
             .map { Coupon.issue(memberId = order.memberId, orderId = orderId, paymentId = paymentId) }
             .let { couponRepository.saveAll(it).toList() }
         couponHistoryRepository.saveAll(coupons.map { CouponHistory.issued(it) })
+
         outboxEventRepository.save(
             OutboxEvent.paymentAuthorized(
                 orderId = orderId,
@@ -91,7 +95,9 @@ class OrderPaymentFacade(
             ),
         )
 
-        return order.toPayResult(payment, coupons.size)
+        require(orderStatusMutationPort.markPaidIfCreated(orderId, paymentId)) { "이미 처리된 주문입니다." }
+
+        return order.toPayResult(payment, coupons.size, OrderStatus.PAID)
     }
 
     @Transactional
@@ -144,6 +150,9 @@ class OrderPaymentFacade(
     private fun loadOrderForUpdate(orderId: Long): Order =
         commerceLockPort.loadOrderForUpdate(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다.")
 
+    private fun loadOrder(orderId: Long): Order =
+        orderRepository.findByIdAndDeletedAtIsNull(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다.")
+
     private fun savePaymentOrLoadDuplicate(payment: Payment): Payment =
         try {
             paymentRepository.save(payment)
@@ -152,17 +161,21 @@ class OrderPaymentFacade(
                 ?: throw exception
         }
 
-    private fun Order.toPayResult(payment: Payment, issuedCouponCount: Int): PayOrderResult =
+    private fun Order.toPayResult(
+        payment: Payment,
+        issuedCouponCount: Int,
+        orderStatus: OrderStatus = status,
+    ): PayOrderResult =
         PayOrderResult(
-            orderId = requireNotNull(id),
-            paymentId = requireNotNull(payment.id),
-            orderStatus = status,
+            orderId = id,
+            paymentId = payment.id,
+            orderStatus = orderStatus,
             paymentStatus = payment.status.name,
             paidAmount = totalAmount,
             issuedCouponCount = issuedCouponCount,
         )
 
     private companion object {
-        val COMMERCE_MERCHANT_ID = MerchantId("commerce-merchant")
+        val COMMERCE_MERCHANT_ID = MerchantId(1L)
     }
 }

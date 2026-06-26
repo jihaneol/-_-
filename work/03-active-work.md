@@ -155,3 +155,12 @@ Run the project through explicit loops until the harness done criteria are met. 
 - Validation: application behavior test, full Gradle test suite, Testcontainers admin flow, local stack health, and manual shop payment projection smoke passed on 2026-06-24.
 - Smoke measurement: `VUS=2 DURATION=5s scripts/load-test-payment-before.sh` passed with `payment_latency p95=568.1ms`, `http_req_failed=0.00%`, and `43` completed iterations.
 - Full baseline still needed: run the same script with a realistic VUS/duration such as `VUS=50 DURATION=30s`.
+
+## Completed: Order Payment Conditional Update
+
+- Problem: `payOrder` begins with order `PESSIMISTIC_WRITE` and holds the order row lock through payment, inventory, coupon, history, and outbox writes.
+- Direction: replaced the payment path's order lock lookup with plain order lookup plus a conditional `CREATED -> PAID` update.
+- Success rule: conditional order update returns `1` for the winning payment request; `0` means the order was already paid/cancelled/deleted and the transaction rolls back.
+- Coupon rule: coupon issuance can move to after-commit/outbox later, but it must only run after the payment transaction commits. This slice keeps coupon issuance synchronous to avoid changing the API contract.
+- Non-goal: refund and coupon exchange pessimistic locks are not changed in this slice.
+- Validation: application behavior test, full Gradle test, and Testcontainers order flow integration test passed.

@@ -23,7 +23,7 @@ class ProcessedOutboxEvent protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 
     @Column(name = "event_key", nullable = false, length = 120)

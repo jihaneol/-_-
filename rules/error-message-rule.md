@@ -23,11 +23,11 @@
 ```kotlin
 // 허용
 require(amount > 0) { "금액은 0보다 커야 합니다." }
-require(value.isNotBlank()) { "주문 ID는 비어 있을 수 없습니다." }
+require(value > 0) { "주문 ID는 0보다 커야 합니다." }
 
 // 금지
 require(amount > 0) { "amount must be positive" }
-require(value.isNotBlank()) { "orderId must not be blank" }
+require(value > 0) { "orderId must be positive" }
 ```
 
 ## Response Rule

@@ -24,14 +24,14 @@ class Payment protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 
-    @Column(name = "merchant_id", nullable = false, length = 100)
-    private var merchantIdValue: String = ""
+    @Column(name = "merchant_id", nullable = false)
+    private var merchantIdValue: Long = 0
 
-    @Column(name = "order_id", nullable = false, length = 100)
-    private var orderIdValue: String = ""
+    @Column(name = "order_id", nullable = false)
+    private var orderIdValue: Long = 0
 
     @Column(name = "idempotency_key", nullable = false, length = 150)
     private var idempotencyKeyValue: String = ""
@@ -47,7 +47,7 @@ class Payment protected constructor() {
     private var statusValue: PaymentStatus = PaymentStatus.AUTHORIZED
 
     val paymentId: PaymentId?
-        get() = id?.let(::PaymentId)
+        get() = id.takeIf { it > 0 }?.let(::PaymentId)
 
     val merchantId: MerchantId
         get() = MerchantId(merchantIdValue)

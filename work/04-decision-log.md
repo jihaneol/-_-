@@ -10,6 +10,10 @@
 - Reason: Package names now provide context; redundant prefixes and line/item ambiguity made the order model harder to read.
 - Decision: Remove empty settlement/reconciliation packages.
 - Reason: Placeholder packages imply implemented domains that do not exist yet.
+- Decision: Replace the payment path's long order `SELECT FOR UPDATE` with a conditional order status update.
+- Reason: Duplicate PG callbacks and payment retries still need single-winner semantics, but the order row should not be locked while the request performs the whole payment/coupon/outbox transaction tail.
+- Decision: Keep coupon issuance synchronous for the conditional-update slice.
+- Reason: Moving coupon issuance after commit changes the API contract and retry model; the first slice should isolate the order lock bottleneck.
 
 ## 2026-06-20
 

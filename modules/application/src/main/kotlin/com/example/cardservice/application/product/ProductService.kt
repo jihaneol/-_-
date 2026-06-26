@@ -36,4 +36,4 @@ class ProductService(
 }
 
 internal fun Product.toResult(): ProductResult =
-    ProductResult(id = requireNotNull(id), name = name, price = price, saleStatus = saleStatus)
+    ProductResult(id = id, name = name, price = price, saleStatus = saleStatus)
