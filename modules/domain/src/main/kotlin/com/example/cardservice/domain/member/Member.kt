@@ -7,8 +7,11 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Table
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 @Access(AccessType.FIELD)
@@ -17,15 +20,28 @@ class Member protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
+        protected set
+
+    @Column(name = "username", nullable = false, length = 80, unique = true)
+    var username: String = ""
+        protected set
+
+    @Column(name = "password_hash", nullable = false, length = 200)
+    var passwordHash: String = ""
         protected set
 
     @Column(name = "name", nullable = false, length = 100)
     var name: String = ""
         protected set
 
-    @Column(name = "email", nullable = false, length = 200)
-    var email: String = ""
+    @Column(name = "email", length = 200)
+    var email: String? = null
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 30)
+    var role: MemberRole = MemberRole.USER
         protected set
 
     @Column(name = "deleted_at")
@@ -35,19 +51,20 @@ class Member protected constructor() {
     val deleted: Boolean
         get() = deletedAt != null
 
-    private constructor(name: String, email: String) : this() {
-        require(name.isNotBlank()) { "회원 이름은 비어 있을 수 없습니다." }
-        require(email.isNotBlank()) { "회원 이메일은 비어 있을 수 없습니다." }
-        this.name = name
-        this.email = email
+    private constructor(username: String, passwordHash: String, name: String?, email: String?, role: MemberRole) : this() {
+        require(username.isNotBlank()) { "회원 아이디는 비어 있을 수 없습니다." }
+        require(passwordHash.isNotBlank()) { "회원 비밀번호는 비어 있을 수 없습니다." }
+        this.username = username
+        this.passwordHash = passwordHash
+        this.name = name.toNickname()
+        this.email = email?.trim()?.takeIf { it.isNotBlank() }
+        this.role = role
     }
 
-    fun update(name: String, email: String) {
+    fun update(name: String?, email: String?) {
         require(!deleted) { "삭제된 회원은 수정할 수 없습니다." }
-        require(name.isNotBlank()) { "회원 이름은 비어 있을 수 없습니다." }
-        require(email.isNotBlank()) { "회원 이메일은 비어 있을 수 없습니다." }
-        this.name = name
-        this.email = email
+        this.name = name.toNickname()
+        this.email = email?.trim()?.takeIf { it.isNotBlank() }
     }
 
     fun softDelete(now: LocalDateTime = LocalDateTime.now()) {
@@ -57,6 +74,15 @@ class Member protected constructor() {
     }
 
     companion object {
-        fun create(name: String, email: String): Member = Member(name, email)
+        fun create(username: String, passwordHash: String, name: String?, email: String?, role: MemberRole = MemberRole.USER): Member =
+            Member(username.trim(), passwordHash, name, email, role)
+
+        private fun String?.toNickname(): String =
+            this?.trim()?.takeIf { it.isNotBlank() } ?: "member-${UUID.randomUUID().toString().take(8)}"
     }
+}
+
+enum class MemberRole {
+    ADMIN,
+    USER,
 }

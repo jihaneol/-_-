@@ -32,13 +32,15 @@ PK는 `id`로 통일한다.
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 @Column(name = "id")
-var id: Long? = null
+var id: Long = 0L
     protected set
 ```
 
 규칙:
 
 - auto increment PK 컬럼명은 `id`를 사용한다.
+- entity의 `id` 필드는 nullable로 두지 않고 `Long = 0L`로 통일한다.
+- `0L`은 아직 DB에 저장되지 않은 transient entity의 sentinel 값으로만 사용한다.
 - `payment_sequence` 같은 별도 PK 이름을 만들지 않는다.
 - 별도 public id가 필요하다는 요구가 생기기 전에는 `paymentId` 같은 중복 식별자 컬럼을 만들지 않는다.
 - domain value object가 필요하면 `PaymentId(id)`처럼 PK를 감싼다.
@@ -55,7 +57,7 @@ class Payment protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 }
 ```
@@ -119,8 +121,8 @@ DB schema, constraint, index 세부 기준은 `rules/database-schema-rule.md`를
 ```sql
 CREATE TABLE payments (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    merchant_id VARCHAR(100) NOT NULL,
-    order_id VARCHAR(100) NOT NULL,
+    merchant_id BIGINT NOT NULL,
+    order_id BIGINT NOT NULL,
     idempotency_key VARCHAR(150) NOT NULL,
     amount BIGINT NOT NULL,
     currency VARCHAR(3) NOT NULL,
@@ -132,6 +134,8 @@ CREATE TABLE payments (
 
 규칙:
 
+- entity의 PK/FK성 ID 컬럼과 이를 감싸는 value object는 `Long`으로 둔다.
+- 외부 승인키, idempotency key, 이벤트 key처럼 실제 문자열 식별자인 값만 `String`으로 둔다.
 - schema SQL과 entity가 맞아야 한다.
 - unique constraint는 entity와 schema SQL 양쪽에 맞춘다.
 - repository는 schema를 만들지 않는다.

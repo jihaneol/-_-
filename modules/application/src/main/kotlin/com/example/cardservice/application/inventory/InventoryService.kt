@@ -40,4 +40,4 @@ class InventoryService(
 }
 
 internal fun Inventory.toResult(): InventoryResult =
-    InventoryResult(id = requireNotNull(id), productId = productId, quantity = quantity)
+    InventoryResult(id = id, productId = productId, quantity = quantity)

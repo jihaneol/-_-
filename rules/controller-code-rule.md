@@ -122,8 +122,8 @@ fun <T> T.toApplicationResponse(
 - 제네릭/리플렉션 기반 자동 DTO 변환기는 사용하지 않는다. 매핑이 필요하면 명시적으로 작성하고, 필요 없으면 Result를 그대로 반환한다.
 
 ```kotlin
-@get:Schema(description = "주문 ID", example = "order-1")
-val orderId: String
+@get:Schema(description = "주문 ID", example = "10")
+val orderId: Long
 ```
 
 ## Swagger Rule

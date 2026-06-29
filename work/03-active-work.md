@@ -155,3 +155,22 @@ Run the project through explicit loops until the harness done criteria are met. 
 - Validation: application behavior test, full Gradle test suite, Testcontainers admin flow, local stack health, and manual shop payment projection smoke passed on 2026-06-24.
 - Smoke measurement: `VUS=2 DURATION=5s scripts/load-test-payment-before.sh` passed with `payment_latency p95=568.1ms`, `http_req_failed=0.00%`, and `43` completed iterations.
 - Full baseline still needed: run the same script with a realistic VUS/duration such as `VUS=50 DURATION=30s`.
+
+## Completed: Order Payment Conditional Update
+
+- Problem: `payOrder` begins with order `PESSIMISTIC_WRITE` and holds the order row lock through payment, inventory, coupon, history, and outbox writes.
+- Direction: replaced the payment path's order lock lookup with plain order lookup plus a conditional `CREATED -> PAID` update.
+- Success rule: conditional order update returns `1` for the winning payment request; `0` means the order was already paid/cancelled/deleted and the transaction rolls back.
+- Coupon rule: coupon issuance can move to after-commit/outbox later, but it must only run after the payment transaction commits. This slice keeps coupon issuance synchronous to avoid changing the API contract.
+- Non-goal: refund and coupon exchange pessimistic locks are not changed in this slice.
+- Validation: application behavior test, full Gradle test, and Testcontainers order flow integration test passed.
+
+## Completed: Member Auth And JWT Runtime Filters
+
+- Member identity now requires unique `username` and required `password`; passwords are encoded before persistence.
+- `name` and `email` are optional profile fields. Blank `name` generates a nickname; blank `email` is stored as null.
+- Member role is `ADMIN` or `USER`.
+- Admin runtime exposes `/api/admin/auth/login` and protects `/api/admin/**` with `ROLE_ADMIN`.
+- Shop runtime exposes `/api/shop/auth/signup` and `/api/shop/auth/login`, and protects user-specific `/api/shop/**` routes with `ROLE_USER` while keeping product catalog reads public.
+- Frontend admin app now requires admin login before rendering operations, and shop signup stores the returned JWT for order/payment/wallet requests.
+- Validation: backend module tests, frontend Vitest, frontend production build, and `validate_impeccable.sh` passed on 2026-06-29. The UI hook emitted its existing `frontend/shared` path warning with exit code 0.

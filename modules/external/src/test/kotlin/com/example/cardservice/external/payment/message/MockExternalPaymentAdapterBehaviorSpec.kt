@@ -18,7 +18,7 @@ class MockExternalPaymentAdapterBehaviorSpec : BehaviorSpec({
             val elapsed = measureTimeMillis {
                 approvalKey = adapter.approve(
                     ExternalPaymentRequest(
-                        orderId = OrderId("order-1"),
+                        orderId = OrderId(10L),
                         idempotencyKey = IdempotencyKey("idem-1"),
                         money = Money(amount = 5_000, currency = "KRW"),
                     ),
@@ -26,7 +26,7 @@ class MockExternalPaymentAdapterBehaviorSpec : BehaviorSpec({
             }
 
             then("it behaves like a delayed external call") {
-                approvalKey shouldBe "mock_order-1"
+                approvalKey shouldBe "mock_10"
                 elapsed shouldBeGreaterThanOrEqual 300L
             }
         }

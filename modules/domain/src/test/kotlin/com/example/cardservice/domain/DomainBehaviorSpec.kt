@@ -92,7 +92,7 @@ class DomainBehaviorSpec : BehaviorSpec({
     }
 
     given("a member") {
-        val member = Member.create(name = "Kim", email = "kim@example.com")
+        val member = Member.create(username = "kim", passwordHash = "{bcrypt}hash", name = "Kim", email = "kim@example.com")
 
         `when`("the member is soft deleted") {
             member.softDelete()

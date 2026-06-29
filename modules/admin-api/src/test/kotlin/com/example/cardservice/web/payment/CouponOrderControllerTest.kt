@@ -2,6 +2,7 @@ package com.example.cardservice.web.payment
 
 import com.example.cardservice.application.payment.CreateCouponOrderInput
 import com.example.cardservice.application.payment.CreateCouponOrderResult
+import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
 import com.example.cardservice.web.payment.couponorder.CouponOrderController
 import com.example.cardservice.domain.payment.model.OrderId
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
 @WebMvcTest(CouponOrderController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class CouponOrderControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -26,11 +29,14 @@ class CouponOrderControllerTest {
     @MockitoBean
     lateinit var couponOrderUseCase: CouponOrderUseCase
 
+    @MockitoBean
+    lateinit var memberRepository: MemberRepository
+
     @Test
     fun `쿠폰 주문을 생성한다`() {
         given(couponOrderUseCase.create(any<CreateCouponOrderInput>())).willReturn(
             CreateCouponOrderResult(
-                orderId = OrderId("order-1"),
+                orderId = OrderId(10L),
                 paymentId = PaymentId(1),
                 paymentStatus = PaymentStatus.AUTHORIZED,
                 amount = 10_000,
@@ -43,8 +49,8 @@ class CouponOrderControllerTest {
             contentType = MediaType.APPLICATION_JSON
             content = """
                 {
-                  "customerId": "customer-1",
-                  "orderId": "order-1",
+                  "customerId": 1,
+                  "orderId": 10,
                   "idempotencyKey": "idem-1",
                   "quantity": 2
                 }
@@ -54,8 +60,8 @@ class CouponOrderControllerTest {
                 status { isCreated() }
                 jsonPath("$.result.code") { value("OK") }
                 jsonPath("$.result.message") { value("요청이 성공했습니다.") }
-                jsonPath("$.payload.orderId") { value("order-1") }
-                jsonPath("$.payload.paymentId") { value("1") }
+                jsonPath("$.payload.orderId") { value(10) }
+                jsonPath("$.payload.paymentId") { value(1) }
                 jsonPath("$.payload.paymentStatus") { value("AUTHORIZED") }
                 jsonPath("$.payload.paymentStatusLabel") { value("승인 완료") }
                 jsonPath("$.payload.amount") { value(10000) }
@@ -73,8 +79,8 @@ class CouponOrderControllerTest {
             contentType = MediaType.APPLICATION_JSON
             content = """
                 {
-                  "customerId": "customer-1",
-                  "orderId": "order-1",
+                  "customerId": 1,
+                  "orderId": 10,
                   "idempotencyKey": "idem-1",
                   "quantity": 2
                 }

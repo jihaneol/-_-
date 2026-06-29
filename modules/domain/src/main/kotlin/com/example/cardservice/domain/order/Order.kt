@@ -24,7 +24,7 @@ class Order protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 
     @Column(name = "member_id", nullable = false)

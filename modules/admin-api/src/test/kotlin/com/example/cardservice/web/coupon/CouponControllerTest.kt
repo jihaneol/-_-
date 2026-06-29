@@ -10,6 +10,7 @@ import com.example.cardservice.application.coupon.CouponPageResult
 import com.example.cardservice.application.coupon.CouponResult
 import com.example.cardservice.application.coupon.MemberCouponConsistencyResult
 import com.example.cardservice.application.coupon.OrderCouponConsistencyResult
+import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.coupon.required.CouponExchangeUseCase
 import com.example.cardservice.application.coupon.required.CouponQueryUseCase
 import com.example.cardservice.web.coupon.CouponController
@@ -18,6 +19,7 @@ import com.example.cardservice.domain.coupon.CouponStatus
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
@@ -26,6 +28,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 
 @WebMvcTest(CouponController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class CouponControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -35,6 +38,9 @@ class CouponControllerTest {
 
     @MockitoBean
     lateinit var couponExchangeUseCase: CouponExchangeUseCase
+
+    @MockitoBean
+    lateinit var memberRepository: MemberRepository
 
     @Test
     fun `회원 쿠폰 조회 API는 페이지 메타데이터와 쿠폰 목록을 반환한다`() {

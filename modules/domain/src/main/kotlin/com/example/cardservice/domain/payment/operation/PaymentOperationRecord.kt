@@ -28,7 +28,7 @@ class PaymentOperationRecord protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 
     @Enumerated(EnumType.STRING)

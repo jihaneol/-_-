@@ -221,6 +221,22 @@
       },
       "last_checkpoint": "Kafka/outbox works functionally, but local 100 VU measurements were slower than the tuned synchronous baseline.",
       "archive_path": "workflow/backend/archive/2026-06-24/phase-010-payment-spike-outbox-kafka.md"
+    },
+    "phase-011-order-payment-conditional-update.md": {
+      "status": "completed",
+      "started_at": "2026-06-25T00:00:00+09:00",
+      "completed_at": "2026-06-25T00:00:00+09:00",
+      "last_validation": {
+        "status": "passed",
+        "at": "2026-06-25T00:00:00+09:00",
+        "commands": [
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :application:test --tests '*OrderPaymentFacadeBehaviorSpec'",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew test",
+          "JAVA_HOME=$(/usr/libexec/java_home -v 21) ./gradlew :admin-api:test --tests '*OrderFlowIntegrationTest' -Dtestcontainers.enabled=true"
+        ]
+      },
+      "last_checkpoint": "Order payment no longer starts with a pessimistic order lock; payOrder uses conditional CREATED -> PAID update.",
+      "archive_path": "workflow/backend/archive/2026-06-25/phase-011-order-payment-conditional-update.md"
     }
   }
 }

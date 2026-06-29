@@ -1,8 +1,8 @@
 package com.example.cardservice.domain.payment.model
 
 @JvmInline
-value class CustomerId(val value: String) {
+value class CustomerId(val value: Long) {
     init {
-        require(value.isNotBlank()) { "고객 ID는 비어 있을 수 없습니다." }
+        require(value > 0) { "고객 ID는 0보다 커야 합니다." }
     }
 }

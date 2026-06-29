@@ -1,5 +1,14 @@
 # Harness Dev Log
 
+## 2026-06-25
+
+- Planned the next payment spike improvement around order lock duration instead of Kafka.
+- Target design: plain order lookup for payment input data, then a single conditional `CREATED -> PAID` update to choose the winning payment request.
+- Kept coupon issuance synchronous in this slice so the existing API contract and coupon correctness tests remain stable.
+- Implemented `OrderStatusMutationPort` and `JpaOrderStatusMutationAdapter` for conditional order payment status updates.
+- Changed `OrderPaymentFacade.payOrder` so payment no longer starts with `SELECT FOR UPDATE`; refund and exchange locks remain unchanged.
+- Validation passed: `:application:test --tests '*OrderPaymentFacadeBehaviorSpec'`, full `./gradlew test`, and Testcontainers `OrderFlowIntegrationTest`.
+
 ## 2026-06-24
 
 - Planned Kafka as a traffic-spike reliability/performance slice rather than a replacement for payment correctness.

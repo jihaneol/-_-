@@ -19,7 +19,7 @@ class Product protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    var id: Long? = null
+    var id: Long = 0L
         protected set
 
     @Column(name = "name", nullable = false, length = 150)

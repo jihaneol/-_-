@@ -53,11 +53,11 @@ class CouponExchangeService(
 
         return ApproveCouponExchangeResult(
             memberId = memberId,
-            productId = requireNotNull(product.id),
+            productId = product.id,
             productName = product.name,
             exchangedCouponCount = savedCoupons.size,
             remainingIssuedCouponCount = couponRepository.countByMemberIdAndStatus(memberId, CouponStatus.ISSUED),
-            exchangedCouponIds = savedCoupons.map { requireNotNull(it.id) },
+            exchangedCouponIds = savedCoupons.map { it.id },
         )
     }
 

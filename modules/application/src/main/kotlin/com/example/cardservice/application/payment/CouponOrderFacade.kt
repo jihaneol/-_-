@@ -69,6 +69,6 @@ class CouponOrderFacade(
 
     private companion object {
         const val COUPON_AMOUNT = 5_000L
-        val COUPON_MERCHANT_ID = MerchantId("coupon-merchant")
+        val COUPON_MERCHANT_ID = MerchantId(2L)
     }
 }

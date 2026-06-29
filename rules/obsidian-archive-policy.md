@@ -32,6 +32,21 @@
 
 `작업기록.md`는 인덱스와 최신 요약만 담는다. 상세 완료 기록은 `days/` 아래의 일차별 파일에 쓴다.
 
+## Record Roles
+
+Obsidian 기록은 두 목적을 분리해서 쓴다.
+
+1. 컨텍스트 압축 복구:
+   - 파일: `09.Context Handoffs/01.Active Work/card-service/현재작업.md`
+   - 내용: repo, branch, current phase, 마지막 검증 결과, 실패 이유, dirty 상태 요약, 다음 명령, 주의사항.
+   - 원칙: 다음 Codex 세션이 바로 이어갈 수 있도록 짧게 유지한다.
+2. 작업 마무리 확인:
+   - 파일: `07.Build Logs/card-service/days/YYYY-MM-DD-N일차.md`
+   - 내용: 목표, 실제 변경, 검증 결과, 실패 원인, 판단 이유, 남은 작업, commit hash/title.
+   - 원칙: 나중에 작업을 어떻게 끝냈는지 확인할 수 있도록 상세히 쓴다.
+
+`07.Build Logs/card-service/작업기록.md`는 날짜별 링크와 한 줄 결과만 남긴다. `04.Decisions/card-service/결정기록.md`는 반복해서 영향을 주는 장기 결정만 남긴다.
+
 ## Local Project Files
 
 프로젝트 안에는 현재 상태만 남긴다.
@@ -74,12 +89,37 @@ Phase 상태 변경은 `scripts/execute.py`로 수행한다. `scripts/execute.py
 
 긴 작업 중에는 `python3 scripts/execute.py --lane <backend|frontend> checkpoint "현재 상태"`로 중간 복구 지점을 남긴다. 이 기록은 로컬 handoff와 Obsidian 현재작업에 함께 반영된다.
 
+## Git Commit Rule
+
+일반 phase 완료는 직접 `git commit`으로 끝내지 않는다.
+
+기본 완료 경로:
+
+```bash
+python3 scripts/execute.py --lane <backend|frontend> validate
+python3 scripts/execute.py --lane <backend|frontend> complete
+```
+
+`complete`는 phase 완료, phase archive, Obsidian day event, active handoff sync, auto commit, commit 결과 기록을 한 흐름으로 처리한다.
+
+직접 `git commit`을 사용한 경우는 예외다. 이 경우에는 Obsidian 기록이 자동으로 맞춰지지 않으므로 다음 작업을 별도로 수행한다.
+
+```bash
+python3 scripts/execute.py --lane <backend|frontend> sync
+```
+
+그 다음 오늘 day file에 commit hash/title, 검증 결과, 직접 commit을 사용한 이유를 수동으로 정리한다.
+
 ```text
 Date:
 Work:
 Status:
 Summary:
 Conversation basis:
+Goal:
+Work flow:
+Blockers:
+Direction changes:
 Changed:
 Why:
 Scope:
@@ -115,6 +155,17 @@ Conversation basis:
 - 대화에서 확정한 기준:
 - 바뀐 방향:
 
+Goal:
+- 오늘 시작할 때 해결하려던 문제.
+- 왜 이 작업을 하려고 했는지.
+
+Work flow:
+1. 처음 확인한 상태:
+2. 시도한 접근:
+3. 막힌 지점:
+4. 조정한 방향:
+5. 최종 상태:
+
 Changed:
 - 실제 변경 내용을 파일/영역 기준으로 적는다.
 - 백엔드, 프론트, 문서, 테스트를 구분한다.
@@ -137,9 +188,12 @@ Verified:
 - 실행한 명령:
 - 결과:
 - 실행하지 못했다면 이유:
+- 실패했다면 작업 범위 문제인지 실제 기능 문제인지:
 
 Decision:
 - 작업 중 확정한 설계/기획 결정.
+- trade-off:
+- 나중에 다시 볼 포인트:
 
 User reflection:
 - 어려웠던 부분:

@@ -3,11 +3,11 @@ package com.example.cardservice.application.payment.response
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class CreateCouponOrderResponse(
-    @get:Schema(description = "주문 ID", example = "order-1")
-    val orderId: String,
+    @get:Schema(description = "주문 ID", example = "10")
+    val orderId: Long,
 
     @get:Schema(description = "결제 ID", example = "1")
-    val paymentId: String,
+    val paymentId: Long,
 
     @get:Schema(description = "결제 상태", example = "AUTHORIZED")
     val paymentStatus: String,
