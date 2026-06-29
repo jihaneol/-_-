@@ -9,8 +9,11 @@ import type { ApiError } from '../../shared/api/client'
 import { Field, Notice, PaginationControls, Row, StatusBadge } from '../../shared/ui'
 
 const memberSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
+  username: z.string().min(1),
+  password: z.string().min(1),
+  name: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
+  role: z.enum(['USER', 'ADMIN']),
 })
 
 type MemberForm = z.infer<typeof memberSchema>
@@ -43,7 +46,10 @@ export function MembersPage() {
     queryFn: () => adminCommerceApi.listCouponHistories(selectedMemberId!, { page: historyPage }),
     enabled: selectedMemberId !== null,
   })
-  const form = useForm<MemberForm>({ resolver: zodResolver(memberSchema), defaultValues: { name: '', email: '' } })
+  const form = useForm<MemberForm>({
+    resolver: zodResolver(memberSchema),
+    defaultValues: { username: '', password: '', name: '', email: '', role: 'USER' },
+  })
   const handleApiError = (apiError: ApiError) => {
     setError(apiError.message)
     setNotice('')
@@ -54,7 +60,7 @@ export function MembersPage() {
       setSelectedMemberId(member.id)
       setNotice(`회원 #${member.id} 생성`)
       setError('')
-      form.reset({ name: '', email: '' })
+      form.reset({ username: '', password: '', name: '', email: '', role: 'USER' })
       await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.membersBase })
       await queryClient.invalidateQueries({ queryKey: adminCommerceKeys.summary })
     },
@@ -105,11 +111,23 @@ export function MembersPage() {
         <section className="panel">
           <h2>회원 생성</h2>
           <form className="grid" onSubmit={form.handleSubmit((values) => createMember.mutate(values))}>
+            <Field label="아이디" error={form.formState.errors.username?.message}>
+              <input {...form.register('username')} placeholder="kim" />
+            </Field>
+            <Field label="비밀번호" error={form.formState.errors.password?.message}>
+              <input {...form.register('password')} placeholder="password1" type="password" />
+            </Field>
             <Field label="이름" error={form.formState.errors.name?.message}>
               <input {...form.register('name')} placeholder="Kim" />
             </Field>
             <Field label="이메일" error={form.formState.errors.email?.message}>
               <input {...form.register('email')} placeholder="kim@example.com" />
+            </Field>
+            <Field label="역할" error={form.formState.errors.role?.message}>
+              <select {...form.register('role')}>
+                <option value="USER">사용자</option>
+                <option value="ADMIN">관리자</option>
+              </select>
             </Field>
             <button className="button" disabled={createMember.isPending}>
               <UserPlus size={16} /> 생성

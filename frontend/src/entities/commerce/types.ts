@@ -1,7 +1,15 @@
 export type Member = {
   id: number
+  username: string
   name: string
-  email: string
+  email?: string | null
+  role: 'ADMIN' | 'USER'
+}
+
+export type AuthResponse = {
+  accessToken: string
+  tokenType: 'Bearer'
+  member: Member
 }
 
 export type Product = {

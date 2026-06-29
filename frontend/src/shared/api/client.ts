@@ -1,7 +1,8 @@
 export type ApiEnvelope<T> = {
   code: string
   message: string
-  data: T
+  data?: T
+  payload?: T
 }
 
 export type ApiError = {
@@ -11,11 +12,17 @@ export type ApiError = {
 }
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? ''
+let authToken: string | null = null
+
+export function setApiAuthToken(token: string | null) {
+  authToken = token
+}
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -24,7 +31,8 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     throw normalizeError(payload)
   }
-  return (payload as ApiEnvelope<T>).data
+  const envelope = payload as ApiEnvelope<T>
+  return (envelope.payload ?? envelope.data) as T
 }
 
 function normalizeError(payload: unknown): ApiError {

@@ -1,5 +1,5 @@
 import { request } from '../../shared/api/client'
-import type { ApproveCouponExchangeResult, CouponConsistencyReport, CouponExchangeResult, CouponHistoryPageResponse, CouponPageResponse, CouponWallet, DashboardSummary, Inventory, Member, MemberPageResponse, Order, OrderPageResponse, PayOrderResult, Product, ProductPageResponse, RefundOrderResult } from './types'
+import type { ApproveCouponExchangeResult, AuthResponse, CouponConsistencyReport, CouponExchangeResult, CouponHistoryPageResponse, CouponPageResponse, CouponWallet, DashboardSummary, Inventory, Member, MemberPageResponse, Order, OrderPageResponse, PayOrderResult, Product, ProductPageResponse, RefundOrderResult } from './types'
 
 type PageQuery = {
   page?: number
@@ -35,9 +35,11 @@ export const shopCommerceKeys = {
 }
 
 export const adminCommerceApi = {
+  login: (body: { username: string; password: string }) =>
+    request<AuthResponse>('/api/admin/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   getDashboardSummary: () => request<DashboardSummary>('/api/admin/dashboard/summary'),
   listMembers: (query: PageQuery = {}) => request<MemberPageResponse>(`/api/admin/members${toPageSearch(query)}`),
-  createMember: (body: { name: string; email: string }) =>
+  createMember: (body: { username: string; password: string; name?: string; email?: string; role?: Member['role'] }) =>
     request<Member>('/api/admin/members', { method: 'POST', body: JSON.stringify(body) }),
   listProducts: (query: PageQuery = {}) => request<ProductPageResponse>(`/api/admin/products${toPageSearch(query)}`),
   createProduct: (body: { name: string; price: number }) =>
@@ -68,7 +70,11 @@ export const adminCommerceApi = {
 }
 
 export const shopCommerceApi = {
-  createMember: (body: { name: string; email: string }) =>
+  signup: (body: { username: string; password: string; name?: string; email?: string }) =>
+    request<AuthResponse>('/api/shop/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+  login: (body: { username: string; password: string }) =>
+    request<AuthResponse>('/api/shop/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  createMember: (body: { username: string; password: string; name?: string; email?: string }) =>
     request<Member>('/api/shop/members', { method: 'POST', body: JSON.stringify(body) }),
   listProducts: (query: PageQuery = {}) => request<ProductPageResponse>(`/api/shop/products${toPageSearch(query)}`),
   createOrder: (body: { memberId: number; lines: Array<{ productId: number; quantity: number }> }) =>
