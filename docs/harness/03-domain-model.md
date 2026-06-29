@@ -5,7 +5,7 @@
 | Area | Model | Responsibility |
 |---|---|---|
 | Payment | `Payment` | authorization, cancellation/refund status, idempotency identity |
-| Member | `Member` | customer identity for MVP order flows |
+| Member | `Member` | login identity, password hash, profile, and role for order flows |
 | Product | `Product` | sale product and sale status |
 | Inventory | `Inventory` | stock increase/decrease guard |
 | Order | `Order` | order items, total amount, payment status |
@@ -24,6 +24,11 @@
 - Coupon exchange uses exactly ten `ISSUED` coupons for one 5,000 KRW exchange product.
 - Coupon exchange approval deducts one product inventory item in the same transaction.
 - Admin and shop runtimes must not fork domain rules.
+- Member username is required and globally unique.
+- Member password is stored only as an encoded hash.
+- Member name is optional input; a nickname is generated when it is blank.
+- Member email is optional and may be empty.
+- Member role is either `ADMIN` or `USER`; runtime filters use it for admin/shop access.
 
 ## Deferred Domain Targets
 

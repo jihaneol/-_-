@@ -76,7 +76,7 @@ class CouponExchangeServiceBehaviorSpec : BehaviorSpec({
             couponRepository = couponRepository,
             couponHistoryRepository = couponHistoryRepository,
         )
-        val member = Member.create(name = "Lee", email = "lee@example.com")
+        val member = Member.create(username = "lee", passwordHash = "{bcrypt}hash", name = "Lee", email = "lee@example.com")
         assignId(member, 3L)
         val product = Product.create(name = "Americano", price = 5_000L)
         assignId(product, 8L)

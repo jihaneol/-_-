@@ -6,6 +6,48 @@ Detailed route contracts live in `docs/how/02-api-contract.md`.
 
 The HTTP runtime is split into `admin-api` and `shop-api`.
 
+## Authentication
+
+- Member signup requires `username` and `password`.
+- `name` and `email` are optional profile fields; blank `name` is replaced with a generated nickname and blank `email` is stored as null.
+- Passwords are encoded before persistence.
+- JWT access tokens use `Authorization: Bearer <token>`.
+- `/api/admin/**` requires an `ADMIN` token except `/api/admin/auth/login`.
+- `/api/shop/**` requires a `USER` token except auth endpoints, legacy `POST /api/shop/members`, and public product catalog reads.
+
+```http
+POST /api/admin/auth/login
+POST /api/shop/auth/login
+POST /api/shop/auth/signup
+```
+
+Signup request:
+
+```json
+{
+  "username": "kim",
+  "password": "password1",
+  "name": "Kim",
+  "email": null
+}
+```
+
+Auth response:
+
+```json
+{
+  "accessToken": "jwt",
+  "tokenType": "Bearer",
+  "member": {
+    "id": 1,
+    "username": "kim",
+    "name": "Kim",
+    "email": null,
+    "role": "USER"
+  }
+}
+```
+
 ### Admin API
 
 Namespace: `/api/admin/**`
@@ -28,7 +70,7 @@ Namespace: `/api/shop/**`
 
 Responsibilities:
 
-- demo member signup until authentication exists,
+- member signup/login,
 - sale product catalog,
 - customer order creation,
 - order payment,

@@ -35,6 +35,14 @@ infra/external
 - Both use shared application use cases.
 - Shared web error response can be duplicated initially and extracted later only if duplication becomes costly.
 
+## Security Shape
+
+- `Member` owns required username, encoded password, and `ADMIN`/`USER` role.
+- `application` defines `PasswordHashPort`; API runtimes provide BCrypt adapters.
+- Admin and shop runtimes each register a stateless Spring Security filter chain.
+- JWT filters parse bearer tokens, reload the active member by username, and require the token role to match the current member role.
+- Admin routes require `ROLE_ADMIN`; shop routes require `ROLE_USER` after signup/login.
+
 ## Reliability Shape
 
 - Use unique constraints and transaction boundaries for idempotency.

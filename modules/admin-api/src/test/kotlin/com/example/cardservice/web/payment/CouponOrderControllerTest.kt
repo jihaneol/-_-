@@ -2,6 +2,7 @@ package com.example.cardservice.web.payment
 
 import com.example.cardservice.application.payment.CreateCouponOrderInput
 import com.example.cardservice.application.payment.CreateCouponOrderResult
+import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
 import com.example.cardservice.web.payment.couponorder.CouponOrderController
 import com.example.cardservice.domain.payment.model.OrderId
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -19,12 +21,16 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
 @WebMvcTest(CouponOrderController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class CouponOrderControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
     @MockitoBean
     lateinit var couponOrderUseCase: CouponOrderUseCase
+
+    @MockitoBean
+    lateinit var memberRepository: MemberRepository
 
     @Test
     fun `쿠폰 주문을 생성한다`() {

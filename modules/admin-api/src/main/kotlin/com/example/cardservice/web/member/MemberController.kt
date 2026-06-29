@@ -7,8 +7,10 @@ import com.example.cardservice.application.member.MemberPageResult
 import com.example.cardservice.application.member.MemberResult
 import com.example.cardservice.application.member.UpdateMemberInput
 import com.example.cardservice.application.member.request.MemberRequest
+import com.example.cardservice.application.member.request.UpdateMemberRequest
 import com.example.cardservice.application.member.required.MemberQueryUseCase
 import com.example.cardservice.application.member.required.MemberUseCase
+import com.example.cardservice.domain.member.MemberRole
 import com.example.cardservice.web.common.ApplicationResponseType
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.toApplicationResponse
@@ -36,7 +38,15 @@ class MemberController(
     @Operation(summary = "회원 생성")
     fun createMember(@RequestBody request: MemberRequest): ResponseEntity<ApiResponse<MemberResult>> =
         memberUseCase
-            .createMember(CreateMemberInput(request.name, request.email))
+            .createMember(
+                CreateMemberInput(
+                    username = request.username,
+                    password = request.password,
+                    name = request.name,
+                    email = request.email,
+                    role = request.role ?: MemberRole.USER,
+                ),
+            )
             .toApplicationResponse(ApplicationResponseType.CREATED)
 
     @GetMapping
@@ -57,7 +67,7 @@ class MemberController(
     @Operation(summary = "회원 수정")
     fun updateMember(
         @PathVariable memberId: Long,
-        @RequestBody request: MemberRequest,
+        @RequestBody request: UpdateMemberRequest,
     ): ResponseEntity<ApiResponse<MemberResult>> =
         memberUseCase
             .updateMember(memberId, UpdateMemberInput(request.name, request.email))

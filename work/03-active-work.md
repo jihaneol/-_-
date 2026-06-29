@@ -164,3 +164,13 @@ Run the project through explicit loops until the harness done criteria are met. 
 - Coupon rule: coupon issuance can move to after-commit/outbox later, but it must only run after the payment transaction commits. This slice keeps coupon issuance synchronous to avoid changing the API contract.
 - Non-goal: refund and coupon exchange pessimistic locks are not changed in this slice.
 - Validation: application behavior test, full Gradle test, and Testcontainers order flow integration test passed.
+
+## Completed: Member Auth And JWT Runtime Filters
+
+- Member identity now requires unique `username` and required `password`; passwords are encoded before persistence.
+- `name` and `email` are optional profile fields. Blank `name` generates a nickname; blank `email` is stored as null.
+- Member role is `ADMIN` or `USER`.
+- Admin runtime exposes `/api/admin/auth/login` and protects `/api/admin/**` with `ROLE_ADMIN`.
+- Shop runtime exposes `/api/shop/auth/signup` and `/api/shop/auth/login`, and protects user-specific `/api/shop/**` routes with `ROLE_USER` while keeping product catalog reads public.
+- Frontend admin app now requires admin login before rendering operations, and shop signup stores the returned JWT for order/payment/wallet requests.
+- Validation: backend module tests, frontend Vitest, frontend production build, and `validate_impeccable.sh` passed on 2026-06-29. The UI hook emitted its existing `frontend/shared` path warning with exit code 0.

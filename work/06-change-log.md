@@ -1,5 +1,14 @@
 # Change Log
 
+## 2026-06-29
+
+- Extended `Member` with required unique username, encoded password hash, optional email, generated nickname fallback, and `ADMIN`/`USER` role.
+- Added BCrypt password hashing through an application port and API runtime adapters.
+- Added JWT login/signup responses and stateless Spring Security filters for admin and shop runtimes.
+- Protected `/api/admin/**` with `ROLE_ADMIN` and user-specific shop routes with `ROLE_USER`, leaving auth endpoints and shop product catalog reads public.
+- Updated schema, backend tests, admin login UI, shop signup form, optional integration-test input, and payment spike load script for the new member/auth contract.
+- Verified backend module tests, frontend Vitest, frontend production build, and `validate_impeccable.sh` on 2026-06-29.
+
 ## 2026-06-24
 
 - Planned the Kafka/outbox traffic-spike story around payment p95/p99 improvement, not core payment correctness.

@@ -4,6 +4,7 @@ import com.example.cardservice.application.member.CreateMemberInput
 import com.example.cardservice.application.member.MemberResult
 import com.example.cardservice.application.member.request.MemberRequest
 import com.example.cardservice.application.member.required.MemberUseCase
+import com.example.cardservice.domain.member.MemberRole
 import com.example.cardservice.web.common.ApplicationResponseType
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.toApplicationResponse
@@ -25,6 +26,14 @@ class ShopMemberController(
     @Operation(summary = "쇼핑몰 데모 회원 가입")
     fun signup(@RequestBody request: MemberRequest): ResponseEntity<ApiResponse<MemberResult>> =
         memberUseCase
-            .createMember(CreateMemberInput(request.name, request.email))
+            .createMember(
+                CreateMemberInput(
+                    username = request.username,
+                    password = request.password,
+                    name = request.name,
+                    email = request.email,
+                    role = MemberRole.USER,
+                ),
+            )
             .toApplicationResponse(ApplicationResponseType.CREATED)
 }

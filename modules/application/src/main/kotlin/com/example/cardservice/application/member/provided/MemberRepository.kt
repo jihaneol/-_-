@@ -12,5 +12,7 @@ interface MemberRepository : Repository<Member, Long> {
     fun save(member: Member): Member
     fun findAllByDeletedAtIsNull(pageable: Pageable): Page<Member>
     fun findByIdAndDeletedAtIsNull(id: Long): Member?
+    fun findByUsernameAndDeletedAtIsNull(username: String): Member?
+    fun existsByUsername(username: String): Boolean
     fun countByDeletedAtIsNull(): Long
 }

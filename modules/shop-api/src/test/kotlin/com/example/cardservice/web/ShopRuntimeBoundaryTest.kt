@@ -1,6 +1,7 @@
 package com.example.cardservice.web
 
 import com.example.cardservice.application.member.MemberResult
+import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.coupon.CouponHistoryPageResult
 import com.example.cardservice.application.coupon.CouponHistoryResult
 import com.example.cardservice.application.common.Pagination
@@ -22,11 +23,13 @@ import com.example.cardservice.web.payment.ShopOrderPaymentController
 import com.example.cardservice.web.product.ShopProductController
 import com.example.cardservice.domain.coupon.CouponHistoryType
 import com.example.cardservice.domain.coupon.CouponStatus
+import com.example.cardservice.domain.member.MemberRole
 import com.example.cardservice.domain.product.ProductSaleStatus
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.mockito.kotlin.any
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -43,6 +46,7 @@ import org.springframework.test.web.servlet.post
         ShopCouponController::class,
     ],
 )
+@AutoConfigureMockMvc(addFilters = false)
 class ShopRuntimeBoundaryTest {
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -65,13 +69,18 @@ class ShopRuntimeBoundaryTest {
     @MockitoBean
     lateinit var couponQueryUseCase: CouponQueryUseCase
 
+    @MockitoBean
+    lateinit var memberRepository: MemberRepository
+
     @Test
     fun `shop runtime exposes signup under shop namespace`() {
-        given(memberUseCase.createMember(any())).willReturn(MemberResult(id = 1L, name = "Kim", email = "kim@example.com"))
+        given(memberUseCase.createMember(any())).willReturn(
+            MemberResult(id = 1L, username = "kim", name = "Kim", email = "kim@example.com", role = MemberRole.USER),
+        )
 
         mockMvc.post("/api/shop/members") {
             contentType = MediaType.APPLICATION_JSON
-            content = """{"name":"Kim","email":"kim@example.com"}"""
+            content = """{"username":"kim","password":"password1","name":"Kim","email":"kim@example.com"}"""
         }
             .andExpect {
                 status { isCreated() }

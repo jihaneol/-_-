@@ -1,9 +1,13 @@
 CREATE TABLE members (
     id BIGINT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(80) NOT NULL,
+    password_hash VARCHAR(200) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(200) NOT NULL,
+    email VARCHAR(200) NULL,
+    role VARCHAR(30) NOT NULL,
     deleted_at DATETIME NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT uk_members_username UNIQUE (username)
 );
 
 CREATE INDEX idx_members_deleted_at_id
