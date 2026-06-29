@@ -6,12 +6,14 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { shopCommerceApi, shopCommerceKeys } from '../../src/entities/commerce/api'
 import type { CouponHistory, CouponWallet, Member, Product, ProductPageResponse } from '../../src/entities/commerce/types'
-import type { ApiError } from '../../src/shared/api/client'
+import { setApiAuthToken, type ApiError } from '../../src/shared/api/client'
 import { Field, Notice, PaginationControls, StatusBadge } from '../../src/shared/ui'
 
 const signupSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
+  username: z.string().min(1),
+  password: z.string().min(1),
+  name: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
 })
 
 type SignupForm = z.infer<typeof signupSchema>
@@ -40,21 +42,22 @@ export function ShopApp() {
   })
   const signupForm = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: '', email: '' },
+    defaultValues: { username: '', password: '', name: '', email: '' },
   })
   const onError = (apiError: ApiError) => {
     setError(apiError.message)
     setNotice('')
   }
   const signup = useMutation({
-    mutationFn: shopCommerceApi.createMember,
-    onSuccess: async (createdMember) => {
-      setMember(createdMember)
-      setNotice(`회원 #${createdMember.id} 가입`)
+    mutationFn: shopCommerceApi.signup,
+    onSuccess: async (auth) => {
+      setApiAuthToken(auth.accessToken)
+      setMember(auth.member)
+      setNotice(`회원 #${auth.member.id} 가입`)
       setError('')
       setView('home')
-      signupForm.reset({ name: '', email: '' })
-      await queryClient.invalidateQueries({ queryKey: shopCommerceKeys.wallet(createdMember.id) })
+      signupForm.reset({ username: '', password: '', name: '', email: '' })
+      await queryClient.invalidateQueries({ queryKey: shopCommerceKeys.wallet(auth.member.id) })
     },
     onError,
   })
@@ -733,6 +736,12 @@ function ShopSignupPage(props: {
         <section className="shop-auth-panel">
           <h2>회원 정보</h2>
           <form className="grid" onSubmit={props.signupForm.handleSubmit(props.onSignup)}>
+            <Field label="아이디" error={props.signupForm.formState.errors.username?.message}>
+              <input {...props.signupForm.register('username')} placeholder="lee" />
+            </Field>
+            <Field label="비밀번호" error={props.signupForm.formState.errors.password?.message}>
+              <input {...props.signupForm.register('password')} placeholder="password1" type="password" />
+            </Field>
             <Field label="이름" error={props.signupForm.formState.errors.name?.message}>
               <input {...props.signupForm.register('name')} placeholder="Lee" />
             </Field>

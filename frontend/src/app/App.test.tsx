@@ -7,13 +7,21 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { AdminApp } from '../../apps/admin/AdminApp'
 import { ShopApp } from '../../apps/shop/ShopApp'
 
-let members = [{ id: 1, name: 'Kim', email: 'kim@example.com' }]
+let members: any[] = [{ id: 1, username: 'kim', name: 'Kim', email: 'kim@example.com', role: 'USER' }]
 let products = [buildProduct(1, 'Americano', 12000)]
 let orders: any[] = []
 let coupons: any[] = []
 let histories: any[] = []
 
 const server = setupServer(
+  http.post('/api/admin/auth/login', async ({ request }) => {
+    const body = await request.json() as any
+    return ok({
+      accessToken: 'admin-token',
+      tokenType: 'Bearer',
+      member: { id: 99, username: body.username, name: 'Admin', email: null, role: 'ADMIN' },
+    })
+  }),
   http.get('/api/admin/dashboard/summary', () => ok({
     memberCount: members.length,
     productCount: products.length,
@@ -25,7 +33,7 @@ const server = setupServer(
   http.get('/api/admin/members', ({ request }) => ok(pageResponse(members, request.url))),
   http.post('/api/admin/members', async ({ request }) => {
     const body = await request.json() as any
-    const member = { id: 2, name: body.name, email: body.email }
+    const member = { id: 2, username: body.username, name: body.name || `member-2`, email: body.email || null, role: body.role ?? 'USER' }
     members = [...members, member]
     return ok(member)
   }),
@@ -65,9 +73,15 @@ const server = setupServer(
   http.get('/api/admin/coupon-consistency', () => ok(buildCouponConsistency())),
   http.post('/api/shop/members', async ({ request }) => {
     const body = await request.json() as any
-    const member = { id: 3, name: body.name, email: body.email }
+    const member = { id: 3, username: body.username, name: body.name || `member-3`, email: body.email || null, role: 'USER' }
     members = [...members, member]
     return ok(member)
+  }),
+  http.post('/api/shop/auth/signup', async ({ request }) => {
+    const body = await request.json() as any
+    const member = { id: 3, username: body.username, name: body.name || `member-3`, email: body.email || null, role: 'USER' }
+    members = [...members, member]
+    return ok({ accessToken: 'shop-token', tokenType: 'Bearer', member })
   }),
   http.get('/api/shop/products', ({ request }) => ok(pageResponse(products, request.url))),
   http.post('/api/shop/orders', async ({ request }) => {
@@ -88,7 +102,7 @@ describe('split apps', () => {
     cleanup()
     server.resetHandlers()
     window.history.pushState(null, '', '/')
-    members = [{ id: 1, name: 'Kim', email: 'kim@example.com' }]
+    members = [{ id: 1, username: 'kim', name: 'Kim', email: 'kim@example.com', role: 'USER' }]
     products = [buildProduct(1, 'Americano', 12000)]
     orders = []
     coupons = []
@@ -110,6 +124,10 @@ describe('split apps', () => {
 
     renderPage(<AdminApp />)
 
+    await screen.findByRole('heading', { name: '관리자 로그인' })
+    await userEvent.type(screen.getByLabelText('아이디'), 'admin')
+    await userEvent.type(screen.getByLabelText('비밀번호'), 'password1')
+    await userEvent.click(screen.getByRole('button', { name: '로그인' }))
     await screen.findByRole('heading', { name: '운영 대시보드' })
     expect(screen.getByRole('button', { name: /^회원 관리$/ })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^상품 관리$/ })).toBeInTheDocument()
@@ -150,6 +168,8 @@ describe('split apps', () => {
     expect(screen.getByRole('heading', { name: '회원 시작' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '가입하기' }))
     await screen.findByRole('heading', { name: '회원 가입' })
+    await userEvent.type(screen.getByLabelText('아이디'), 'lee')
+    await userEvent.type(screen.getByLabelText('비밀번호'), 'password1')
     await userEvent.type(screen.getByLabelText('이름'), 'Lee')
     await userEvent.type(screen.getByLabelText('이메일'), 'lee@example.com')
     await userEvent.click(screen.getByRole('button', { name: /^가입$/ }))

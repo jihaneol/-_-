@@ -1,9 +1,12 @@
 import { CreditCard, Home, Package, Settings, Stamp, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
+import { adminCommerceApi } from '../../src/entities/commerce/api'
 import { MainPage } from '../../src/pages/main/MainPage'
 import { MembersPage } from '../../src/pages/members/MembersPage'
 import { OrdersPaymentsPage } from '../../src/pages/orders-payments/OrdersPaymentsPage'
 import { ProductsPage } from '../../src/pages/products/ProductsPage'
+import { setApiAuthToken } from '../../src/shared/api/client'
 
 const routes = [
   { path: '/', label: '대시보드', icon: Home, title: '운영 대시보드', description: '매출, 주문, 쿠폰 적립과 교환 상태를 한 화면에서 확인합니다.' },
@@ -20,6 +23,10 @@ const secondaryRoutes = [
 
 export function AdminApp() {
   const [path, setPath] = useState(window.location.pathname)
+  const [authenticated, setAuthenticated] = useState(false)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
 
   useEffect(() => {
     const onPopState = () => setPath(window.location.pathname)
@@ -32,6 +39,41 @@ export function AdminApp() {
     setPath(nextPath)
   }
   const currentRoute = routes.find((route) => route.path === path) ?? routes[0]
+
+  const login = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setLoginError('')
+    try {
+      const auth = await adminCommerceApi.login({ username, password })
+      setApiAuthToken(auth.accessToken)
+      setAuthenticated(true)
+    } catch {
+      setLoginError('관리자 아이디 또는 비밀번호를 확인하세요.')
+    }
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="workspace admin-login">
+        <section className="panel">
+          <h1>관리자 로그인</h1>
+          <p>운영 API는 관리자 토큰으로만 접근할 수 있습니다.</p>
+          {loginError ? <div className="notice error">{loginError}</div> : null}
+          <form className="grid" onSubmit={login}>
+            <label className="field">
+              <span>아이디</span>
+              <input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="admin" />
+            </label>
+            <label className="field">
+              <span>비밀번호</span>
+              <input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="password1" type="password" />
+            </label>
+            <button className="button" type="submit">로그인</button>
+          </form>
+        </section>
+      </main>
+    )
+  }
 
   return (
     <div className="shell">
