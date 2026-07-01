@@ -2,8 +2,8 @@ package com.example.cardservice.infra.coupon
 
 import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.common.SortDirection
-import com.example.cardservice.application.coupon.CouponHistoryPageResult
-import com.example.cardservice.application.coupon.CouponPageResult
+import com.example.cardservice.application.coupon.CouponHistoryPageResponse
+import com.example.cardservice.application.coupon.CouponPageResponse
 import com.example.cardservice.application.coupon.provided.CouponQueryPort
 import com.example.cardservice.domain.coupon.QCoupon.coupon
 import com.example.cardservice.domain.coupon.QCouponHistory.couponHistory
@@ -26,7 +26,7 @@ class QueryDslCouponQueryAdapter(
 ) : CouponQueryPort {
     private val queryFactory = JPAQueryFactory(entityManager)
 
-    override fun searchCoupons(memberId: Long, pagination: Pagination): CouponPageResult {
+    override fun searchCoupons(memberId: Long, pagination: Pagination): CouponPageResponse {
         val rows = queryFactory
             .select(
                 QCouponRow(
@@ -51,10 +51,10 @@ class QueryDslCouponQueryAdapter(
                 .fetchOne() ?: 0L
         }
 
-        return page.toCouponPageResult()
+        return page.toCouponPageResponse()
     }
 
-    override fun searchMemberCouponHistories(memberId: Long, pagination: Pagination): CouponHistoryPageResult {
+    override fun searchMemberCouponHistories(memberId: Long, pagination: Pagination): CouponHistoryPageResponse {
         val rows = queryFactory
             .select(
                 QCouponHistoryRow(
@@ -80,10 +80,10 @@ class QueryDslCouponQueryAdapter(
                 .fetchOne() ?: 0L
         }
 
-        return page.toCouponHistoryPageResult()
+        return page.toCouponHistoryPageResponse()
     }
 
-    override fun searchOrderCouponHistories(orderId: Long, pagination: Pagination): CouponHistoryPageResult {
+    override fun searchOrderCouponHistories(orderId: Long, pagination: Pagination): CouponHistoryPageResponse {
         val rows = queryFactory
             .select(
                 QCouponHistoryRow(
@@ -109,7 +109,7 @@ class QueryDslCouponQueryAdapter(
                 .fetchOne() ?: 0L
         }
 
-        return page.toCouponHistoryPageResult()
+        return page.toCouponHistoryPageResponse()
     }
 
     private val Pagination.offset: Long
@@ -121,9 +121,9 @@ class QueryDslCouponQueryAdapter(
     private fun pageRequest(page: Int, size: Int, direction: SortDirection): PageRequest =
         PageRequest.of(page, size, Sort.by(sortDirectionOf(direction), "id"))
 
-    private fun Page<CouponRow>.toCouponPageResult(): CouponPageResult =
-        CouponPageResult(
-            items = content.map { it.toResult() },
+    private fun Page<CouponRow>.toCouponPageResponse(): CouponPageResponse =
+        CouponPageResponse(
+            items = content.map { it.toResponse() },
             page = number,
             size = size,
             totalElements = totalElements,
@@ -131,9 +131,9 @@ class QueryDslCouponQueryAdapter(
             hasNext = hasNext(),
         )
 
-    private fun Page<CouponHistoryRow>.toCouponHistoryPageResult(): CouponHistoryPageResult =
-        CouponHistoryPageResult(
-            items = content.map { it.toResult() },
+    private fun Page<CouponHistoryRow>.toCouponHistoryPageResponse(): CouponHistoryPageResponse =
+        CouponHistoryPageResponse(
+            items = content.map { it.toResponse() },
             page = number,
             size = size,
             totalElements = totalElements,

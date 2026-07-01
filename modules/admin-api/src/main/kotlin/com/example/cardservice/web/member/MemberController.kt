@@ -2,12 +2,10 @@ package com.example.cardservice.web.member
 
 import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
 import com.example.cardservice.application.common.Pagination
-import com.example.cardservice.application.member.CreateMemberInput
-import com.example.cardservice.application.member.MemberPageResult
-import com.example.cardservice.application.member.MemberResult
-import com.example.cardservice.application.member.UpdateMemberInput
-import com.example.cardservice.application.member.request.MemberRequest
-import com.example.cardservice.application.member.request.UpdateMemberRequest
+import com.example.cardservice.application.member.CreateMemberRequest
+import com.example.cardservice.application.member.MemberPageResponse
+import com.example.cardservice.application.member.MemberResponse
+import com.example.cardservice.application.member.UpdateMemberRequest
 import com.example.cardservice.application.member.required.MemberQueryUseCase
 import com.example.cardservice.application.member.required.MemberUseCase
 import com.example.cardservice.domain.member.MemberRole
@@ -36,16 +34,10 @@ class MemberController(
 ) {
     @PostMapping
     @Operation(summary = "회원 생성")
-    fun createMember(@RequestBody request: MemberRequest): ResponseEntity<ApiResponse<MemberResult>> =
+    fun createMember(@RequestBody request: CreateMemberRequest): ResponseEntity<ApiResponse<MemberResponse>> =
         memberUseCase
             .createMember(
-                CreateMemberInput(
-                    username = request.username,
-                    password = request.password,
-                    name = request.name,
-                    email = request.email,
-                    role = request.role ?: MemberRole.USER,
-                ),
+                request.copy(role = request.role),
             )
             .toApplicationResponse(ApplicationResponseType.CREATED)
 
@@ -55,12 +47,12 @@ class MemberController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<MemberPageResult>> =
+    ): ResponseEntity<ApiResponse<MemberPageResponse>> =
         memberQueryUseCase.listMembers(Pagination(page, size, sort)).toApplicationResponse()
 
     @GetMapping("/{memberId}")
     @Operation(summary = "회원 상세 조회")
-    fun getMember(@PathVariable memberId: Long): ResponseEntity<ApiResponse<MemberResult>> =
+    fun getMember(@PathVariable memberId: Long): ResponseEntity<ApiResponse<MemberResponse>> =
         memberQueryUseCase.getMember(memberId).toApplicationResponse()
 
     @PatchMapping("/{memberId}")
@@ -68,9 +60,9 @@ class MemberController(
     fun updateMember(
         @PathVariable memberId: Long,
         @RequestBody request: UpdateMemberRequest,
-    ): ResponseEntity<ApiResponse<MemberResult>> =
+    ): ResponseEntity<ApiResponse<MemberResponse>> =
         memberUseCase
-            .updateMember(memberId, UpdateMemberInput(request.name, request.email))
+            .updateMember(request.copy().also { it.memberId = memberId })
             .toApplicationResponse()
 
     @DeleteMapping("/{memberId}")

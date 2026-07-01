@@ -98,7 +98,9 @@ class CouponExchangeServiceBehaviorSpec : BehaviorSpec({
         every { couponRepository.countByMemberIdAndStatus(3L, CouponStatus.ISSUED) } returns 0L
 
         `when`("the operator approves coupon exchange") {
-            val result = service.approveCouponExchange(3L, ApproveCouponExchangeInput(productId = 8L))
+            val result = service.approveCouponExchange(
+                ApproveCouponExchangeRequest(productId = 8L).also { it.memberId = 3L },
+            )
 
             then("it exchanges ten coupons and deducts one inventory item") {
                 result.exchangedCouponCount shouldBe 10

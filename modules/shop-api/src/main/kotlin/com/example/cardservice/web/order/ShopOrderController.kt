@@ -1,9 +1,7 @@
 package com.example.cardservice.web.order
 
-import com.example.cardservice.application.order.CreateOrderInput
-import com.example.cardservice.application.order.CreateOrderItemInput
-import com.example.cardservice.application.order.OrderResult
-import com.example.cardservice.application.order.request.OrderCreateRequest
+import com.example.cardservice.application.order.CreateOrderRequest
+import com.example.cardservice.application.order.OrderResponse
 import com.example.cardservice.application.order.required.OrderQueryUseCase
 import com.example.cardservice.application.order.required.OrderUseCase
 import com.example.cardservice.web.common.ApplicationResponseType
@@ -28,18 +26,13 @@ class ShopOrderController(
 ) {
     @PostMapping("/orders")
     @Operation(summary = "쇼핑몰 주문 생성")
-    fun createOrder(@RequestBody request: OrderCreateRequest): ResponseEntity<ApiResponse<OrderResult>> =
+    fun createOrder(@RequestBody request: CreateOrderRequest): ResponseEntity<ApiResponse<OrderResponse>> =
         orderUseCase
-            .createOrder(
-                CreateOrderInput(
-                    memberId = request.memberId,
-                    lines = request.lines.map { CreateOrderItemInput(it.productId, it.quantity) },
-                ),
-            )
+            .createOrder(request)
             .toApplicationResponse(ApplicationResponseType.CREATED)
 
     @GetMapping("/orders/{orderId}")
     @Operation(summary = "쇼핑몰 주문 상세 조회")
-    fun getOrder(@PathVariable orderId: Long): ResponseEntity<ApiResponse<OrderResult>> =
+    fun getOrder(@PathVariable orderId: Long): ResponseEntity<ApiResponse<OrderResponse>> =
         orderQueryUseCase.getOrder(orderId).toApplicationResponse()
 }

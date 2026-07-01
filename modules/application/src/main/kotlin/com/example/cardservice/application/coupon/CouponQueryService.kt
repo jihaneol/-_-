@@ -22,28 +22,28 @@ class CouponQueryService(
     private val couponQueryPort: CouponQueryPort,
 ) : CouponQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listCoupons(memberId: Long, pagination: Pagination): CouponPageResult =
+    override fun listCoupons(memberId: Long, pagination: Pagination): CouponPageResponse =
         couponQueryPort.searchCoupons(memberId, pagination)
 
     @Transactional(readOnly = true)
-    override fun listMemberCouponHistories(memberId: Long, pagination: Pagination): CouponHistoryPageResult =
+    override fun listMemberCouponHistories(memberId: Long, pagination: Pagination): CouponHistoryPageResponse =
         couponQueryPort.searchMemberCouponHistories(memberId, pagination)
 
     @Transactional(readOnly = true)
-    override fun listOrderCouponHistories(orderId: Long, pagination: Pagination): CouponHistoryPageResult =
+    override fun listOrderCouponHistories(orderId: Long, pagination: Pagination): CouponHistoryPageResponse =
         couponQueryPort.searchOrderCouponHistories(orderId, pagination)
 
     @Transactional(readOnly = true)
-    override fun getCouponWallet(memberId: Long): CouponWalletResult {
+    override fun getCouponWallet(memberId: Long): CouponWalletResponse {
         val coupons = couponRepository.findAllByMemberId(memberId)
         val histories = couponHistoryRepository.findAllByMemberId(memberId)
             .sortedByDescending { it.id ?: 0L }
             .take(5)
-            .map { it.toResult() }
+            .map { it.toResponse() }
         val issuedCouponCount = coupons.countStatus(CouponStatus.ISSUED)
         val exchangedCouponCount = coupons.countStatus(CouponStatus.EXCHANGED)
         val voidedCouponCount = coupons.countStatus(CouponStatus.VOIDED)
-        return CouponWalletResult(
+        return CouponWalletResponse(
             memberId = memberId,
             issuedCouponCount = issuedCouponCount,
             exchangedCouponCount = exchangedCouponCount,
@@ -56,12 +56,12 @@ class CouponQueryService(
     }
 
     @Transactional(readOnly = true)
-    override fun getCouponConsistencyReport(): CouponConsistencyReportResult {
+    override fun getCouponConsistencyReport(): CouponConsistencyReportResponse {
         val coupons = couponRepository.findAll()
         val histories = couponHistoryRepository.findAll()
         val memberRows = buildMemberRows(coupons, histories)
         val orderRows = buildOrderRows(coupons, histories)
-        return CouponConsistencyReportResult(
+        return CouponConsistencyReportResponse(
             consistent = memberRows.all { it.consistent } && orderRows.all { it.consistent },
             totalCouponCount = coupons.size.toLong(),
             totalIssueHistoryCount = histories.countType(CouponHistoryType.ISSUED),
@@ -75,7 +75,7 @@ class CouponQueryService(
     private fun buildMemberRows(
         coupons: List<Coupon>,
         histories: List<CouponHistory>,
-    ): List<MemberCouponConsistencyResult> {
+    ): List<MemberCouponConsistencyResponse> {
         val memberIds = (coupons.map { it.memberId } + histories.map { it.memberId }).distinct().sorted()
         return memberIds.map { memberId ->
             val memberCoupons = coupons.filter { it.memberId == memberId }
@@ -86,7 +86,7 @@ class CouponQueryService(
             val issueHistoryCount = memberHistories.countType(CouponHistoryType.ISSUED)
             val voidHistoryCount = memberHistories.countType(CouponHistoryType.VOIDED)
             val exchangeHistoryCount = memberHistories.countType(CouponHistoryType.EXCHANGED)
-            MemberCouponConsistencyResult(
+            MemberCouponConsistencyResponse(
                 memberId = memberId,
                 issuedCouponCount = issuedCouponCount,
                 voidedCouponCount = voidedCouponCount,
@@ -106,7 +106,7 @@ class CouponQueryService(
     private fun buildOrderRows(
         coupons: List<Coupon>,
         histories: List<CouponHistory>,
-    ): List<OrderCouponConsistencyResult> {
+    ): List<OrderCouponConsistencyResponse> {
         val orderIds = (coupons.map { it.orderId } + histories.map { it.orderId }).distinct().sorted()
         return orderIds.map { orderId ->
             val orderCoupons = coupons.filter { it.orderId == orderId }
@@ -118,7 +118,7 @@ class CouponQueryService(
             val issueHistoryCount = orderHistories.countType(CouponHistoryType.ISSUED)
             val voidHistoryCount = orderHistories.countType(CouponHistoryType.VOIDED)
             val exchangeHistoryCount = orderHistories.countType(CouponHistoryType.EXCHANGED)
-            OrderCouponConsistencyResult(
+            OrderCouponConsistencyResponse(
                 orderId = orderId,
                 memberId = memberId,
                 issuedCouponCount = issuedCouponCount,
@@ -135,11 +135,11 @@ class CouponQueryService(
     }
 }
 
-internal fun Coupon.toResult(): CouponResult =
-    CouponResult(id = id, memberId = memberId, orderId = orderId, paymentId = paymentId, status = status)
+internal fun Coupon.toResponse(): CouponResponse =
+    CouponResponse(id = id, memberId = memberId, orderId = orderId, paymentId = paymentId, status = status)
 
-internal fun CouponHistory.toResult(): CouponHistoryResult =
-    CouponHistoryResult(
+internal fun CouponHistory.toResponse(): CouponHistoryResponse =
+    CouponHistoryResponse(
         id = id,
         couponId = couponId,
         memberId = memberId,

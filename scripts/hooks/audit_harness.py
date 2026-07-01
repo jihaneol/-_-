@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LANES = {"backend", "frontend"}
 RESPONSE_MAPPER = re.compile(
-    r"fun\s+\w*Result\.toResponse\(\)\s*:\s*\w*Response\s*=\s*\w*Response\((?P<args>.*?)\)",
+    r"fun\s+\w*Response\.toApiResponse\(\)\s*:\s*\w*ApiResponse\s*=\s*\w*ApiResponse\((?P<args>.*?)\)",
     re.MULTILINE | re.DOTALL,
 )
 PLAIN_ARGUMENT = re.compile(r"^(?:\w+\s*=\s*)?(?:this\.)?\w+$")
@@ -129,8 +129,8 @@ def audit_response_mappers(all_files: bool) -> tuple[list[str], list[str]]:
         text = path.read_text()
         if any(is_simple_copy_mapper(match.group("args")) for match in RESPONSE_MAPPER.finditer(text)):
             errors.append(
-                f"{path.relative_to(ROOT)}: simple Result.toResponse() mapper found; "
-                "return 1:1 Result directly or keep a real response mapper only when API shape differs"
+                f"{path.relative_to(ROOT)}: simple Response.toApiResponse() mapper found; "
+                "return 1:1 Response directly or keep a real response mapper only when API shape differs"
             )
     return errors, warnings
 
@@ -176,10 +176,11 @@ def audit_domain_model_files() -> tuple[list[str], list[str]]:
     errors = []
     warnings = []
     domain_root = ROOT / "modules" / "domain" / "src" / "main" / "kotlin"
-    for path in domain_root.glob("**/*Models.kt"):
-        errors.append(
-            f"{path.relative_to(ROOT)}: split bundled domain model files into entity-group files under model/<entity-group>"
-        )
+    for suffix in ("*Models.kt", "*Contracts.kt"):
+        for path in domain_root.glob(f"**/{suffix}"):
+            errors.append(
+                f"{path.relative_to(ROOT)}: split bundled domain files into entity-group files under domain/<entity-group>"
+            )
     return errors, warnings
 
 

@@ -1,9 +1,8 @@
 package com.example.cardservice.web.auth
 
-import com.example.cardservice.application.member.LoginInput
-import com.example.cardservice.application.member.request.AuthMemberResponse
-import com.example.cardservice.application.member.request.AuthResponse
-import com.example.cardservice.application.member.request.LoginRequest
+import com.example.cardservice.application.member.AuthMemberResponse
+import com.example.cardservice.application.member.AuthResponse
+import com.example.cardservice.application.member.LoginRequest
 import com.example.cardservice.application.member.required.MemberAuthUseCase
 import com.example.cardservice.domain.member.MemberRole
 import com.example.cardservice.security.JwtTokenProvider
@@ -27,7 +26,7 @@ class AdminAuthController(
     @PostMapping("/login")
     @Operation(summary = "관리자 로그인")
     fun login(@RequestBody request: LoginRequest): ResponseEntity<ApiResponse<AuthResponse>> {
-        val member = memberAuthUseCase.authenticate(LoginInput(request.username, request.password))
+        val member = memberAuthUseCase.authenticate(request)
         require(member.role == MemberRole.ADMIN) { "관리자 권한이 필요합니다." }
 
         return AuthResponse(

@@ -1,9 +1,8 @@
 package com.example.cardservice.web.order
 
-import com.example.cardservice.application.order.PayOrderInput
-import com.example.cardservice.application.order.PayOrderResult
-import com.example.cardservice.application.order.RefundOrderResult
-import com.example.cardservice.application.order.request.PayOrderRequest
+import com.example.cardservice.application.order.PayOrderRequest
+import com.example.cardservice.application.order.PayOrderResponse
+import com.example.cardservice.application.order.RefundOrderResponse
 import com.example.cardservice.application.order.required.OrderPaymentUseCase
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.toApplicationResponse
@@ -27,11 +26,11 @@ class OrderPaymentController(
     fun payOrder(
         @PathVariable orderId: Long,
         @RequestBody request: PayOrderRequest,
-    ): ResponseEntity<ApiResponse<PayOrderResult>> =
-        orderPaymentUseCase.payOrder(orderId, PayOrderInput(request.idempotencyKey)).toApplicationResponse()
+    ): ResponseEntity<ApiResponse<PayOrderResponse>> =
+        orderPaymentUseCase.payOrder(request.copy().also { it.orderId = orderId }).toApplicationResponse()
 
     @PostMapping("/refund")
     @Operation(summary = "주문 전체 환불")
-    fun refundOrder(@PathVariable orderId: Long): ResponseEntity<ApiResponse<RefundOrderResult>> =
+    fun refundOrder(@PathVariable orderId: Long): ResponseEntity<ApiResponse<RefundOrderResponse>> =
         orderPaymentUseCase.refundOrder(orderId).toApplicationResponse()
 }

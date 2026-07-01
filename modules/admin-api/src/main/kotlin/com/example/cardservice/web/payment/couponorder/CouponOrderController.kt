@@ -1,20 +1,15 @@
 package com.example.cardservice.web.payment.couponorder
 
-import com.example.cardservice.application.payment.CreateCouponOrderInput
-import com.example.cardservice.application.payment.CreateCouponOrderResult
-import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.application.payment.CreateCouponOrderRequest
+import com.example.cardservice.application.payment.CreateCouponOrderResponse
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
-import com.example.cardservice.application.payment.request.CreateCouponOrderRequest
-import com.example.cardservice.application.payment.response.CreateCouponOrderResponse
 import com.example.cardservice.web.common.ApplicationResponseType
-import com.example.cardservice.domain.payment.model.CustomerId
-import com.example.cardservice.domain.payment.model.IdempotencyKey
-import com.example.cardservice.domain.payment.model.OrderId
+import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.web.common.toApplicationResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import com.example.cardservice.web.common.toApplicationResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -39,26 +34,6 @@ class CouponOrderController(
         @RequestBody request: CreateCouponOrderRequest,
     ): ResponseEntity<ApiResponse<CreateCouponOrderResponse>> =
         couponOrderUseCase
-            .create(request.toInput())
-            .toResponse()
+            .create(request)
             .toApplicationResponse(ApplicationResponseType.CREATED)
-
-    private fun CreateCouponOrderRequest.toInput(): CreateCouponOrderInput =
-        CreateCouponOrderInput(
-            customerId = CustomerId(customerId),
-            orderId = OrderId(orderId),
-            idempotencyKey = IdempotencyKey(idempotencyKey),
-            quantity = quantity,
-        )
-
-    private fun CreateCouponOrderResult.toResponse(): CreateCouponOrderResponse =
-        CreateCouponOrderResponse(
-            orderId = orderId.value,
-            paymentId = paymentId.value,
-            paymentStatus = paymentStatus.name,
-            paymentStatusLabel = paymentStatus.label,
-            amount = amount,
-            currency = currency,
-            couponIds = couponIds,
-        )
 }

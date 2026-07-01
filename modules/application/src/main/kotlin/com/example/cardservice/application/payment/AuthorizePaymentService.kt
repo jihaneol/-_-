@@ -14,7 +14,7 @@ class AuthorizePaymentService(
     private val savePaymentPort: SavePaymentPort,
 ) : AuthorizePaymentUseCase {
     @Transactional
-    override fun authorize(input: AuthorizePaymentInput): AuthorizePaymentResult {
+    override fun authorize(input: AuthorizePaymentRequest): AuthorizePaymentResponse {
         // 도메인 생성
         val payment = Payment.authorize(
             merchantId = input.merchantId,
@@ -25,7 +25,7 @@ class AuthorizePaymentService(
         val savedPayment = savePaymentPort.save(payment)
         val savedMoney = savedPayment.money
 
-        return AuthorizePaymentResult(
+        return AuthorizePaymentResponse(
             paymentId = requireNotNull(savedPayment.paymentId) { "저장된 결제에는 결제 ID가 있어야 합니다." },
             status = savedPayment.status,
             amount = savedMoney.amount,

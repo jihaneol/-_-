@@ -9,7 +9,3 @@ data class ExternalPaymentRequest(
     val idempotencyKey: IdempotencyKey,
     val money: Money,
 )
-
-data class ExternalPaymentApproval(
-    val approvalKey: String,
-)

@@ -44,7 +44,7 @@ flowchart LR
     subgraph Application["application"]
         AppCommon["common"]
         Required["payment.required\nUseCase ports"]
-        Service["payment\nService/Facade implementations\nInput/Result models"]
+        Service["payment\nService/Facade implementations\nRequest/Response files"]
         Provided["payment.provided\nports\nrepository contracts"]
         Request["payment.request\nAPI request"]
         Response["payment.response\nAPI response"]
@@ -124,6 +124,6 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    Change["Change flow\ncreate/update/cancel"] --> ChangeName["No Command suffix\nAuthorizePaymentUseCase\nAuthorizePaymentInput\nAuthorizePaymentResult"]
+    Change["Change flow\ncreate/update/cancel"] --> ChangeName["No Command suffix\nAuthorizePaymentUseCase\nAuthorizePaymentRequest\nAuthorizePaymentResponse"]
     Read["Read flow\nlist/detail/search/report"] --> QueryName["Use Query suffix\nGetPaymentQueryUseCase\nSearchPaymentsQueryPort\nQueryDslPaymentQueryAdapter"]
 ```

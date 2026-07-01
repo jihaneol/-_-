@@ -1,15 +1,15 @@
 package com.example.cardservice.web.coupon
 
-import com.example.cardservice.application.coupon.ApproveCouponExchangeResult
-import com.example.cardservice.application.coupon.CouponConsistencyReportResult
-import com.example.cardservice.application.coupon.CouponExchangeResult
-import com.example.cardservice.application.coupon.CouponHistoryPageResult
-import com.example.cardservice.application.coupon.CouponHistoryResult
+import com.example.cardservice.application.coupon.ApproveCouponExchangeResponse
+import com.example.cardservice.application.coupon.CouponConsistencyReportResponse
+import com.example.cardservice.application.coupon.CouponExchangeResponse
+import com.example.cardservice.application.coupon.CouponHistoryPageResponse
+import com.example.cardservice.application.coupon.CouponHistoryResponse
 import com.example.cardservice.application.common.Pagination
-import com.example.cardservice.application.coupon.CouponPageResult
-import com.example.cardservice.application.coupon.CouponResult
-import com.example.cardservice.application.coupon.MemberCouponConsistencyResult
-import com.example.cardservice.application.coupon.OrderCouponConsistencyResult
+import com.example.cardservice.application.coupon.CouponPageResponse
+import com.example.cardservice.application.coupon.CouponResponse
+import com.example.cardservice.application.coupon.MemberCouponConsistencyResponse
+import com.example.cardservice.application.coupon.OrderCouponConsistencyResponse
 import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.coupon.required.CouponExchangeUseCase
 import com.example.cardservice.application.coupon.required.CouponQueryUseCase
@@ -45,9 +45,9 @@ class CouponControllerTest {
     @Test
     fun `회원 쿠폰 조회 API는 페이지 메타데이터와 쿠폰 목록을 반환한다`() {
         given(couponQueryUseCase.listCoupons(3L, Pagination(0, 2, "id,desc"))).willReturn(
-            CouponPageResult(
+            CouponPageResponse(
                 items = listOf(
-                    CouponResult(id = 10L, memberId = 3L, orderId = 7L, paymentId = 9L, status = CouponStatus.ISSUED),
+                    CouponResponse(id = 10L, memberId = 3L, orderId = 7L, paymentId = 9L, status = CouponStatus.ISSUED),
                 ),
                 page = 0,
                 size = 2,
@@ -74,9 +74,9 @@ class CouponControllerTest {
     @Test
     fun `회원 쿠폰 히스토리 조회 API는 페이지 메타데이터와 히스토리 목록을 반환한다`() {
         given(couponQueryUseCase.listMemberCouponHistories(3L, Pagination(1, 5, "id,asc"))).willReturn(
-            CouponHistoryPageResult(
+            CouponHistoryPageResponse(
                 items = listOf(
-                    CouponHistoryResult(
+                    CouponHistoryResponse(
                         id = 20L,
                         couponId = 10L,
                         memberId = 3L,
@@ -106,7 +106,7 @@ class CouponControllerTest {
     @Test
     fun `주문 쿠폰 히스토리 조회 API는 페이지 쿼리로 조회한다`() {
         given(couponQueryUseCase.listOrderCouponHistories(7L, Pagination(0, 20, "id,desc"))).willReturn(
-            CouponHistoryPageResult(
+            CouponHistoryPageResponse(
                 items = emptyList(),
                 page = 0,
                 size = 20,
@@ -128,15 +128,15 @@ class CouponControllerTest {
     @Test
     fun `쿠폰 교환 API는 교환된 쿠폰과 히스토리를 반환한다`() {
         given(couponExchangeUseCase.exchangeCoupon(10L)).willReturn(
-            CouponExchangeResult(
-                coupon = CouponResult(
+            CouponExchangeResponse(
+                coupon = CouponResponse(
                     id = 10L,
                     memberId = 3L,
                     orderId = 7L,
                     paymentId = 9L,
                     status = CouponStatus.EXCHANGED,
                 ),
-                history = CouponHistoryResult(
+                history = CouponHistoryResponse(
                     id = 20L,
                     couponId = 10L,
                     memberId = 3L,
@@ -158,8 +158,8 @@ class CouponControllerTest {
 
     @Test
     fun `쿠폰 교환 승인 API는 회원 상품과 교환 쿠폰 수를 반환한다`() {
-        given(couponExchangeUseCase.approveCouponExchange(3L, com.example.cardservice.application.coupon.ApproveCouponExchangeInput(8L))).willReturn(
-            ApproveCouponExchangeResult(
+        given(couponExchangeUseCase.approveCouponExchange(com.example.cardservice.application.coupon.ApproveCouponExchangeRequest(8L))).willReturn(
+            ApproveCouponExchangeResponse(
                 memberId = 3L,
                 productId = 8L,
                 productName = "Americano",
@@ -185,14 +185,14 @@ class CouponControllerTest {
     @Test
     fun `쿠폰 정합성 리포트 API는 회원과 주문 단위 상태를 반환한다`() {
         given(couponQueryUseCase.getCouponConsistencyReport()).willReturn(
-            CouponConsistencyReportResult(
+            CouponConsistencyReportResponse(
                 consistent = true,
                 totalCouponCount = 12L,
                 totalIssueHistoryCount = 12L,
                 totalVoidHistoryCount = 1L,
                 totalExchangeHistoryCount = 10L,
                 memberRows = listOf(
-                    MemberCouponConsistencyResult(
+                    MemberCouponConsistencyResponse(
                         memberId = 3L,
                         issuedCouponCount = 1L,
                         voidedCouponCount = 1L,
@@ -206,7 +206,7 @@ class CouponControllerTest {
                     ),
                 ),
                 orderRows = listOf(
-                    OrderCouponConsistencyResult(
+                    OrderCouponConsistencyResponse(
                         orderId = 7L,
                         memberId = 3L,
                         issuedCouponCount = 1L,

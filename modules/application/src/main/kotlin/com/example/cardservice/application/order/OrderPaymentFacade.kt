@@ -41,9 +41,10 @@ class OrderPaymentFacade(
     private val objectMapper: ObjectMapper,
 ) : OrderPaymentUseCase {
     @Transactional
-    override fun payOrder(orderId: Long, input: PayOrderInput): PayOrderResult {
+    override fun payOrder(request: PayOrderRequest): PayOrderResponse {
+        val orderId = request.orderId
         val order = loadOrder(orderId)
-        val existingPayment = paymentRepository.findByIdempotencyKeyValue(input.idempotencyKey)
+        val existingPayment = paymentRepository.findByIdempotencyKeyValue(request.idempotencyKey)
         if (existingPayment != null) {
             require(existingPayment.orderId.value == orderId) { "같은 중복 요청 방지 키로 다른 요청 본문이 들어오면 거절한다." }
             val paymentId = existingPayment.id
@@ -61,7 +62,7 @@ class OrderPaymentFacade(
             Payment.authorize(
                 merchantId = COMMERCE_MERCHANT_ID,
                 orderId = OrderId(orderId),
-                idempotencyKey = IdempotencyKey(input.idempotencyKey),
+                idempotencyKey = IdempotencyKey(request.idempotencyKey),
                 money = order.money(),
             ),
         )
@@ -101,7 +102,7 @@ class OrderPaymentFacade(
     }
 
     @Transactional
-    override fun refundOrder(orderId: Long): RefundOrderResult {
+    override fun refundOrder(orderId: Long): RefundOrderResponse {
         val order = loadOrderForUpdate(orderId)
         val paymentId = requireNotNull(order.paymentId) { "결제 전 주문은 환불할 수 없습니다." }
         val payment = paymentRepository.findById(paymentId).orElseThrow { IllegalArgumentException("결제를 찾을 수 없습니다.") }
@@ -138,7 +139,7 @@ class OrderPaymentFacade(
             ),
         )
 
-        return RefundOrderResult(
+        return RefundOrderResponse(
             orderId = orderId,
             paymentId = paymentId,
             orderStatus = order.status,
@@ -165,8 +166,8 @@ class OrderPaymentFacade(
         payment: Payment,
         issuedCouponCount: Int,
         orderStatus: OrderStatus = status,
-    ): PayOrderResult =
-        PayOrderResult(
+    ): PayOrderResponse =
+        PayOrderResponse(
             orderId = id,
             paymentId = payment.id,
             orderStatus = orderStatus,

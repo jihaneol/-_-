@@ -16,28 +16,28 @@ class InventoryService(
     private val inventoryRepository: InventoryRepository,
 ) : InventoryUseCase {
     @Transactional
-    override fun createInventory(input: CreateInventoryInput): InventoryResult {
-        productRepository.findByIdAndDeletedAtIsNull(input.productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다.")
-        return inventoryRepository.save(Inventory.create(input.productId, input.quantity)).toResult()
+    override fun createInventory(request: CreateInventoryRequest): InventoryResponse {
+        productRepository.findByIdAndDeletedAtIsNull(request.productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다.")
+        return inventoryRepository.save(Inventory.create(request.productId, request.quantity)).toResponse()
     }
 
     @Transactional
-    override fun increaseInventory(productId: Long, input: AdjustInventoryInput): InventoryResult {
-        val inventory = loadInventory(productId)
-        inventory.increase(input.quantity)
-        return inventoryRepository.save(inventory).toResult()
+    override fun increaseInventory(request: AdjustInventoryRequest): InventoryResponse {
+        val inventory = loadInventory(request.productId)
+        inventory.increase(request.quantity)
+        return inventoryRepository.save(inventory).toResponse()
     }
 
     @Transactional
-    override fun decreaseInventory(productId: Long, input: AdjustInventoryInput): InventoryResult {
-        val inventory = loadInventory(productId)
-        inventory.decrease(input.quantity)
-        return inventoryRepository.save(inventory).toResult()
+    override fun decreaseInventory(request: AdjustInventoryRequest): InventoryResponse {
+        val inventory = loadInventory(request.productId)
+        inventory.decrease(request.quantity)
+        return inventoryRepository.save(inventory).toResponse()
     }
 
     private fun loadInventory(productId: Long): Inventory =
         inventoryRepository.findByProductId(productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다.")
 }
 
-internal fun Inventory.toResult(): InventoryResult =
-    InventoryResult(id = id, productId = productId, quantity = quantity)
+internal fun Inventory.toResponse(): InventoryResponse =
+    InventoryResponse(id = id, productId = productId, quantity = quantity)

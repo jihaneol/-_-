@@ -1,6 +1,6 @@
 package com.example.cardservice.web.dashboard
 
-import com.example.cardservice.application.dashboard.DashboardSummaryResult
+import com.example.cardservice.application.dashboard.DashboardSummaryResponse
 import com.example.cardservice.application.dashboard.required.DashboardQueryUseCase
 import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.web.dashboard.DashboardController
@@ -28,7 +28,7 @@ class DashboardControllerTest {
     @Test
     fun `운영 메인 요약은 회원 상품 주문 쿠폰 카운트를 반환한다`() {
         given(dashboardQueryUseCase.getSummary()).willReturn(
-            DashboardSummaryResult(
+            DashboardSummaryResponse(
                 memberCount = 3,
                 productCount = 5,
                 orderCount = 7,

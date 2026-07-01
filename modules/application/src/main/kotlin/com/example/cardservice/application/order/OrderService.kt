@@ -21,7 +21,7 @@ class OrderService(
     private val commerceLockPort: OrderWorkflowLockPort,
 ) : OrderUseCase {
     @Transactional
-    override fun createOrder(input: CreateOrderInput): OrderResult {
+    override fun createOrder(input: CreateOrderRequest): OrderResponse {
         memberRepository.findByIdAndDeletedAtIsNull(input.memberId) ?: throw IllegalArgumentException("회원을 찾을 수 없습니다.")
         val lines = input.lines.map { line ->
             val product = productRepository.findByIdAndDeletedAtIsNull(line.productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다.")
@@ -32,14 +32,14 @@ class OrderService(
                 quantity = line.quantity,
             )
         }
-        return orderRepository.save(Order.create(input.memberId, lines)).toResult()
+        return orderRepository.save(Order.create(input.memberId, lines)).toResponse()
     }
 
     @Transactional
-    override fun cancelOrder(orderId: Long): OrderResult {
+    override fun cancelOrder(orderId: Long): OrderResponse {
         val order = commerceLockPort.loadOrderForUpdate(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다.")
         order.cancel()
-        return orderRepository.save(order).toResult()
+        return orderRepository.save(order).toResponse()
     }
 
     @Transactional
@@ -53,8 +53,8 @@ class OrderService(
         orderRepository.findByIdAndDeletedAtIsNull(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다.")
 }
 
-internal fun Order.toResult(): OrderResult =
-    OrderResult(
+internal fun Order.toResponse(): OrderResponse =
+    OrderResponse(
         id = id,
         memberId = memberId,
         status = status,
@@ -62,7 +62,7 @@ internal fun Order.toResult(): OrderResult =
         currency = currency,
         paymentId = paymentId,
         lines = lines.map {
-            OrderItemResult(
+            OrderItemResponse(
                 productId = it.productId,
                 productName = it.productName,
                 unitPrice = it.unitPrice,

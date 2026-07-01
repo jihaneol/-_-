@@ -18,7 +18,7 @@ class AuthorizePaymentServiceBehaviorSpec : BehaviorSpec({
     given("a payment authorization input") {
         val savePaymentPort = mockk<SavePaymentPort>()
         val service = AuthorizePaymentService(savePaymentPort)
-        val input = AuthorizePaymentInput(
+        val input = AuthorizePaymentRequest(
             merchantId = MerchantId(2L),
             orderId = OrderId(10L),
             idempotencyKey = IdempotencyKey("idem-1"),

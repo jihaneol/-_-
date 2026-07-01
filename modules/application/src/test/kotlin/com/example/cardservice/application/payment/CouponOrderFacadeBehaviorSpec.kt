@@ -24,24 +24,24 @@ class CouponOrderFacadeBehaviorSpec : BehaviorSpec({
             authorizePaymentUseCase = authorizePaymentUseCase,
             accrueCouponPort = accrueCouponPort,
         )
-        val input = CreateCouponOrderInput(
-            customerId = CustomerId(1L),
-            orderId = OrderId(10L),
-            idempotencyKey = IdempotencyKey("idem-1"),
+        val input = CreateCouponOrderRequest(
+            customerId = 1L,
+            orderId = 10L,
+            idempotencyKey = "idem-1",
             quantity = 2,
         )
 
         every { externalPaymentPort.approve(any()) } returns ExternalPaymentApproval("mock-order-1")
         every { authorizePaymentUseCase.authorize(any()) } answers {
-            val authorizeInput = firstArg<AuthorizePaymentInput>()
-            AuthorizePaymentResult(
+            val authorizeInput = firstArg<AuthorizePaymentRequest>()
+            AuthorizePaymentResponse(
                 paymentId = PaymentId(1),
                 status = PaymentStatus.AUTHORIZED,
                 amount = authorizeInput.money.amount,
                 currency = authorizeInput.money.currency,
             )
         }
-        every { accrueCouponPort.accrue(any()) } returns CouponAccrualResult(
+        every { accrueCouponPort.accrue(any()) } returns CouponAccrualResponse(
             couponIds = listOf("coupon_1", "coupon_2"),
         )
 
@@ -49,8 +49,8 @@ class CouponOrderFacadeBehaviorSpec : BehaviorSpec({
             val result = facade.create(input)
 
             then("it approves payment and accrues coupons") {
-                result.paymentId shouldBe PaymentId(1)
-                result.paymentStatus shouldBe PaymentStatus.AUTHORIZED
+                result.paymentId shouldBe 1L
+                result.paymentStatus shouldBe PaymentStatus.AUTHORIZED.name
                 result.amount shouldBe 10_000
                 result.currency shouldBe "KRW"
                 result.couponIds shouldBe listOf("coupon_1", "coupon_2")

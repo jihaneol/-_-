@@ -1,7 +1,7 @@
 package com.example.cardservice.infra.payment.persistence
 
-import com.example.cardservice.application.payment.CouponAccrualInput
-import com.example.cardservice.application.payment.CouponAccrualResult
+import com.example.cardservice.application.payment.CouponAccrualRequest
+import com.example.cardservice.application.payment.CouponAccrualResponse
 import com.example.cardservice.application.payment.provided.AccrueCouponPort
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
@@ -13,11 +13,11 @@ import java.util.concurrent.atomic.AtomicLong
 class InMemoryCouponAccrualAdapter : AccrueCouponPort {
     private val sequence = AtomicLong(0)
 
-    override fun accrue(command: CouponAccrualInput): CouponAccrualResult {
+    override fun accrue(command: CouponAccrualRequest): CouponAccrualResponse {
         val couponIds = (1..command.quantity).map {
             "${command.brand.lowercase()}_coupon_${sequence.incrementAndGet()}"
         }
 
-        return CouponAccrualResult(couponIds = couponIds)
+        return CouponAccrualResponse(couponIds = couponIds)
     }
 }

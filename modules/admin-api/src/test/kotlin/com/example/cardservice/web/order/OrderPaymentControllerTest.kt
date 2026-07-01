@@ -1,7 +1,7 @@
 package com.example.cardservice.web.order
 
-import com.example.cardservice.application.order.PayOrderInput
-import com.example.cardservice.application.order.PayOrderResult
+import com.example.cardservice.application.order.PayOrderRequest
+import com.example.cardservice.application.order.PayOrderResponse
 import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.order.required.OrderPaymentUseCase
 import com.example.cardservice.web.order.OrderPaymentController
@@ -31,8 +31,8 @@ class OrderPaymentControllerTest {
 
     @Test
     fun `주문 결제는 결제 결과와 발급 쿠폰 수를 반환한다`() {
-        given(orderPaymentUseCase.payOrder(any(), any<PayOrderInput>())).willReturn(
-            PayOrderResult(
+        given(orderPaymentUseCase.payOrder(any<PayOrderRequest>())).willReturn(
+            PayOrderResponse(
                 orderId = 1L,
                 paymentId = 1L,
                 orderStatus = OrderStatus.PAID,

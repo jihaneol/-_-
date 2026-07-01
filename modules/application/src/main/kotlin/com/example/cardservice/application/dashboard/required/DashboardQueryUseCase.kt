@@ -1,7 +1,7 @@
 package com.example.cardservice.application.dashboard.required
 
-import com.example.cardservice.application.dashboard.DashboardSummaryResult
+import com.example.cardservice.application.dashboard.DashboardSummaryResponse
 
 interface DashboardQueryUseCase {
-    fun getSummary(): DashboardSummaryResult
+    fun getSummary(): DashboardSummaryResponse
 }

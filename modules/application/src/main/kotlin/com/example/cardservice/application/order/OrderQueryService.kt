@@ -17,17 +17,17 @@ class OrderQueryService(
     private val orderRepository: OrderRepository,
 ) : OrderQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listOrders(pagination: Pagination): OrderPageResult =
-        orderRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResult()
+    override fun listOrders(pagination: Pagination): OrderPageResponse =
+        orderRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResponse()
 
     @Transactional(readOnly = true)
-    override fun getOrder(orderId: Long): OrderResult =
+    override fun getOrder(orderId: Long): OrderResponse =
         (orderRepository.findByIdAndDeletedAtIsNull(orderId) ?: throw IllegalArgumentException("주문을 찾을 수 없습니다."))
-            .toResult()
+            .toResponse()
 
-    private fun Page<Order>.toPageResult(): OrderPageResult =
-        OrderPageResult(
-            items = content.map { it.toResult() },
+    private fun Page<Order>.toPageResponse(): OrderPageResponse =
+        OrderPageResponse(
+            items = content.map { it.toResponse() },
             page = number,
             size = size,
             totalElements = totalElements,

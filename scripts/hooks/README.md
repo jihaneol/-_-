@@ -31,7 +31,7 @@ python3 scripts/hooks/audit_harness.py --lane backend --changed-only
 python3 scripts/hooks/audit_harness.py --lane frontend --changed-only
 ```
 
-This audit checks the large failure modes only: current/active phase state, completed phase archive records, accepted validation status, obvious simple `Result.toResponse()` copy mappers in changed Kotlin files, concrete `ApiResponse<T>` usage, CQRS transaction boundaries that prevent read-only query flows from living in the same service/facade as save flows, bundled domain `*Models.kt` files, feature-specific `*PageQuery` classes instead of common `Pagination`, bundled provided port/repository files, QueryDSL adapters using generated Q types instead of `PathBuilder`, opaque QueryDSL `Predicate` parameters that hide query intent, projection helper methods that hide select fields, and `@QueryProjection` row DTOs declared inside adapter files.
+This audit checks the large failure modes only: current/active phase state, completed phase archive records, accepted validation status, obvious simple `Response.toApiResponse()` copy mappers in changed Kotlin files, concrete `ApiResponse<T>` usage, CQRS transaction boundaries that prevent read-only query flows from living in the same service/facade as save flows, bundled domain `*Models.kt`/`*Contracts.kt` files, feature-specific `*PageQuery` classes instead of common `Pagination`, bundled provided port/repository files, QueryDSL adapters using generated Q types instead of `PathBuilder`, opaque QueryDSL `Predicate` parameters that hide query intent, projection helper methods that hide select fields, and `@QueryProjection` row DTOs declared inside adapter files.
 
 Before final handoff, run the stricter state check:
 

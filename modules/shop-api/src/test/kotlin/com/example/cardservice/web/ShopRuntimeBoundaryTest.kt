@@ -1,15 +1,15 @@
 package com.example.cardservice.web
 
-import com.example.cardservice.application.member.MemberResult
+import com.example.cardservice.application.member.MemberResponse
 import com.example.cardservice.application.member.provided.MemberRepository
-import com.example.cardservice.application.coupon.CouponHistoryPageResult
-import com.example.cardservice.application.coupon.CouponHistoryResult
+import com.example.cardservice.application.coupon.CouponHistoryPageResponse
+import com.example.cardservice.application.coupon.CouponHistoryResponse
 import com.example.cardservice.application.common.Pagination
-import com.example.cardservice.application.coupon.CouponPageResult
-import com.example.cardservice.application.coupon.CouponResult
-import com.example.cardservice.application.coupon.CouponWalletResult
-import com.example.cardservice.application.product.ProductPageResult
-import com.example.cardservice.application.product.ProductResult
+import com.example.cardservice.application.coupon.CouponPageResponse
+import com.example.cardservice.application.coupon.CouponResponse
+import com.example.cardservice.application.coupon.CouponWalletResponse
+import com.example.cardservice.application.product.ProductPageResponse
+import com.example.cardservice.application.product.ProductResponse
 import com.example.cardservice.application.coupon.required.CouponQueryUseCase
 import com.example.cardservice.application.member.required.MemberUseCase
 import com.example.cardservice.application.order.required.OrderPaymentUseCase
@@ -75,7 +75,7 @@ class ShopRuntimeBoundaryTest {
     @Test
     fun `shop runtime exposes signup under shop namespace`() {
         given(memberUseCase.createMember(any())).willReturn(
-            MemberResult(id = 1L, username = "kim", name = "Kim", email = "kim@example.com", role = MemberRole.USER),
+            MemberResponse(id = 1L, username = "kim", name = "Kim", email = "kim@example.com", role = MemberRole.USER),
         )
 
         mockMvc.post("/api/shop/members") {
@@ -99,7 +99,7 @@ class ShopRuntimeBoundaryTest {
     @Test
     fun `shop runtime exposes customer coupon wallet summary`() {
         given(couponQueryUseCase.getCouponWallet(1L)).willReturn(
-            CouponWalletResult(
+            CouponWalletResponse(
                 memberId = 1L,
                 issuedCouponCount = 7L,
                 exchangedCouponCount = 10L,
@@ -122,8 +122,8 @@ class ShopRuntimeBoundaryTest {
     @Test
     fun `shop runtime exposes paginated customer coupons`() {
         given(couponQueryUseCase.listCoupons(1L, Pagination(0, 20, "id,desc"))).willReturn(
-            CouponPageResult(
-                items = listOf(CouponResult(10L, 1L, 7L, 9L, CouponStatus.ISSUED)),
+            CouponPageResponse(
+                items = listOf(CouponResponse(10L, 1L, 7L, 9L, CouponStatus.ISSUED)),
                 page = 0,
                 size = 20,
                 totalElements = 1L,
@@ -144,8 +144,8 @@ class ShopRuntimeBoundaryTest {
     @Test
     fun `shop runtime exposes paginated customer coupon histories`() {
         given(couponQueryUseCase.listMemberCouponHistories(1L, Pagination(0, 20, "id,desc"))).willReturn(
-            CouponHistoryPageResult(
-                items = listOf(CouponHistoryResult(20L, 10L, 1L, 7L, 9L, CouponHistoryType.ISSUED)),
+            CouponHistoryPageResponse(
+                items = listOf(CouponHistoryResponse(20L, 10L, 1L, 7L, 9L, CouponHistoryType.ISSUED)),
                 page = 0,
                 size = 20,
                 totalElements = 1L,
@@ -166,10 +166,10 @@ class ShopRuntimeBoundaryTest {
     @Test
     fun `shop runtime product list exposes customer-safe coupon metadata`() {
         given(productQueryUseCase.listProducts(Pagination(0, 20, "id,desc"))).willReturn(
-            ProductPageResult(
+            ProductPageResponse(
                 items = listOf(
-                    ProductResult(id = 1L, name = "Americano", price = 12_000L, saleStatus = ProductSaleStatus.ON_SALE),
-                    ProductResult(id = 2L, name = "Exchange Coffee", price = 5_000L, saleStatus = ProductSaleStatus.ON_SALE),
+                    ProductResponse(id = 1L, name = "Americano", price = 12_000L, saleStatus = ProductSaleStatus.ON_SALE),
+                    ProductResponse(id = 2L, name = "Exchange Coffee", price = 5_000L, saleStatus = ProductSaleStatus.ON_SALE),
                 ),
                 page = 0,
                 size = 20,

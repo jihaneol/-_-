@@ -1,109 +1,61 @@
 # Naming Rule
 
-이 프로젝트는 DDD, hexagonal architecture, CQRS를 사용하지만 타입명에는 변경 작업을 뜻하는 `Command` 접미사를 붙이지 않는다.
+DDD/hexagonal/CQRS를 쓰지만 변경 작업 타입명에는 `Command` 접미사를 붙이지 않는다. 조회 흐름만 `Query`를 명시한다.
 
-조회 흐름만 `Query`를 명시한다.
-
-## Package Rule
+## Packages
 
 ```text
-modules/{admin-api|shop-api}/src/main/kotlin/com/example/cardservice/web
-  common
-  {domain}
-
-modules/application/src/main/kotlin/com/example/cardservice/application
-  common
-  {domain}
-    request
-    response
-    required
-    provided
-    {Action}Service.kt
-    {Feature}Facade.kt
-    {Action}Models.kt
-
-modules/domain/src/main/kotlin/com/example/cardservice/domain
-  {domain}
-  domainservice/{domain}
-
-modules/infra/src/main/kotlin/com/example/cardservice/infra
-  {domain}
-
-modules/external/src/main/kotlin/com/example/cardservice/external
-  {domain}
-
-modules/batch/src/main/kotlin/com/example/cardservice/batch
-  {domain}
+web/{domain}
+application/{domain}/{request|response|required|provided}
+domain/{domain}
+domain/domainservice/{domain}
+infra/{domain}
+external/{domain}
+batch/{domain}
 ```
 
-## Application Naming
-
-변경 흐름:
+## Application
 
 ```text
+# command
 AuthorizePaymentUseCase
 AuthorizePaymentService
-AuthorizePaymentInput
-AuthorizePaymentResult
-
-CancelPaymentUseCase
-CancelPaymentService
-CancelPaymentInput
-CancelPaymentResult
+AuthorizePaymentRequest
+AuthorizePaymentResponse
 
 CouponOrderUseCase
 CouponOrderFacade
-CreateCouponOrderInput
-CreateCouponOrderResult
-```
+CreateCouponOrderRequest
+CreateCouponOrderResponse
 
-조회 흐름:
-
-```text
+# query
 GetPaymentQueryUseCase
 GetPaymentQueryService
 GetPaymentQuery
-PaymentDetailQueryResult
-
-SearchPaymentsQueryUseCase
-SearchPaymentsQueryService
-SearchPaymentsQuery
-SearchPaymentsQueryResult
-
-PaymentPageResult
+PaymentDetailResponse
 PaymentPageResponse
 ```
 
-규칙:
+- use case interface: `required`
+- application이 필요로 하는 port: `provided`
+- implementation: 도메인 루트 패키지의 `{Action}Service`, `{Feature}Facade`
+- request/response/approval 타입: port 파일에 넣지 않고 `{Action}Requests.kt`, `{Action}Responses.kt`
+- request 타입은 하나만 쓰고, 외부에서 받으면 안 되는 값은 public 생성 경로에 열지 않는다.
+- path/header/auth/server-derived 값은 controller에서 `copy(...).also { ... }`로 직접 채운다.
+- API 응답 모양이 use case response와 다를 때만 adapter 전용 response DTO를 둔다.
+- page 입력: 공통 `Pagination` + 대상 id 별도 파라미터
 
-- 변경 흐름에는 `Command`를 붙이지 않는다.
-- 조회 흐름에는 `Query`를 붙인다.
-- use case interface는 `required` 패키지에 둔다.
-- infra/external/batch/application 구현체가 필요로 하는 port는 `provided` 패키지에 둔다.
-- use case 구현체는 도메인 루트 패키지에 둔다.
-- 단일 도메인 규칙 실행은 `{Action}Service`를 사용하고, 여러 use case/port를 조율하는 흐름은 `{Feature}Facade`를 사용한다.
-- use case/port input, result, request, approval 모델은 port 인터페이스 파일에 같이 두지 않고 도메인 루트의 `{Action}Models.kt` 파일로 분리한다.
-- API request는 `request` 패키지에 둔다.
-- API 응답 모양이 use case result와 다를 때만 response DTO를 만들고 `response` 패키지에 둔다.
-- Result와 API 응답이 1:1이면 별도 response DTO와 단순 복사용 `toResponse()`를 만들지 않고 Result를 그대로 `toApplicationResponse()`로 감싼다.
-- paginated 목록 조회 입력은 공통 `Pagination`을 사용하고, 조회 대상 id는 별도 파라미터로 받는다.
-- paginated 목록 조회 결과는 `{Feature}PageResult`, API 응답 DTO가 따로 필요하면 `{Feature}PageResponse` 이름을 사용한다.
-
-## Port Naming
-
-Controller가 호출하는 required port:
+## Ports And Adapters
 
 ```text
+# required ports
 AuthorizePaymentUseCase
 CancelPaymentUseCase
 CouponOrderUseCase
 GetPaymentQueryUseCase
 SearchPaymentsQueryUseCase
-```
 
-Application이 필요로 하는 provided port:
-
-```text
+# provided ports
 SavePaymentPort
 LoadPaymentPort
 AppendPaymentLedgerPort
@@ -112,11 +64,8 @@ LoadPaymentDetailQueryPort
 PublishPaymentEventPort
 ExternalPaymentPort
 AccrueCouponPort
-```
 
-## Adapter Naming
-
-```text
+# adapters
 JpaPaymentAdapter
 QueryDslPaymentQueryAdapter
 JpaLedgerAdapter
@@ -125,14 +74,7 @@ MockExternalPaymentAdapter
 PaymentEventPublisherAdapter
 ```
 
-규칙:
-
-- DB 쓰기 adapter는 `Jpa{Domain}Adapter`로 둔다.
-- QueryDSL 조회 adapter는 `QueryDsl{Feature}QueryAdapter`로 둔다.
-- 외부 시스템 mock은 `Mock{ExternalSystem}Adapter`로 둔다.
-- 메시지 발행은 `{Event}PublisherAdapter`로 둔다.
-
-## Controller Naming
+## Controllers
 
 ```text
 PaymentController
@@ -146,31 +88,20 @@ OrderPaymentController
 CouponController
 ```
 
-규칙:
+- 단일 변경 기능: `{Feature}Controller`
+- 같은 도메인 안에서도 운영 책임이 다르면 기능별 controller
+- 조회 분리: `{Domain}QueryController`
+- `ApiController` 접미사 금지
 
-- 단일 변경 기능이면 `{Feature}Controller`를 사용한다.
-- 한 도메인 안에서도 운영 책임이 다르면 기능별 controller 이름을 사용한다.
-- 조회가 분리되면 `{Domain}QueryController`를 사용한다.
-- `ApiController` 접미사는 사용하지 않는다.
-
-## Forbidden Names
+## Avoid And Use
 
 ```text
-AuthorizePaymentCommandUseCase
-AuthorizePaymentCommandService
-AuthorizePaymentCommand
-JpaPaymentCommandAdapter
-LoadPaymentForCommandPort
-```
-
-대신 사용:
-
-```text
-AuthorizePaymentUseCase
-AuthorizePaymentService
-AuthorizePaymentInput
-CouponOrderUseCase
-CouponOrderFacade
-JpaPaymentAdapter
-LoadPaymentPort
+# Avoid                                # Use
+AuthorizePaymentCommandUseCase          AuthorizePaymentUseCase
+AuthorizePaymentCommandService          AuthorizePaymentService
+AuthorizePaymentCommand                 AuthorizePaymentRequest
+JpaPaymentCommandAdapter                JpaPaymentAdapter
+LoadPaymentForCommandPort               LoadPaymentPort
+CommerceService                         MemberService / ProductService / OrderService
+CommerceRequests.kt                     MemberRequests.kt / OrderRequests.kt
 ```

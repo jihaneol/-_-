@@ -1,11 +1,9 @@
 package com.example.cardservice.web.auth
 
-import com.example.cardservice.application.member.CreateMemberInput
-import com.example.cardservice.application.member.LoginInput
-import com.example.cardservice.application.member.request.AuthMemberResponse
-import com.example.cardservice.application.member.request.AuthResponse
-import com.example.cardservice.application.member.request.LoginRequest
-import com.example.cardservice.application.member.request.MemberRequest
+import com.example.cardservice.application.member.AuthMemberResponse
+import com.example.cardservice.application.member.AuthResponse
+import com.example.cardservice.application.member.CreateMemberRequest
+import com.example.cardservice.application.member.LoginRequest
 import com.example.cardservice.application.member.required.MemberAuthUseCase
 import com.example.cardservice.application.member.required.MemberUseCase
 import com.example.cardservice.domain.member.MemberRole
@@ -31,15 +29,9 @@ class ShopAuthController(
 ) {
     @PostMapping("/signup")
     @Operation(summary = "사용자 가입 및 토큰 발급")
-    fun signup(@RequestBody request: MemberRequest): ResponseEntity<ApiResponse<AuthResponse>> {
+    fun signup(@RequestBody request: CreateMemberRequest): ResponseEntity<ApiResponse<AuthResponse>> {
         val member = memberUseCase.createMember(
-            CreateMemberInput(
-                username = request.username,
-                password = request.password,
-                name = request.name,
-                email = request.email,
-                role = MemberRole.USER,
-            ),
+            request.copy(role = MemberRole.USER),
         )
 
         return AuthResponse(
@@ -51,7 +43,7 @@ class ShopAuthController(
     @PostMapping("/login")
     @Operation(summary = "사용자 로그인")
     fun login(@RequestBody request: LoginRequest): ResponseEntity<ApiResponse<AuthResponse>> {
-        val member = memberAuthUseCase.authenticate(LoginInput(request.username, request.password))
+        val member = memberAuthUseCase.authenticate(request)
         require(member.role == MemberRole.USER) { "사용자 권한이 필요합니다." }
 
         return AuthResponse(

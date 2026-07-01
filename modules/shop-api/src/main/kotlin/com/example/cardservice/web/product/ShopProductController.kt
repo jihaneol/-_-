@@ -3,9 +3,9 @@ package com.example.cardservice.web.product
 import com.example.cardservice.application.common.DEFAULT_PAGE_SIZE
 import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.product.required.ProductQueryUseCase
-import com.example.cardservice.application.product.response.ProductPageResponse
-import com.example.cardservice.application.product.response.ProductResponse
-import com.example.cardservice.application.product.response.toResponse
+import com.example.cardservice.application.product.response.ProductApiPageResponse
+import com.example.cardservice.application.product.response.ProductApiResponse
+import com.example.cardservice.application.product.response.toApiResponse
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.toApplicationResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -29,11 +29,11 @@ class ShopProductController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<ProductPageResponse>> =
-        productQueryUseCase.listProducts(Pagination(page, size, sort)).toResponse().toApplicationResponse()
+    ): ResponseEntity<ApiResponse<ProductApiPageResponse>> =
+        productQueryUseCase.listProducts(Pagination(page, size, sort)).toApiResponse().toApplicationResponse()
 
     @GetMapping("/{productId}")
     @Operation(summary = "판매 상품 상세 조회")
-    fun getProduct(@PathVariable productId: Long): ResponseEntity<ApiResponse<ProductResponse>> =
-        productQueryUseCase.getProduct(productId).toResponse().toApplicationResponse()
+    fun getProduct(@PathVariable productId: Long): ResponseEntity<ApiResponse<ProductApiResponse>> =
+        productQueryUseCase.getProduct(productId).toApiResponse().toApplicationResponse()
 }

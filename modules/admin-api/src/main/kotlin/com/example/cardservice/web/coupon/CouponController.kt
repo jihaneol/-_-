@@ -1,13 +1,12 @@
 package com.example.cardservice.web.coupon
 
-import com.example.cardservice.application.coupon.ApproveCouponExchangeInput
-import com.example.cardservice.application.coupon.ApproveCouponExchangeResult
-import com.example.cardservice.application.coupon.CouponConsistencyReportResult
-import com.example.cardservice.application.coupon.CouponExchangeResult
-import com.example.cardservice.application.coupon.CouponHistoryPageResult
-import com.example.cardservice.application.coupon.CouponPageResult
+import com.example.cardservice.application.coupon.ApproveCouponExchangeRequest
+import com.example.cardservice.application.coupon.ApproveCouponExchangeResponse
+import com.example.cardservice.application.coupon.CouponConsistencyReportResponse
+import com.example.cardservice.application.coupon.CouponExchangeResponse
+import com.example.cardservice.application.coupon.CouponHistoryPageResponse
+import com.example.cardservice.application.coupon.CouponPageResponse
 import com.example.cardservice.application.common.Pagination
-import com.example.cardservice.application.coupon.request.ApproveCouponExchangeRequest
 import com.example.cardservice.application.coupon.required.CouponExchangeUseCase
 import com.example.cardservice.application.coupon.required.CouponQueryUseCase
 import com.example.cardservice.web.common.ApiResponse
@@ -37,7 +36,7 @@ class CouponController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<CouponPageResult>> =
+    ): ResponseEntity<ApiResponse<CouponPageResponse>> =
         couponQueryUseCase.listCoupons(memberId, Pagination(page, size, sort)).toApplicationResponse()
 
     @GetMapping("/members/{memberId}/coupon-histories")
@@ -47,7 +46,7 @@ class CouponController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<CouponHistoryPageResult>> =
+    ): ResponseEntity<ApiResponse<CouponHistoryPageResponse>> =
         couponQueryUseCase
             .listMemberCouponHistories(memberId, Pagination(page, size, sort))
             .toApplicationResponse()
@@ -59,19 +58,19 @@ class CouponController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<CouponHistoryPageResult>> =
+    ): ResponseEntity<ApiResponse<CouponHistoryPageResponse>> =
         couponQueryUseCase
             .listOrderCouponHistories(orderId, Pagination(page, size, sort))
             .toApplicationResponse()
 
     @GetMapping("/coupon-consistency")
     @Operation(summary = "쿠폰 정합성 리포트 조회")
-    fun getCouponConsistencyReport(): ResponseEntity<ApiResponse<CouponConsistencyReportResult>> =
+    fun getCouponConsistencyReport(): ResponseEntity<ApiResponse<CouponConsistencyReportResponse>> =
         couponQueryUseCase.getCouponConsistencyReport().toApplicationResponse()
 
     @PostMapping("/coupons/{couponId}/exchange")
     @Operation(summary = "쿠폰 교환 처리")
-    fun exchangeCoupon(@PathVariable couponId: Long): ResponseEntity<ApiResponse<CouponExchangeResult>> =
+    fun exchangeCoupon(@PathVariable couponId: Long): ResponseEntity<ApiResponse<CouponExchangeResponse>> =
         couponExchangeUseCase.exchangeCoupon(couponId).toApplicationResponse()
 
     @PostMapping("/members/{memberId}/coupon-exchanges")
@@ -79,11 +78,10 @@ class CouponController(
     fun approveCouponExchange(
         @PathVariable memberId: Long,
         @RequestBody request: ApproveCouponExchangeRequest,
-    ): ResponseEntity<ApiResponse<ApproveCouponExchangeResult>> =
+    ): ResponseEntity<ApiResponse<ApproveCouponExchangeResponse>> =
         couponExchangeUseCase
             .approveCouponExchange(
-                memberId = memberId,
-                input = ApproveCouponExchangeInput(productId = request.productId),
+                request.copy().also { it.memberId = memberId },
             )
             .toApplicationResponse()
 }

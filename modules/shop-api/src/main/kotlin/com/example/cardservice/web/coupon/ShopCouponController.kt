@@ -1,8 +1,8 @@
 package com.example.cardservice.web.coupon
 
-import com.example.cardservice.application.coupon.CouponHistoryPageResult
-import com.example.cardservice.application.coupon.CouponPageResult
-import com.example.cardservice.application.coupon.CouponWalletResult
+import com.example.cardservice.application.coupon.CouponHistoryPageResponse
+import com.example.cardservice.application.coupon.CouponPageResponse
+import com.example.cardservice.application.coupon.CouponWalletResponse
 import com.example.cardservice.application.common.Pagination
 import com.example.cardservice.application.coupon.required.CouponQueryUseCase
 import com.example.cardservice.web.common.ApiResponse
@@ -29,7 +29,7 @@ class ShopCouponController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<CouponPageResult>> =
+    ): ResponseEntity<ApiResponse<CouponPageResponse>> =
         couponQueryUseCase.listCoupons(memberId, Pagination(page, size, sort)).toApplicationResponse()
 
     @GetMapping("/coupon-histories")
@@ -39,13 +39,13 @@ class ShopCouponController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "id,desc") sort: String,
-    ): ResponseEntity<ApiResponse<CouponHistoryPageResult>> =
+    ): ResponseEntity<ApiResponse<CouponHistoryPageResponse>> =
         couponQueryUseCase
             .listMemberCouponHistories(memberId, Pagination(page, size, sort))
             .toApplicationResponse()
 
     @GetMapping("/coupon-wallet")
     @Operation(summary = "쇼핑몰 회원 쿠폰 지갑 요약 조회")
-    fun getCouponWallet(@PathVariable memberId: Long): ResponseEntity<ApiResponse<CouponWalletResult>> =
+    fun getCouponWallet(@PathVariable memberId: Long): ResponseEntity<ApiResponse<CouponWalletResponse>> =
         couponQueryUseCase.getCouponWallet(memberId).toApplicationResponse()
 }

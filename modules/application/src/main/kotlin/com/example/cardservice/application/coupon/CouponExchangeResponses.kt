@@ -1,13 +1,11 @@
 package com.example.cardservice.application.coupon
 
-data class CouponExchangeResult(
-    val coupon: CouponResult,
-    val history: CouponHistoryResult,
+data class CouponExchangeResponse(
+    val coupon: CouponResponse,
+    val history: CouponHistoryResponse,
 )
 
-data class ApproveCouponExchangeInput(val productId: Long)
-
-data class ApproveCouponExchangeResult(
+data class ApproveCouponExchangeResponse(
     val memberId: Long,
     val productId: Long,
     val productName: String,

@@ -1,6 +1,6 @@
 package com.example.cardservice.application.dashboard
 
-data class DashboardSummaryResult(
+data class DashboardSummaryResponse(
     val memberCount: Long,
     val productCount: Long,
     val orderCount: Long,

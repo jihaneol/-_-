@@ -17,17 +17,17 @@ class MemberQueryService(
     private val memberRepository: MemberRepository,
 ) : MemberQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listMembers(pagination: Pagination): MemberPageResult =
-        memberRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResult()
+    override fun listMembers(pagination: Pagination): MemberPageResponse =
+        memberRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResponse()
 
     @Transactional(readOnly = true)
-    override fun getMember(memberId: Long): MemberResult =
+    override fun getMember(memberId: Long): MemberResponse =
         (memberRepository.findByIdAndDeletedAtIsNull(memberId) ?: throw IllegalArgumentException("회원을 찾을 수 없습니다."))
-            .toResult()
+            .toResponse()
 
-    private fun Page<Member>.toPageResult(): MemberPageResult =
-        MemberPageResult(
-            items = content.map { it.toResult() },
+    private fun Page<Member>.toPageResponse(): MemberPageResponse =
+        MemberPageResponse(
+            items = content.map { it.toResponse() },
             page = number,
             size = size,
             totalElements = totalElements,

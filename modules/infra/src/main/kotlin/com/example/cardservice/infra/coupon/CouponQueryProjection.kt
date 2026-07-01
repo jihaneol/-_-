@@ -1,7 +1,7 @@
 package com.example.cardservice.infra.coupon
 
-import com.example.cardservice.application.coupon.CouponHistoryResult
-import com.example.cardservice.application.coupon.CouponResult
+import com.example.cardservice.application.coupon.CouponHistoryResponse
+import com.example.cardservice.application.coupon.CouponResponse
 import com.example.cardservice.domain.coupon.CouponHistoryType
 import com.example.cardservice.domain.coupon.CouponStatus
 import com.querydsl.core.annotations.QueryProjection
@@ -13,8 +13,8 @@ data class CouponRow @QueryProjection constructor(
     val paymentId: Long,
     val status: CouponStatus,
 ) {
-    fun toResult(): CouponResult =
-        CouponResult(
+    fun toResponse(): CouponResponse =
+        CouponResponse(
             id = id,
             memberId = memberId,
             orderId = orderId,
@@ -31,8 +31,8 @@ data class CouponHistoryRow @QueryProjection constructor(
     val paymentId: Long,
     val type: CouponHistoryType,
 ) {
-    fun toResult(): CouponHistoryResult =
-        CouponHistoryResult(
+    fun toResponse(): CouponHistoryResponse =
+        CouponHistoryResponse(
             id = id,
             couponId = couponId,
             memberId = memberId,

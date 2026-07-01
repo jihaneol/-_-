@@ -7,20 +7,16 @@
 ```kotlin
 package com.example.cardservice.web.payment
 
-import com.example.cardservice.application.payment.CreateCouponOrderInput
-import com.example.cardservice.application.payment.CreateCouponOrderResult
-import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.application.payment.CreateCouponOrderRequest
+import com.example.cardservice.application.payment.CreateCouponOrderResponse
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
-import com.example.cardservice.application.payment.request.CreateCouponOrderRequest
-import com.example.cardservice.application.payment.response.CreateCouponOrderResponse
-import com.example.cardservice.domain.payment.model.CustomerId
-import com.example.cardservice.domain.payment.model.IdempotencyKey
-import com.example.cardservice.domain.payment.model.OrderId
+import com.example.cardservice.web.common.ApiResponse
+import com.example.cardservice.web.common.ApplicationResponseType
+import com.example.cardservice.web.common.toApplicationResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -45,44 +41,24 @@ class CouponOrderController(
         @RequestBody request: CreateCouponOrderRequest,
     ): ResponseEntity<ApiResponse<CreateCouponOrderResponse>> =
         couponOrderUseCase
-            .create(request.toInput())
-            .toResponse()
+            .create(request)
             .toApplicationResponse(ApplicationResponseType.CREATED)
-
-    private fun CreateCouponOrderRequest.toInput(): CreateCouponOrderInput =
-        CreateCouponOrderInput(
-            customerId = CustomerId(customerId),
-            orderId = OrderId(orderId),
-            idempotencyKey = IdempotencyKey(idempotencyKey),
-            quantity = quantity,
-        )
-
-    private fun CreateCouponOrderResult.toResponse(): CreateCouponOrderResponse =
-        CreateCouponOrderResponse(
-            orderId = orderId.value,
-            paymentId = paymentId.value.toString(),
-            paymentStatus = paymentStatus.name,
-            paymentStatusLabel = paymentStatus.label,
-            amount = amount,
-            currency = currency,
-            couponIds = couponIds,
-        )
 }
 ```
 
 ## Request Example
 
 ```kotlin
-package com.example.cardservice.application.payment.request
+package com.example.cardservice.application.payment
 
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class CreateCouponOrderRequest(
-    @get:Schema(description = "고객 ID", example = "customer-1")
-    val customerId: String,
+    @get:Schema(description = "고객 ID", example = "1")
+    val customerId: Long,
 
-    @get:Schema(description = "주문 ID", example = "order-1")
-    val orderId: String,
+    @get:Schema(description = "주문 ID", example = "10")
+    val orderId: Long,
 
     @get:Schema(description = "중복 요청 방지 키", example = "idem-1")
     val idempotencyKey: String,
@@ -95,16 +71,16 @@ data class CreateCouponOrderRequest(
 ## Response Example
 
 ```kotlin
-package com.example.cardservice.application.payment.response
+package com.example.cardservice.application.payment
 
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class CreateCouponOrderResponse(
-    @get:Schema(description = "주문 ID", example = "order-1")
-    val orderId: String,
+    @get:Schema(description = "주문 ID", example = "10")
+    val orderId: Long,
 
     @get:Schema(description = "결제 ID", example = "1")
-    val paymentId: String,
+    val paymentId: Long,
 
     @get:Schema(description = "결제 상태", example = "AUTHORIZED")
     val paymentStatus: String,
@@ -272,9 +248,9 @@ class CouponOrderControllerTest {
 
     @Test
     fun `쿠폰 주문 요청을 use case로 전달한다`() {
-        given(couponOrderUseCase.create(any<CreateCouponOrderInput>()))
+        given(couponOrderUseCase.create(any<CreateCouponOrderRequest>()))
             .willReturn(
-                CreateCouponOrderResult(
+                CreateCouponOrderResponse(
                     orderId = OrderId("order-1"),
                     paymentId = PaymentId(1),
                     paymentStatus = PaymentStatus.AUTHORIZED,

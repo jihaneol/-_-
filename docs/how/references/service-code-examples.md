@@ -7,15 +7,15 @@
 ```kotlin
 package com.example.cardservice.application.payment.required
 
-import com.example.cardservice.application.payment.AuthorizePaymentInput
-import com.example.cardservice.application.payment.AuthorizePaymentResult
+import com.example.cardservice.application.payment.AuthorizePaymentRequest
+import com.example.cardservice.application.payment.AuthorizePaymentResponse
 
 interface AuthorizePaymentUseCase {
-    fun authorize(input: AuthorizePaymentInput): AuthorizePaymentResult
+    fun authorize(input: AuthorizePaymentRequest): AuthorizePaymentResponse
 }
 ```
 
-## Input And Result Model Example
+## Request And Response Example
 
 ```kotlin
 package com.example.cardservice.application.payment
@@ -27,14 +27,14 @@ import com.example.cardservice.domain.payment.model.OrderId
 import com.example.cardservice.domain.payment.model.PaymentId
 import com.example.cardservice.domain.payment.model.PaymentStatus
 
-data class AuthorizePaymentInput(
+data class AuthorizePaymentRequest(
     val merchantId: MerchantId,
     val orderId: OrderId,
     val idempotencyKey: IdempotencyKey,
     val money: Money,
 )
 
-data class AuthorizePaymentResult(
+data class AuthorizePaymentResponse(
     val paymentId: PaymentId,
     val status: PaymentStatus,
     val amount: Long,
@@ -61,7 +61,7 @@ class AuthorizePaymentService(
     private val savePaymentPort: SavePaymentPort,
 ) : AuthorizePaymentUseCase {
     @Transactional
-    override fun authorize(input: AuthorizePaymentInput): AuthorizePaymentResult {
+    override fun authorize(input: AuthorizePaymentRequest): AuthorizePaymentResponse {
         val payment = Payment.authorize(
             merchantId = input.merchantId,
             orderId = input.orderId,
@@ -71,7 +71,7 @@ class AuthorizePaymentService(
         val savedPayment = savePaymentPort.save(payment)
         val savedMoney = savedPayment.money
 
-        return AuthorizePaymentResult(
+        return AuthorizePaymentResponse(
             paymentId = requireNotNull(savedPayment.paymentId) { "저장된 결제에는 결제 ID가 있어야 합니다." },
             status = savedPayment.status,
             amount = savedMoney.amount,
@@ -94,7 +94,7 @@ class CouponOrderFacade(
     private val accrueCouponPort: AccrueCouponPort,
 ) : CouponOrderUseCase {
     @Transactional
-    override fun create(input: CreateCouponOrderInput): CreateCouponOrderResult {
+    override fun create(input: CreateCouponOrderRequest): CreateCouponOrderResponse {
         require(input.quantity > 0) { "쿠폰 수량은 1개 이상이어야 합니다." }
 
         val money = Money(
@@ -111,7 +111,7 @@ class CouponOrderFacade(
         )
 
         val payment = authorizePaymentUseCase.authorize(
-            AuthorizePaymentInput(
+            AuthorizePaymentRequest(
                 merchantId = COUPON_MERCHANT_ID,
                 orderId = input.orderId,
                 idempotencyKey = input.idempotencyKey,
@@ -120,7 +120,7 @@ class CouponOrderFacade(
         )
 
         val coupons = accrueCouponPort.accrue(
-            CouponAccrualInput(
+            CouponAccrualRequest(
                 customerId = input.customerId,
                 orderId = input.orderId,
                 brand = "COUPON",
@@ -128,7 +128,7 @@ class CouponOrderFacade(
             ),
         )
 
-        return CreateCouponOrderResult(
+        return CreateCouponOrderResponse(
             orderId = input.orderId,
             paymentId = payment.paymentId,
             paymentStatus = payment.status,
@@ -147,7 +147,7 @@ class AuthorizePaymentServiceBehaviorSpec : BehaviorSpec({
     given("a payment authorization input") {
         val savePaymentPort = mockk<SavePaymentPort>()
         val service = AuthorizePaymentService(savePaymentPort)
-        val input = AuthorizePaymentInput(
+        val input = AuthorizePaymentRequest(
             merchantId = MerchantId("coupon-merchant"),
             orderId = OrderId("order-1"),
             idempotencyKey = IdempotencyKey("idem-1"),

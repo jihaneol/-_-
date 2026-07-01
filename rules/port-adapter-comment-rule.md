@@ -11,7 +11,7 @@ port와 adapter는 파일 상단에 짧은 KDoc으로 역할을 설명한다.
  * 결제 승인 요청을 application layer로 전달하는 inbound port다.
  */
 interface AuthorizePaymentUseCase {
-    fun authorize(input: AuthorizePaymentInput): AuthorizePaymentResult
+    fun authorize(input: AuthorizePaymentRequest): AuthorizePaymentResponse
 }
 ```
 

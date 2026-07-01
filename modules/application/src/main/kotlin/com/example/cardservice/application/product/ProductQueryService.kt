@@ -17,17 +17,17 @@ class ProductQueryService(
     private val productRepository: ProductRepository,
 ) : ProductQueryUseCase {
     @Transactional(readOnly = true)
-    override fun listProducts(pagination: Pagination): ProductPageResult =
-        productRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResult()
+    override fun listProducts(pagination: Pagination): ProductPageResponse =
+        productRepository.findAllByDeletedAtIsNull(pagination.toPageable()).toPageResponse()
 
     @Transactional(readOnly = true)
-    override fun getProduct(productId: Long): ProductResult =
+    override fun getProduct(productId: Long): ProductResponse =
         (productRepository.findByIdAndDeletedAtIsNull(productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다."))
-            .toResult()
+            .toResponse()
 
-    private fun Page<Product>.toPageResult(): ProductPageResult =
-        ProductPageResult(
-            items = content.map { it.toResult() },
+    private fun Page<Product>.toPageResponse(): ProductPageResponse =
+        ProductPageResponse(
+            items = content.map { it.toResponse() },
             page = number,
             size = size,
             totalElements = totalElements,

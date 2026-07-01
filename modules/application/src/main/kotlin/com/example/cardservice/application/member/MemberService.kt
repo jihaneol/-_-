@@ -17,7 +17,7 @@ class MemberService(
     private val passwordHashPort: PasswordHashPort,
 ) : MemberUseCase {
     @Transactional
-    override fun createMember(input: CreateMemberInput): MemberResult {
+    override fun createMember(input: CreateMemberRequest): MemberResponse {
         require(input.username.isNotBlank()) { "회원 아이디는 비어 있을 수 없습니다." }
         require(input.password.isNotBlank()) { "회원 비밀번호는 비어 있을 수 없습니다." }
         require(!memberRepository.existsByUsername(input.username.trim())) { "이미 사용 중인 회원 아이디입니다." }
@@ -32,14 +32,14 @@ class MemberService(
                     role = input.role,
                 ),
             )
-            .toResult()
+            .toResponse()
     }
 
     @Transactional
-    override fun updateMember(memberId: Long, input: UpdateMemberInput): MemberResult {
-        val member = loadMember(memberId)
-        member.update(input.name, input.email)
-        return memberRepository.save(member).toResult()
+    override fun updateMember(request: UpdateMemberRequest): MemberResponse {
+        val member = loadMember(request.memberId)
+        member.update(request.name, request.email)
+        return memberRepository.save(member).toResponse()
     }
 
     @Transactional
@@ -58,7 +58,7 @@ class MemberAuthenticationService(
     private val memberRepository: MemberRepository,
     private val passwordHashPort: PasswordHashPort,
 ) : MemberAuthUseCase {
-    override fun authenticate(input: LoginInput): AuthenticatedMemberResult {
+    override fun authenticate(input: LoginRequest): AuthenticatedMemberResponse {
         val member = memberRepository.findByUsernameAndDeletedAtIsNull(input.username.trim())
             ?: throw IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.")
 
@@ -66,7 +66,7 @@ class MemberAuthenticationService(
             "아이디 또는 비밀번호가 올바르지 않습니다."
         }
 
-        return AuthenticatedMemberResult(
+        return AuthenticatedMemberResponse(
             id = member.id,
             username = member.username,
             name = member.name,
@@ -76,5 +76,5 @@ class MemberAuthenticationService(
     }
 }
 
-internal fun Member.toResult(): MemberResult =
-    MemberResult(id = id, username = username, name = name, email = email, role = role)
+internal fun Member.toResponse(): MemberResponse =
+    MemberResponse(id = id, username = username, name = name, email = email, role = role)

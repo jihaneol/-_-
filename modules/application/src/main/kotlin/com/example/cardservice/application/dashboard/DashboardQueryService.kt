@@ -18,8 +18,8 @@ class DashboardQueryService(
     private val couponRepository: CouponRepository,
 ) : DashboardQueryUseCase {
     @Transactional(readOnly = true)
-    override fun getSummary(): DashboardSummaryResult =
-        DashboardSummaryResult(
+    override fun getSummary(): DashboardSummaryResponse =
+        DashboardSummaryResponse(
             memberCount = memberRepository.countByDeletedAtIsNull(),
             productCount = productRepository.countByDeletedAtIsNull(),
             orderCount = orderRepository.countByDeletedAtIsNull(),

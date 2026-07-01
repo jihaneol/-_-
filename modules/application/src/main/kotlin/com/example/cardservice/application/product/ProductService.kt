@@ -14,14 +14,14 @@ class ProductService(
     private val productRepository: ProductRepository,
 ) : ProductUseCase {
     @Transactional
-    override fun createProduct(input: CreateProductInput): ProductResult =
-        productRepository.save(Product.create(input.name, input.price)).toResult()
+    override fun createProduct(input: CreateProductRequest): ProductResponse =
+        productRepository.save(Product.create(input.name, input.price)).toResponse()
 
     @Transactional
-    override fun updateProduct(productId: Long, input: UpdateProductInput): ProductResult {
-        val product = loadProduct(productId)
-        product.update(input.name, input.price, input.saleStatus)
-        return productRepository.save(product).toResult()
+    override fun updateProduct(request: UpdateProductRequest): ProductResponse {
+        val product = loadProduct(request.productId)
+        product.update(request.name, request.price, request.saleStatus)
+        return productRepository.save(product).toResponse()
     }
 
     @Transactional
@@ -35,5 +35,5 @@ class ProductService(
         productRepository.findByIdAndDeletedAtIsNull(productId) ?: throw IllegalArgumentException("상품을 찾을 수 없습니다.")
 }
 
-internal fun Product.toResult(): ProductResult =
-    ProductResult(id = id, name = name, price = price, saleStatus = saleStatus)
+internal fun Product.toResponse(): ProductResponse =
+    ProductResponse(id = id, name = name, price = price, saleStatus = saleStatus)

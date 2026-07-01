@@ -1,9 +1,8 @@
 package com.example.cardservice.web.inventory
 
-import com.example.cardservice.application.inventory.AdjustInventoryInput
-import com.example.cardservice.application.inventory.CreateInventoryInput
-import com.example.cardservice.application.inventory.InventoryResult
-import com.example.cardservice.application.inventory.request.InventoryRequest
+import com.example.cardservice.application.inventory.AdjustInventoryRequest
+import com.example.cardservice.application.inventory.CreateInventoryRequest
+import com.example.cardservice.application.inventory.InventoryResponse
 import com.example.cardservice.application.inventory.required.InventoryQueryUseCase
 import com.example.cardservice.application.inventory.required.InventoryUseCase
 import com.example.cardservice.web.common.ApplicationResponseType
@@ -30,34 +29,34 @@ class InventoryController(
     @Operation(summary = "초기 재고 생성")
     fun createInventory(
         @PathVariable productId: Long,
-        @RequestBody request: InventoryRequest,
-    ): ResponseEntity<ApiResponse<InventoryResult>> =
+        @RequestBody request: CreateInventoryRequest,
+    ): ResponseEntity<ApiResponse<InventoryResponse>> =
         inventoryUseCase
-            .createInventory(CreateInventoryInput(productId, request.quantity))
+            .createInventory(request.copy().also { it.productId = productId })
             .toApplicationResponse(ApplicationResponseType.CREATED)
 
     @GetMapping
     @Operation(summary = "현재 재고 조회")
-    fun getInventory(@PathVariable productId: Long): ResponseEntity<ApiResponse<InventoryResult>> =
+    fun getInventory(@PathVariable productId: Long): ResponseEntity<ApiResponse<InventoryResponse>> =
         inventoryQueryUseCase.getInventory(productId).toApplicationResponse()
 
     @PostMapping("/increase")
     @Operation(summary = "재고 증가")
     fun increaseInventory(
         @PathVariable productId: Long,
-        @RequestBody request: InventoryRequest,
-    ): ResponseEntity<ApiResponse<InventoryResult>> =
+        @RequestBody request: AdjustInventoryRequest,
+    ): ResponseEntity<ApiResponse<InventoryResponse>> =
         inventoryUseCase
-            .increaseInventory(productId, AdjustInventoryInput(request.quantity))
+            .increaseInventory(request.copy().also { it.productId = productId })
             .toApplicationResponse()
 
     @PostMapping("/decrease")
     @Operation(summary = "재고 차감")
     fun decreaseInventory(
         @PathVariable productId: Long,
-        @RequestBody request: InventoryRequest,
-    ): ResponseEntity<ApiResponse<InventoryResult>> =
+        @RequestBody request: AdjustInventoryRequest,
+    ): ResponseEntity<ApiResponse<InventoryResponse>> =
         inventoryUseCase
-            .decreaseInventory(productId, AdjustInventoryInput(request.quantity))
+            .decreaseInventory(request.copy().also { it.productId = productId })
             .toApplicationResponse()
 }

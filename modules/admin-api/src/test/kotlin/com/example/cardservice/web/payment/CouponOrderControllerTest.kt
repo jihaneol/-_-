@@ -1,7 +1,7 @@
 package com.example.cardservice.web.payment
 
-import com.example.cardservice.application.payment.CreateCouponOrderInput
-import com.example.cardservice.application.payment.CreateCouponOrderResult
+import com.example.cardservice.application.payment.CreateCouponOrderRequest
+import com.example.cardservice.application.payment.CreateCouponOrderResponse
 import com.example.cardservice.application.member.provided.MemberRepository
 import com.example.cardservice.application.payment.required.CouponOrderUseCase
 import com.example.cardservice.web.payment.couponorder.CouponOrderController
@@ -34,11 +34,12 @@ class CouponOrderControllerTest {
 
     @Test
     fun `쿠폰 주문을 생성한다`() {
-        given(couponOrderUseCase.create(any<CreateCouponOrderInput>())).willReturn(
-            CreateCouponOrderResult(
-                orderId = OrderId(10L),
-                paymentId = PaymentId(1),
-                paymentStatus = PaymentStatus.AUTHORIZED,
+        given(couponOrderUseCase.create(any<CreateCouponOrderRequest>())).willReturn(
+            CreateCouponOrderResponse(
+                orderId = 10L,
+                paymentId = 1L,
+                paymentStatus = PaymentStatus.AUTHORIZED.name,
+                paymentStatusLabel = PaymentStatus.AUTHORIZED.label,
                 amount = 10_000,
                 currency = "KRW",
                 couponIds = listOf("coupon_1", "coupon_2"),
@@ -72,7 +73,7 @@ class CouponOrderControllerTest {
 
     @Test
     fun `use case에서 잘못된 요청 예외가 발생하면 bad request를 반환한다`() {
-        given(couponOrderUseCase.create(any<CreateCouponOrderInput>()))
+        given(couponOrderUseCase.create(any<CreateCouponOrderRequest>()))
             .willThrow(IllegalArgumentException("쿠폰 수량은 1개 이상이어야 합니다."))
 
         mockMvc.post("/api/admin/coupon-orders") {

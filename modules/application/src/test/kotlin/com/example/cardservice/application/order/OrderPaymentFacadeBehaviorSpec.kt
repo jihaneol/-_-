@@ -66,7 +66,7 @@ class OrderPaymentFacadeBehaviorSpec : BehaviorSpec({
         every { couponRepository.countByOrderId(10L) } returns 2L
 
         `when`("the order is paid again") {
-            val result = service.payOrder(10L, PayOrderInput("idem-1"))
+            val result = service.payOrder(PayOrderRequest("idem-1").also { it.orderId = 10L })
 
             then("it returns the existing payment result without repeating side effects") {
                 result.paymentId shouldBe 5L
@@ -125,7 +125,7 @@ class OrderPaymentFacadeBehaviorSpec : BehaviorSpec({
         every { outboxEventRepository.save(any()) } answers { firstArg() }
 
         `when`("the order is paid") {
-            val result = service.payOrder(10L, PayOrderInput("idem-new"))
+            val result = service.payOrder(PayOrderRequest("idem-new").also { it.orderId = 10L })
 
             then("it appends the operational outbox event once") {
                 result.paymentId shouldBe 7L
@@ -183,7 +183,7 @@ class OrderPaymentFacadeBehaviorSpec : BehaviorSpec({
         `when`("the order status update loses") {
             then("it rejects the payment transaction") {
                 io.kotest.assertions.throwables.shouldThrow<IllegalArgumentException> {
-                    service.payOrder(10L, PayOrderInput("idem-race"))
+                    service.payOrder(PayOrderRequest("idem-race").also { it.orderId = 10L })
                 }.message shouldBe "이미 처리된 주문입니다."
 
                 verify(exactly = 0) { commerceLockPort.loadOrderForUpdate(any()) }

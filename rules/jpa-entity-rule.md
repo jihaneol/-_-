@@ -2,127 +2,98 @@
 
 이 프로젝트는 도메인 모델과 JPA entity를 같은 클래스로 사용한다.
 
-## Placement
+## Shape
 
 ```text
-modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}
+modules/domain/src/main/kotlin/com/example/cardservice/domain/{domain}/{Aggregate}.kt
 ```
-
-규칙:
-
-- entity class는 `domain` 모듈의 `{domain}` 패키지에 둔다.
-- `domain/commerce`, `domain/{domain}/model` 같은 범용 묶음 폴더를 만들지 않는다.
-- `CommerceModels.kt`처럼 여러 aggregate/entity를 한 파일에 모으지 않는다.
-- 엔티티 파일은 aggregate root 또는 강하게 붙어 있는 entity 그룹 기준으로 분리한다. 예: `member/Member.kt`, `product/Product.kt`, `order/Order.kt`, `order/OrderItem.kt`, `coupon/Coupon.kt`, `coupon/CouponHistory.kt`.
-- 저장되는 JPA entity 이름은 도메인 객체 이름으로 작성한다. 예: `Order`, `OrderItem`, `PaymentOperationRecord`.
-- JPA entity 이름에 `Projection`, `Response`, `Row`, `Dto` 접미사를 붙이지 않는다.
-- `Projection`은 조회에서 필요한 필드만 반환하기 위한 QueryDSL/read DTO 이름에만 사용한다.
-- enum도 해당 entity 그룹 패키지에 둔다. 예: `OrderStatus`는 `order`, `CouponStatus`는 `coupon`, `ProductSaleStatus`는 `product`.
-- 좁은 Spring Data `Repository<T, ID>` 계약은 `application/provided`에 둘 수 있다.
-- `JpaRepository`처럼 넓은 Spring Data interface는 사용하지 않는다.
-- QueryDSL repository와 persistence adapter는 `infra` 모듈에 둔다.
-- QueryDSL Q metamodel은 build 단계에서 생성하되, entity source가 QueryDSL 타입을 직접 import하지 않는다.
-- entity는 Spring `@Service`, `@Component`, repository, QueryDSL, web DTO를 직접 알면 안 된다.
-
-## ID Rule
-
-PK는 `id`로 통일한다.
-
-```kotlin
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "id")
-var id: Long = 0L
-    protected set
-```
-
-규칙:
-
-- auto increment PK 컬럼명은 `id`를 사용한다.
-- entity의 `id` 필드는 nullable로 두지 않고 `Long = 0L`로 통일한다.
-- `0L`은 아직 DB에 저장되지 않은 transient entity의 sentinel 값으로만 사용한다.
-- `payment_sequence` 같은 별도 PK 이름을 만들지 않는다.
-- 별도 public id가 필요하다는 요구가 생기기 전에는 `paymentId` 같은 중복 식별자 컬럼을 만들지 않는다.
-- domain value object가 필요하면 `PaymentId(id)`처럼 PK를 감싼다.
-
-## Field Access Rule
-
-JPA는 field access를 사용한다.
 
 ```kotlin
 @Entity
 @Access(AccessType.FIELD)
-@Table(name = "payments")
+@Table(
+    name = "payments",
+    uniqueConstraints = [
+        UniqueConstraint(name = "uk_payments_idempotency_key", columnNames = ["idempotency_key"]),
+    ],
+)
 class Payment protected constructor() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     var id: Long = 0L
         protected set
-}
-```
 
-규칙:
+    @Column(name = "amount", nullable = false)
+    private var amountValue: Long = 0
 
-- `@Access(AccessType.FIELD)`를 사용한다.
-- JPA 컬럼은 private backing field로 둔다.
-- domain value object 접근은 계산 property getter로 제공할 수 있다.
-- `@get:Transient`는 사용하지 않는다.
+    val money: Money
+        get() = Money(amount = amountValue, currency = currencyValue)
 
-## Domain Computed Property Rule
+    private constructor(...): this() { ... }
 
-JPA 컬럼으로 저장되는 primitive field를 value object로 감싸서 돌려줄 때는 계산 property로 제공한다.
-
-```kotlin
-@Column(name = "amount", nullable = false)
-private var amountValue: Long = 0
-
-@Column(name = "currency", nullable = false, length = 3)
-private var currencyValue: String = ""
-
-val money: Money
-    get() = Money(amount = amountValue, currency = currencyValue)
-```
-
-규칙:
-
-- `@Access(AccessType.FIELD)`를 명시했기 때문에 JPA는 field를 기준으로 매핑한다.
-- 계산 property에는 JPA annotation을 붙이지 않는다.
-- `@get:Transient`를 붙이지 않는다.
-- application layer는 backing field를 알지 않고 계산 property만 사용한다.
-
-## Constructor Rule
-
-```kotlin
-class Payment protected constructor() {
-    private constructor(
-        merchantId: MerchantId,
-        money: Money,
-    ) : this() {
-        this.merchantIdValue = merchantId.value
-        this.amountValue = money.amount
-        this.currencyValue = money.currency
+    companion object {
+        fun authorize(...): Payment = Payment(...)
     }
 }
 ```
 
-규칙:
+Current example: `modules/domain/src/main/kotlin/com/example/cardservice/domain/payment/model/Payment.kt`
 
-- JPA용 기본 생성자는 `protected constructor()`로 둔다.
-- 생성은 companion object factory나 도메인 메서드로 제공한다.
-- 비즈니스 검증은 value object 또는 factory에서 유지한다.
+## Placement
 
-## SQL Schema Rule
+```text
+domain/member/Member.kt
+domain/product/Product.kt
+domain/order/Order.kt
+domain/order/OrderItem.kt
+domain/coupon/Coupon.kt
+domain/coupon/CouponHistory.kt
+domain/payment/model/Payment.kt
+domain/payment/operation/PaymentOperationRecord.kt
+```
 
-entity를 만들거나 컬럼을 바꾸면 `sql/` 아래 schema SQL도 함께 수정한다.
+- aggregate/entity 단위로 파일을 나눈다.
+- enum은 해당 entity 그룹 패키지에 둔다.
+- `domain/commerce`, `{domain}/model` 같은 범용 묶음 폴더를 새로 만들지 않는다.
+- `CommerceRequests.kt/CommerceResponses.kt`처럼 여러 aggregate를 한 파일에 모으지 않는다.
 
-DB schema, constraint, index 세부 기준은 `rules/database-schema-rule.md`를 따른다.
+## Mapping Defaults
+
+```kotlin
+@Access(AccessType.FIELD)
+@Column(name = "merchant_id", nullable = false)
+private var merchantIdValue: Long = 0
+
+val merchantId: MerchantId
+    get() = MerchantId(merchantIdValue)
+```
+
+- PK: `id: Long = 0L`; `0L`은 transient sentinel
+- public id 요구 전까지 `paymentId` 같은 중복 식별자 컬럼 금지
+- field access 사용; JPA annotation은 backing field에 둔다.
+- 계산 property에는 JPA annotation과 `@get:Transient`를 붙이지 않는다.
+- 생성은 companion factory/domain method로 제공한다.
+
+## Repository And Query
+
+```kotlin
+interface PaymentRepository : Repository<Payment, Long> {
+    fun save(payment: Payment): Payment
+}
+```
+
+- 좁은 Spring Data `Repository<T, ID>` 계약은 `application/{domain}/provided`에 둘 수 있다.
+- `JpaRepository` 상속 금지.
+- QueryDSL adapter와 persistence adapter는 `infra`에 둔다.
+- entity source는 `com.querydsl.*`, repository, web DTO, Spring service/component를 알면 안 된다.
+
+## Schema
 
 ```sql
 CREATE TABLE payments (
     id BIGINT NOT NULL AUTO_INCREMENT,
     merchant_id BIGINT NOT NULL,
-    order_id BIGINT NOT NULL,
     idempotency_key VARCHAR(150) NOT NULL,
     amount BIGINT NOT NULL,
     currency VARCHAR(3) NOT NULL,
@@ -132,33 +103,22 @@ CREATE TABLE payments (
 );
 ```
 
-규칙:
+- entity 변경 시 `sql/` schema도 함께 수정한다.
+- PK/FK성 ID와 이를 감싸는 value object는 `Long`.
+- 외부 승인키, idempotency key, event key처럼 실제 문자열 식별자만 `String`.
+- unique constraint는 entity와 schema SQL 양쪽을 맞춘다.
 
-- entity의 PK/FK성 ID 컬럼과 이를 감싸는 value object는 `Long`으로 둔다.
-- 외부 승인키, idempotency key, 이벤트 key처럼 실제 문자열 식별자인 값만 `String`으로 둔다.
-- schema SQL과 entity가 맞아야 한다.
-- unique constraint는 entity와 schema SQL 양쪽에 맞춘다.
-- repository는 schema를 만들지 않는다.
-
-## Repository Contract Rule
-
-Spring Data repository를 사용할 때는 필요한 메서드만 가진 좁은 계약으로 둔다.
+## Avoid
 
 ```kotlin
-interface PaymentRepository : Repository<Payment, Long> {
-    fun save(payment: Payment): Payment
-}
+class PaymentProjection @Entity
+interface PaymentRepository : JpaRepository<Payment, Long>
+@get:Transient val money: Money
+private val query = QPayment.payment
+data class CommerceRequests(...)
 ```
 
-규칙:
+## References
 
-- repository 계약은 `application/{domain}/provided`에 둘 수 있다.
-- `JpaRepository`를 상속하지 않는다.
-- 필요한 메서드만 명시한다.
-- adapter는 `infra`에서 repository 계약을 주입받아 application port를 구현한다.
-- QueryDSL adapter는 계속 `infra`에 둔다.
-
-## Reference
-
-- DB schema 규칙: `rules/database-schema-rule.md`
-- 동시성 규칙: `rules/concurrency-rule.md`
+- `rules/database-schema-rule.md`
+- `rules/concurrency-rule.md`

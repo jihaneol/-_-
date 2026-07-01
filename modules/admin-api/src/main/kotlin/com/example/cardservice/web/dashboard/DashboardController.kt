@@ -1,6 +1,6 @@
 package com.example.cardservice.web.dashboard
 
-import com.example.cardservice.application.dashboard.DashboardSummaryResult
+import com.example.cardservice.application.dashboard.DashboardSummaryResponse
 import com.example.cardservice.application.dashboard.required.DashboardQueryUseCase
 import com.example.cardservice.web.common.ApiResponse
 import com.example.cardservice.web.common.toApplicationResponse
@@ -19,6 +19,6 @@ class DashboardController(
 ) {
     @GetMapping("/summary")
     @Operation(summary = "커머스 운영 요약 조회")
-    fun getSummary(): ResponseEntity<ApiResponse<DashboardSummaryResult>> =
+    fun getSummary(): ResponseEntity<ApiResponse<DashboardSummaryResponse>> =
         dashboardQueryUseCase.getSummary().toApplicationResponse()
 }

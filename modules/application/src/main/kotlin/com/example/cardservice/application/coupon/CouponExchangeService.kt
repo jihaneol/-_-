@@ -28,19 +28,20 @@ class CouponExchangeService(
     private val couponHistoryRepository: CouponHistoryRepository,
 ) : CouponExchangeUseCase {
     @Transactional
-    override fun exchangeCoupon(couponId: Long): CouponExchangeResult {
+    override fun exchangeCoupon(couponId: Long): CouponExchangeResponse {
         val coupon = loadCouponForUpdate(couponId)
         coupon.exchange()
         val savedCoupon = couponRepository.saveAll(listOf(coupon)).single()
         val history = couponHistoryRepository.saveAll(listOf(CouponHistory.exchanged(savedCoupon))).single()
-        return CouponExchangeResult(coupon = savedCoupon.toResult(), history = history.toResult())
+        return CouponExchangeResponse(coupon = savedCoupon.toResponse(), history = history.toResponse())
     }
 
     @Transactional
-    override fun approveCouponExchange(memberId: Long, input: ApproveCouponExchangeInput): ApproveCouponExchangeResult {
+    override fun approveCouponExchange(request: ApproveCouponExchangeRequest): ApproveCouponExchangeResponse {
+        val memberId = request.memberId
         memberRepository.findByIdAndDeletedAtIsNull(memberId) ?: throw IllegalArgumentException("회원을 찾을 수 없습니다.")
-        val product = loadExchangeProduct(input.productId)
-        val inventory = commerceLockPort.loadInventoryForUpdate(input.productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다.")
+        val product = loadExchangeProduct(request.productId)
+        val inventory = commerceLockPort.loadInventoryForUpdate(request.productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다.")
         val coupons = commerceLockPort.loadIssuedCouponsForExchange(memberId, REQUIRED_COUPON_COUNT)
         require(coupons.size == REQUIRED_COUPON_COUNT) { "사용 가능한 쿠폰이 부족합니다." }
 
@@ -51,7 +52,7 @@ class CouponExchangeService(
         val savedCoupons = couponRepository.saveAll(coupons)
         couponHistoryRepository.saveAll(savedCoupons.map { CouponHistory.exchanged(it) })
 
-        return ApproveCouponExchangeResult(
+        return ApproveCouponExchangeResponse(
             memberId = memberId,
             productId = product.id,
             productName = product.name,

@@ -13,7 +13,7 @@ class InventoryQueryService(
     private val inventoryRepository: InventoryRepository,
 ) : InventoryQueryUseCase {
     @Transactional(readOnly = true)
-    override fun getInventory(productId: Long): InventoryResult =
+    override fun getInventory(productId: Long): InventoryResponse =
         (inventoryRepository.findByProductId(productId) ?: throw IllegalArgumentException("재고를 찾을 수 없습니다."))
-            .toResult()
+            .toResponse()
 }

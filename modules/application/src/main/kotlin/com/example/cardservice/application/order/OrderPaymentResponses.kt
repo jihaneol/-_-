@@ -2,8 +2,7 @@ package com.example.cardservice.application.order
 
 import com.example.cardservice.domain.order.OrderStatus
 
-data class PayOrderInput(val idempotencyKey: String)
-data class PayOrderResult(
+data class PayOrderResponse(
     val orderId: Long,
     val paymentId: Long,
     val orderStatus: OrderStatus,
@@ -12,7 +11,7 @@ data class PayOrderResult(
     val issuedCouponCount: Int,
 )
 
-data class RefundOrderResult(
+data class RefundOrderResponse(
     val orderId: Long,
     val paymentId: Long,
     val orderStatus: OrderStatus,

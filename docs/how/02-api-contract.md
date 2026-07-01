@@ -91,7 +91,7 @@ Response shape:
 Backend implementation rules:
 
 - Query use cases accept `{Feature}PageQuery`.
-- Query use cases return `{Feature}PageResult`.
+- Query use cases return `{Feature}PageResponse`.
 - Query ports are implemented by QueryDSL adapters in `infra`.
 - Controller response DTOs use `{Feature}PageResponse` only when API shape differs from the query result.
 - Default page size is `20`; maximum page size is `100`.

@@ -3,7 +3,7 @@ package com.example.cardservice.application.coupon
 import com.example.cardservice.domain.coupon.CouponHistoryType
 import com.example.cardservice.domain.coupon.CouponStatus
 
-data class CouponResult(
+data class CouponResponse(
     val id: Long,
     val memberId: Long,
     val orderId: Long,
@@ -11,8 +11,8 @@ data class CouponResult(
     val status: CouponStatus,
 )
 
-data class CouponPageResult(
-    val items: List<CouponResult>,
+data class CouponPageResponse(
+    val items: List<CouponResponse>,
     val page: Int,
     val size: Int,
     val totalElements: Long,
@@ -20,7 +20,7 @@ data class CouponPageResult(
     val hasNext: Boolean,
 )
 
-data class CouponHistoryResult(
+data class CouponHistoryResponse(
     val id: Long,
     val couponId: Long?,
     val memberId: Long,
@@ -29,8 +29,8 @@ data class CouponHistoryResult(
     val type: CouponHistoryType,
 )
 
-data class CouponHistoryPageResult(
-    val items: List<CouponHistoryResult>,
+data class CouponHistoryPageResponse(
+    val items: List<CouponHistoryResponse>,
     val page: Int,
     val size: Int,
     val totalElements: Long,
@@ -38,17 +38,17 @@ data class CouponHistoryPageResult(
     val hasNext: Boolean,
 )
 
-data class CouponConsistencyReportResult(
+data class CouponConsistencyReportResponse(
     val consistent: Boolean,
     val totalCouponCount: Long,
     val totalIssueHistoryCount: Long,
     val totalVoidHistoryCount: Long,
     val totalExchangeHistoryCount: Long,
-    val memberRows: List<MemberCouponConsistencyResult>,
-    val orderRows: List<OrderCouponConsistencyResult>,
+    val memberRows: List<MemberCouponConsistencyResponse>,
+    val orderRows: List<OrderCouponConsistencyResponse>,
 )
 
-data class CouponWalletResult(
+data class CouponWalletResponse(
     val memberId: Long,
     val issuedCouponCount: Long,
     val exchangedCouponCount: Long,
@@ -56,10 +56,10 @@ data class CouponWalletResult(
     val totalCouponCount: Long,
     val exchangeableSetCount: Long,
     val remainingToNextExchange: Long,
-    val recentHistories: List<CouponHistoryResult>,
+    val recentHistories: List<CouponHistoryResponse>,
 )
 
-data class MemberCouponConsistencyResult(
+data class MemberCouponConsistencyResponse(
     val memberId: Long,
     val issuedCouponCount: Long,
     val voidedCouponCount: Long,
@@ -72,7 +72,7 @@ data class MemberCouponConsistencyResult(
     val consistent: Boolean,
 )
 
-data class OrderCouponConsistencyResult(
+data class OrderCouponConsistencyResponse(
     val orderId: Long,
     val memberId: Long,
     val issuedCouponCount: Long,

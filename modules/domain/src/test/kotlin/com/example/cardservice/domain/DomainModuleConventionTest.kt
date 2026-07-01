@@ -26,11 +26,11 @@ class DomainModuleConventionTest {
     }
 
     @Test
-    fun `domain entity는 뭉텅이 Models 파일이 아니라 entity 그룹별 파일로 둔다`() {
+    fun `domain entity는 뭉텅이 Models 또는 Contracts 파일이 아니라 entity 그룹별 파일로 둔다`() {
         val root = findProjectRoot()
         val violations = Files.walk(root.resolve("modules/domain/src/main/kotlin"))
-            .filter { it.name.endsWith("Models.kt") }
-            .map { path -> "${root.relativize(path)} is a bundled domain model file" }
+            .filter { path -> bundledDomainFileSuffixes.any { suffix -> path.name.endsWith(suffix) } }
+            .map { path -> "${root.relativize(path)} is a bundled domain file" }
             .toList()
 
         violations.shouldBeEmpty()
@@ -55,5 +55,6 @@ class DomainModuleConventionTest {
             "Querydsl",
             "QueryDSL",
         )
+        val bundledDomainFileSuffixes = listOf("Models.kt", "Contracts.kt")
     }
 }
