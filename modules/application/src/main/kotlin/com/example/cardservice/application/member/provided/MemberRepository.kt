@@ -14,5 +14,4 @@ interface MemberRepository : Repository<Member, Long> {
     fun findByIdAndDeletedAtIsNull(id: Long): Member?
     fun findByUsernameAndDeletedAtIsNull(username: String): Member?
     fun existsByUsername(username: String): Boolean
-    fun countByDeletedAtIsNull(): Long
 }

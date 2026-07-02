@@ -12,5 +12,4 @@ interface ProductRepository : Repository<Product, Long> {
     fun save(product: Product): Product
     fun findAllByDeletedAtIsNull(pageable: Pageable): Page<Product>
     fun findByIdAndDeletedAtIsNull(id: Long): Product?
-    fun countByDeletedAtIsNull(): Long
 }

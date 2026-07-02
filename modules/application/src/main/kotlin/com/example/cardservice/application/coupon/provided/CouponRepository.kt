@@ -13,6 +13,5 @@ interface CouponRepository : Repository<Coupon, Long> {
     fun findAllByMemberId(memberId: Long): List<Coupon>
     fun findAllByOrderId(orderId: Long): List<Coupon>
     fun countByOrderId(orderId: Long): Long
-    fun countByStatus(status: CouponStatus): Long
     fun countByMemberIdAndStatus(memberId: Long, status: CouponStatus): Long
 }

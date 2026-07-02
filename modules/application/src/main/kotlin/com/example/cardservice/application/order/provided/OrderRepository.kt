@@ -1,7 +1,6 @@
 package com.example.cardservice.application.order.provided
 
 import com.example.cardservice.domain.order.Order
-import com.example.cardservice.domain.order.OrderStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.Repository
@@ -13,6 +12,4 @@ interface OrderRepository : Repository<Order, Long> {
     fun save(order: Order): Order
     fun findAllByDeletedAtIsNull(pageable: Pageable): Page<Order>
     fun findByIdAndDeletedAtIsNull(id: Long): Order?
-    fun countByDeletedAtIsNull(): Long
-    fun countByStatusAndDeletedAtIsNull(status: OrderStatus): Long
 }
